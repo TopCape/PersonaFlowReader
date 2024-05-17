@@ -13,14 +13,13 @@ public class Library {
     private static final String YELLOW_COLOR = "\u001B[33m";
     private static final String RED_COLOR = "\u001B[31m";
 
-    public static final String ADDR_KEYWORD = "addr";
     public static final String SECTION_KEYWORD = "section";
     public static final String TALK_SECTION_KEYWORD = ".talk";
+    public static final String POS_SECTION_KEYWORD = ".positions";
     public static final String CODE_AREA_KEYWORD = ".code";
     public static final String TEXT_AREA_KEYWORD = ".text";
     public static final String SPACE_TAB_REGEX = "[ \t]";
     public static final String NOT_FORMATTED_ERR_TXT = "File is not formatted correctly";
-    public static final String BIG_LINE_BREAK = "\n\n";
     public static final String LABEL_TXT = "LABEL";
     public static final String LABEL_SEPARATOR = "_";
     public static final String UNKNOWN_INSTR_TEXT = "unknown";
@@ -29,6 +28,7 @@ public class Library {
 
     public static final long ADDRESS_WITH_FLOW_SCRIPT_POINTER = 0x64;
     public static final long ADDRESS_WITH_TEXT_TABLE_POINTER = 0x34;
+    public static final long ADDRESS_WITH_POSITION_DATA_SIZE_POINTER = 0x38;
 
     public static final int ADDRESS_OF_CHARACTER_DATA = 0x1F4;
     public static final byte CHARACTER_DATA_SIZE = 0x24;
@@ -94,7 +94,7 @@ public class Library {
     }
 
     public enum TextInstruction {
-        SHOW_OPTIONS, END, AWAITING_INPUT, LINE_BREAK, CONTINUE, WAIT, PLAYER_NAME, SET_COLOR, PRINT_ICON, CHARACTER_NAME
+        SHOW_OPTIONS, END, AWAITING_INPUT, LINE_BREAK, CONTINUE, WAIT, PLAYER_FIRST_NAME, PLAYER_NICKNAME, SET_COLOR, PRINT_ICON, CHARACTER_NAME
     }
 
     public static final long FLOW_OFFSET = 0x64;
@@ -227,7 +227,8 @@ public class Library {
         TEXT_INSTRUCTIONS.put((short)0xff03, TextInstruction.LINE_BREAK);
         TEXT_INSTRUCTIONS.put((short)0xff04, TextInstruction.CONTINUE);
         TEXT_INSTRUCTIONS.put((short)0xff05, TextInstruction.WAIT);
-        TEXT_INSTRUCTIONS.put((short)0xff07, TextInstruction.PLAYER_NAME);
+        TEXT_INSTRUCTIONS.put((short)0xff07, TextInstruction.PLAYER_FIRST_NAME);
+        TEXT_INSTRUCTIONS.put((short)0xff08, TextInstruction.PLAYER_NICKNAME);
         TEXT_INSTRUCTIONS.put((short)0xff0E, TextInstruction.SHOW_OPTIONS);
         TEXT_INSTRUCTIONS.put((short)0xff18, TextInstruction.SET_COLOR);
         TEXT_INSTRUCTIONS.put((short)0xff19, TextInstruction.PRINT_ICON);

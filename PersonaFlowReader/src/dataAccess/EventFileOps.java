@@ -154,12 +154,12 @@ public class EventFileOps {
                 int flowStartAddr = FileReadWriteUtils.readInt(inputFile, valOrder);
                 inputFile.seek(flowStartAddr);
 
-                //outputFile.writeBytes(Library.ADDR_KEYWORD + "\t" + String.format(Library.HEX_PREFIX + "%04x", flowStartAddr) + Library.BIG_LINE_BREAK);
-                //outputFile.writeBytes(String.format("%s\t%s%04x%s", Library.ADDR_KEYWORD, Library.HEX_PREFIX, flowStartAddr, Library.BIG_LINE_BREAK));
 
                 outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TALK_SECTION_KEYWORD + "\n");
                 populateTalkAddresses(inputFile, outputFile);
 
+                //outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.POS_SECTION_KEYWORD + "\n");
+                //populatePositions(inputFile, outputFile); HERE
 
                 outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.CODE_AREA_KEYWORD + "\n");
                 // TODO redefine last instruction check
@@ -235,14 +235,6 @@ public class EventFileOps {
         labelReferenceLocations.clear();
         int textListSize = 0;
         try (RandomAccessFile inputFile = new RandomAccessFile(inputPath, READ_MODE)) {
-            //String line = inputFile.readLine();
-            //String[] split = line.split(Library.SPACE_TAB_REGEX);
-
-            //if (split[0].compareTo(Library.ADDR_KEYWORD) != 0) {
-            //    throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
-            //}
-
-           // int startAddr = readHexIntString(split[1]);
 
             String outputPath = inputPath.substring(0, inputPath.length()-4) + "_ENCODED.BIN";
             try (RandomAccessFile outputFile = new RandomAccessFile(outputPath, WRITE_MODE)) {
@@ -250,9 +242,6 @@ public class EventFileOps {
                 // first gonna get the data from the og file up until the event flow script
                 fillFileBeginning(inputPath, outputFile);
 
-
-                //while ((line = inputFile.readLine()).compareTo("") == 0);
-                //line = removeCommentAndSpaces(line);
 
                 String line = inputFile.readLine();
                 line = removeCommentAndSpaces(line);
@@ -269,8 +258,10 @@ public class EventFileOps {
                 while ((line = inputFile.readLine()).compareTo("") != 0) {
                     line = removeCommentAndSpaces(line);
                     String[] talkLineSplit = line.split(Library.SPACE_TAB_REGEX);
-                    int characterId = Integer.parseInt(talkLineSplit[0]);
-                    i = skipSpacesNTabs(talkLineSplit, 1);
+
+                    i = skipSpacesNTabs(talkLineSplit, 0);
+                    int characterId = Integer.parseInt(talkLineSplit[i]);
+                    i = skipSpacesNTabs(talkLineSplit, i + 1);
 
                     String labels = talkLineSplit[i];
                     String[] labelSplit = labels.split(",");
@@ -937,9 +928,7 @@ public class EventFileOps {
      */
     private static void populateTalkAddresses(RandomAccessFile inputFile, RandomAccessFile outputFile) throws IOException {
         long pointerBk = inputFile.getFilePointer();
-        //boolean oneEmpty = false; // because I've seen a file where it skips a character
 
-        //inputFile.seek(Library.ADDRESS_OF_CHARACTER_DATA);
         for (int i = 0; i < 64; i++) {
             inputFile.seek(Library.ADDRESS_OF_CHARACTER_DATA + (i * Library.CHARACTER_DATA_SIZE));
 
@@ -956,12 +945,9 @@ public class EventFileOps {
             if (address1 == Library.MINUS_1_INT && address2 == Library.MINUS_1_INT) {
                 continue;
             }
-            outputFile.writeBytes(String.format("%02d\t\t", i));
+            outputFile.writeBytes(String.format("\t%02d\t\t", i));
 
             if (address1 != Library.MINUS_1_INT) {
-                // TODO also check address at offset 0x14, Elly in E0_023 has one for some reason....
-                // this means we gotta redefine how to write the .talk section...
-                // perhaps, for every FFFFFFF, we just put an _ so we know where the pointer goes later
                 String label = Library.LABEL_TXT + Library.LABEL_SEPARATOR + labelNum++;
                 labels.put(address1, label);
                 //outputFile.writeBytes(String.format("%02d\t\t%s\t\t%s <Character in scene>:  <Label to code that executes when spoken to>\n", i, label, Library.COMMENT_SYMBOL));
@@ -990,6 +976,33 @@ public class EventFileOps {
         }
 
         outputFile.writeBytes("\n");
+        inputFile.seek(pointerBk);
+    }
+
+    private static void populatePositions(RandomAccessFile inputFile, RandomAccessFile outputFile) throws IOException {
+        long pointerBk = inputFile.getFilePointer();
+
+        // fetch the pointer to the list's size
+        inputFile.seek(Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER);
+        int sizePointer = FileReadWriteUtils.readInt(inputFile, valOrder);
+
+        // go to where the size value is
+        inputFile.seek(sizePointer);
+        int size = FileReadWriteUtils.readInt(inputFile, valOrder);
+
+        // if the size is 0, there are no positions
+        if (size == 0) {
+            inputFile.seek(pointerBk);
+            return;
+        }
+
+        // go to the beginning of the list of positions
+        inputFile.seek(Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER + 4);
+        int positionsPointer = FileReadWriteUtils.readInt(inputFile, valOrder);
+        inputFile.seek(positionsPointer);
+
+
+
         inputFile.seek(pointerBk);
     }
 
