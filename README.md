@@ -91,40 +91,42 @@ This is the main section of the file. It stores the event script itself. The kno
     ```
     The possible values range from 0 to 33 and, in that order, represent:
 
-    0. The first awakening
-    1. Elly's awakening
-    2. Maki's awakening
-    3. Brown's awakening
-    4. Ayase's awakening
-    5. Takeda battle
-    6. Reiji's awakening
-    7. unknown battle
-    8. Tesso battle
-    9. Yog Sothoth Jr battle
-    10. Harem Queen battle
-    11. Mr. Bear battle
-    12. Saurva battle
-    13. Hariti battle
-    14. Kandori battle
-    15. Pandora fase 1
-    16. Akuma monster battle
-    17. Akuma monster battle variation?
-    18. Hypnos 1 battle
-    19. Hypnos 2 battle
-    20. Hypnos 3 battle
-    21. Hypnos 4 battle
-    22. Nemesis 1 battle
-    23. Nemesis 2 battle
-    24. Nemesis 3 battle
-    25. Nemesis 4 battle
-    26. Nemesis 5 battle
-    27. Nemesis 6 battle
-    28. Thanatos 1 battle
-    29. Thanatos 2 battle
-    30. Snow Queen mask battle
-    31. Queen Asura battle
-    32. Bad ending last battle
-    33. Pandora Fase 2
+    <ol start="0">
+        <li>The first awakening</li>
+        <li>Elly's awakening</li>
+        <li>Maki's awakening</li>
+        <li>Brown's awakening</li>
+        <li>Ayase's awakening</li>
+        <li>Takeda battle</li>
+        <li>Reiji's awakening</li>
+        <li>unknown battle</li>
+        <li>Tesso battle</li>
+        <li>Yog Sothoth Jr battle</li>
+        <li>Harem Queen battle</li>
+        <li>Mr. Bear battle</li>
+        <li>Saurva battle</li>
+        <li>Hariti battle</li>
+        <li>Kandori battle</li>
+        <li>Pandora fase 1</li>
+        <li>Akuma monster battle</li>
+        <li>Akuma monster battle variation?</li>
+        <li>Hypnos 1 battle</li>
+        <li>Hypnos 2 battle</li>
+        <li>Hypnos 3 battle</li>
+        <li>Hypnos 4 battle</li>
+        <li>Nemesis 1 battle</li>
+        <li>Nemesis 2 battle</li>
+        <li>Nemesis 3 battle</li>
+        <li>Nemesis 4 battle</li>
+        <li>Nemesis 5 battle</li>
+        <li>Nemesis 6 battle</li>
+        <li>Thanatos 1 battle</li>
+        <li>Thanatos 2 battle</li>
+        <li>Snow Queen mask battle</li>
+        <li>Queen Asura battle</li>
+        <li>Bad ending last battle</li>
+        <li>Pandora Fase 2</li>
+    </ol>
 
     The repeating "Hypnos", "Nemesis" and "Thanatos" entries speak to different stats on the same boss based on the order the player conquered the towers and other conditions.
 
@@ -433,6 +435,45 @@ In order to build the file back again successfully, special "tags" are used to d
     1. "Trade for items", "Trade for incense", "Equip", "Cancel"
     1. "Normal", "Beginner", "Expert"
     1. "Yes, it was.", "On second thought..."
+
+    <ol start="0">
+        <li>"Yes", "No"</li>
+        <li>"Sure.", "No way."</li>
+        <li>"Yeah,", "No, I don't"</li>
+        <li>"Start game", "Check coins", "See explanations", "Stop playing"</li>
+        <li>"No", "Yes"</li>
+        <li>"Game rules", "Controls", "Winning hands", "Go back"</li>
+        <li>"Game rules", "Controls", "Tips", "Go back"</li>
+        <li>"Let them join", "Don't let them join"</li>
+        <li>"Help her", "Don't help her"</li>
+        <li>"Don't leave", "Leave"</li>
+        <li>"Don't open it", "Open it"</li>
+        <li>"Don't listen", "Listen"</li>
+        <li>"Create Persona", "Take on Persona", "Talk", "Leave"</li>
+        <li>"Stop hiding.", "Yes, it's safe here.", "That's true, but...", "I don't really know."</li>
+        <li>"For myself.", "Just 'cause.", "For everyone's sake.", "That's how it went."</li>
+        <li>"I don't really know.", "To find my reason."</li>
+        <li>"Press the red button", "Press the blue button."</li>
+        <li>"Heal us, please.", "Just dropping by."</li>
+        <li>"Fight Hariti", "Lower your weapons"</li>
+        <li>"Don't hide like that!", "Maybe you are..."</li>
+        <li>"Stay here", "Go to 8F", "Go to 4F", "Go to 1F"</li>
+        <li>"Manual Fusion", "Guided Fusion", "View cards", "Cancel"</li>
+        <li>"The Queen's is better.", "Maki's is better."</li>
+        <li>"Beginner tips", "Regular tips", "About Personas", "Advanced tips"</li>
+        <li>"Start game", "Check cards", "See explanations", "Cancel"</li>
+        <li>"Bet on Mark", "Bet on Brown"</li>
+        <li>"That's the plan.", "Not really."</li>
+        <li>"Yeah.", "That's"</li>
+        <li>"Yeah, I do.", "No, no one."</li>
+        <li>"A few.", "Not a one."</li>
+        <li>"I like the old way.", "I like the new way."</li>
+        <li>"Sure, put me down.", "Don't you dare."</li>
+        <li>"Buy", "Sell", "Equip", "Cancel"</li>
+        <li>"Trade for items", "Trade for incense", "Equip", "Cancel"</li>
+        <li>"Normal", "Beginner", "Expert"</li>
+        <li>"Yes, it was.", "On second thought..."</li>
+    </ol>
 
 * **SET_COLOR** - sets the following text to the color specified by the parameter.
     ```
