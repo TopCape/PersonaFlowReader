@@ -58,6 +58,7 @@ public class Library {
         play_MV,
         UNKNOWN_COMMAND_30,
         UNKNOWN_COMMAND_31,
+        UNKNOWN_COMMAND_32,
         UNKNOWN_COMMAND_3C,
         UNKNOWN_COMMAND_3D,
         UNKNOWN_COMMAND_3E,
@@ -100,9 +101,6 @@ public class Library {
         SHOW_OPTIONS, END, AWAITING_INPUT, LINE_BREAK, CONTINUE, WAIT, UNKNOWN06, PLAYER_FIRST_NAME, PLAYER_NICKNAME, SET_COLOR, PRINT_ICON, CHARACTER_NAME
     }
 
-    public static final long FLOW_OFFSET = 0x64;
-    public static final short CONTINUE_VAL = (short)0xff04;
-
     public static final HashMap<Byte, FlowInstruction> FLOW_INSTRUCTIONS;
     public static final HashMap<Short, TextInstruction> TEXT_INSTRUCTIONS;
     public static final HashMap<Short, String> TEXT_CODES;
@@ -137,6 +135,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x2D, FlowInstruction.play_MV);
         FLOW_INSTRUCTIONS.put((byte) 0x30, FlowInstruction.UNKNOWN_COMMAND_30);
         FLOW_INSTRUCTIONS.put((byte) 0x31, FlowInstruction.UNKNOWN_COMMAND_31);
+        FLOW_INSTRUCTIONS.put((byte) 0x32, FlowInstruction.UNKNOWN_COMMAND_32);
         FLOW_INSTRUCTIONS.put((byte) 0x3C, FlowInstruction.UNKNOWN_COMMAND_3C);
         FLOW_INSTRUCTIONS.put((byte) 0x3D, FlowInstruction.UNKNOWN_COMMAND_3D);
         FLOW_INSTRUCTIONS.put((byte) 0x3E, FlowInstruction.UNKNOWN_COMMAND_3E);
@@ -189,6 +188,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.play_MV, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_30, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_31, (byte)0);
+        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_32, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3C, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3D, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3E, (byte)2);
