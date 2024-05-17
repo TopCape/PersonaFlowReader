@@ -16,6 +16,7 @@ public class Library {
     public static final String SECTION_KEYWORD = "section";
     public static final String TALK_SECTION_KEYWORD = ".talk";
     public static final String POS_SECTION_KEYWORD = ".positions";
+    public static final String INTER_SECTION_KEYWORD = ".interactables";
     public static final String CODE_AREA_KEYWORD = ".code";
     public static final String TEXT_AREA_KEYWORD = ".text";
     public static final String SPACE_TAB_REGEX = "[ \t]";
@@ -29,6 +30,7 @@ public class Library {
     public static final long ADDRESS_WITH_FLOW_SCRIPT_POINTER = 0x64;
     public static final long ADDRESS_WITH_TEXT_TABLE_POINTER = 0x34;
     public static final long ADDRESS_WITH_POSITION_DATA_SIZE_POINTER = 0x38;
+    public static final long ADDRESS_WITH_INTERACTABLE_DATA_SIZE_POINTER = 0x48;
 
     public static final int ADDRESS_OF_CHARACTER_DATA = 0x1F4;
     public static final byte CHARACTER_DATA_SIZE = 0x24;
