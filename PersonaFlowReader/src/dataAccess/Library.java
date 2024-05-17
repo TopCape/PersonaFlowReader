@@ -15,7 +15,7 @@ public class Library {
 
     public static final String ADDR_KEYWORD = "addr";
     public static final String SECTION_KEYWORD = "section";
-    public static final String TALK_AREA_KEYWORD = ".talk";
+    public static final String TALK_SECTION_KEYWORD = ".talk";
     public static final String CODE_AREA_KEYWORD = ".code";
     public static final String TEXT_AREA_KEYWORD = ".text";
     public static final String SPACE_TAB_REGEX = "[ \t]";
@@ -32,7 +32,11 @@ public class Library {
 
     public static final int ADDRESS_OF_CHARACTER_DATA = 0x1F4;
     public static final byte CHARACTER_DATA_SIZE = 0x24;
-    public static final byte CHARACTER_DATA_EVENT_ADDRESS_OFFSET = 0x4;
+    public static final byte CHARACTER_DATA_EVENT_ADDRESS_1_OFFSET = 0x4;
+    public static final byte CHARACTER_DATA_EVENT_ADDRESS_2_OFFSET = 0xc; // offset starting from the end of the above event address value
+    public static final byte CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET = 0x14;
+
+    public static final int MINUS_1_INT = 0xFFFFFFFF;
 
     public static final String COMMENT_SYMBOL = "//";
     public static final String COMMENT_INDICATOR = "\1"; // used to indicate a line was fully commented
