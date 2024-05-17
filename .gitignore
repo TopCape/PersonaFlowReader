@@ -1,0 +1,3 @@
+# Custom to avoid including BIN files
+*.BIN
+Efiles*
