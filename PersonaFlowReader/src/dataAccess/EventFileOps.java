@@ -504,7 +504,7 @@ public class EventFileOps {
                 } else {
                     label = labels.get(address);
                 }
-                return "\t" + name + "\t" + condition + "," + label + "\n";
+                return "\t" + name + "\t" + condition + "," + label + "\t" + Library.COMMENT_SYMBOL + " the parameter's exact meaning is unknown, but it might be related to game flags\n";
             //case UNKNOWN_COMMAND_27:
             //    name = flowInstr.name(); // TEST
             //    param = getShortString(inputFile);
@@ -615,7 +615,7 @@ public class EventFileOps {
                 return "\t" + name + "\t"
                         + getByteString(inputFile) + "," + getByteString(inputFile) + "," + getByteString(inputFile) + "," +
                         getByteString(inputFile) + "," + getByteString(inputFile) + "," + getByteString(inputFile)
-                        + "\t"+ Library.COMMENT_SYMBOL + " " + name + "\t<character ID>,<direction>,<speed>,<direction_at_destination>,...\n";
+                        + "\t"+ Library.COMMENT_SYMBOL + " " + name + "\t<character ID>,<trajectory idx>,<speed>,<direction_at_destination>,...\n";
 
             case follow_char:
                 name = flowInstr.name();
