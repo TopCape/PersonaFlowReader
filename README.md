@@ -73,6 +73,17 @@ This data is saved to the file not only to make sure the encoded event file has 
 
 In this example, character 01 has 1 label on the first position, meaning that talking to the character executes the code pointed to by that label in a certain situation (first time in that room?). Character 02 has a label on the second position, meaning that in certain circumstances (second time in that room?), talking to the character will execute the code pointed to by that label. Character 03 has 2 different codes it executes when talked to, depending on the situation (one thing is said when entering the room for the first time, whilst the other is said when you return to that room later in the story)
 
+### .positions
+
+This section contains a table of position triggers. They include coordinates and the LABELs that are jumped to when the playable character is in one of these positions. Each entry has X and Y values, followed by the label. Example:
+
+    section .positions
+        01  02  LABEL_0
+        02  10  LABEL_1
+    
+This example displays 2 different positions that trigger different event script bits. The first entry says that when the player is in X=1 and Y=2, LABEL_0 is jumped to. The second entry says that when the player is in X=2 and Y=10, LABEL_1 is jumped to.
+    
+
 ### .code
 
 This is the main section of the file. It stores the event script itself. The known commands are as follows:
@@ -89,44 +100,44 @@ This is the main section of the file. It stores the event script itself. The kno
     ```
     battle  <BATTLE_NUM>
     ```
-    The possible values range from 0 to 33 and, in that order, represent:
+    The BATTLE_NUM values and what battles they represent:
 
-    <ol start="0">
-        <li>The first awakening</li>
-        <li>Elly's awakening</li>
-        <li>Maki's awakening</li>
-        <li>Brown's awakening</li>
-        <li>Ayase's awakening</li>
-        <li>Takeda battle</li>
-        <li>Reiji's awakening</li>
-        <li>unknown battle</li>
-        <li>Tesso battle</li>
-        <li>Yog Sothoth Jr battle</li>
-        <li>Harem Queen battle</li>
-        <li>Mr. Bear battle</li>
-        <li>Saurva battle</li>
-        <li>Hariti battle</li>
-        <li>Kandori battle</li>
-        <li>Pandora fase 1</li>
-        <li>Akuma monster battle</li>
-        <li>Akuma monster battle variation?</li>
-        <li>Hypnos 1 battle</li>
-        <li>Hypnos 2 battle</li>
-        <li>Hypnos 3 battle</li>
-        <li>Hypnos 4 battle</li>
-        <li>Nemesis 1 battle</li>
-        <li>Nemesis 2 battle</li>
-        <li>Nemesis 3 battle</li>
-        <li>Nemesis 4 battle</li>
-        <li>Nemesis 5 battle</li>
-        <li>Nemesis 6 battle</li>
-        <li>Thanatos 1 battle</li>
-        <li>Thanatos 2 battle</li>
-        <li>Snow Queen mask battle</li>
-        <li>Queen Asura battle</li>
-        <li>Bad ending last battle</li>
-        <li>Pandora Fase 2</li>
-    </ol>
+    | Value  | Description |
+    | ------ | ----------- |
+    | 0x0000 | The first awakening |
+    | 0x0001 | Elly's awakening |
+    | 0x0002 | Maki's awakening |
+    | 0x0003 | Brown's awakening |
+    | 0x0004 | Ayase's awakening |
+    | 0x0005 | Takeda battle |
+    | 0x0006 | Reiji's awakening |
+    | 0x0007 | unknown battle |
+    | 0x0008 | Tesso battle |
+    | 0x0009 | Yog Sothoth Jr battle |
+    | 0x000A | Harem Queen battle |
+    | 0x000B | Mr. Bear battle |
+    | 0x000C | Saurva battle |
+    | 0x000D | Hariti battle |
+    | 0x000E | Kandori battle |
+    | 0x000F | Pandora fase 1 |
+    | 0x0010 | Akuma monster battle |
+    | 0x0011 | Akuma monster battle variation? |
+    | 0x0012 | Hypnos 1 battle |
+    | 0x0013 | Hypnos 2 battle |
+    | 0x0014 | Hypnos 3 battle |
+    | 0x0015 | Hypnos 4 battle |
+    | 0x0016 | Nemesis 1 battle |
+    | 0x0017 | Nemesis 2 battle |
+    | 0x0018 | Nemesis 3 battle |
+    | 0x0019 | Nemesis 4 battle |
+    | 0x001A | Nemesis 5 battle |
+    | 0x001B | Nemesis 6 battle |
+    | 0x001C | Thanatos 1 battle |
+    | 0x001D | Thanatos 2 battle |
+    | 0x001E | Snow Queen mask battle |
+    | 0x001F | Queen Asura battle |
+    | 0x0020 | Bad ending last battle |
+    | 0x0021 | Pandora Fase 2 |
 
     The repeating "Hypnos", "Nemesis" and "Thanatos" entries speak to different stats on the same boss based on the order the player conquered the towers and other conditions.
 
@@ -402,83 +413,46 @@ In order to build the file back again successfully, special "tags" are used to d
     (*SHOW_OPTIONS,<OPTIONS_ID>*)
     ```
 
-    OPTIONS_ID values range from 0 to 35 and have represent the following options:
+    The possible OPTIONS_ID values and the options they represent is displayed below:
     
-    0. "Yes", "No"
-    1. "Sure.", "No way."
-    1. "Yeah,", "No, I don't"
-    1. "Start game", "Check coins", "See explanations", "Stop playing"
-    1. "No", "Yes"
-    1. "Game rules", "Controls", "Winning hands", "Go back"
-    1. "Game rules", "Controls", "Tips", "Go back"
-    1. "Let them join", "Don't let them join"
-    1. "Help her", "Don't help her"
-    1. "Don't leave", "Leave"
-    1. "Don't open it", "Open it"
-    1. "Don't listen", "Listen"
-    1. "Create Persona", "Take on Persona", "Talk", "Leave"
-    1. "Stop hiding.", "Yes, it's safe here.", "That's true, but...", "I don't really know."
-    1. "For myself.", "Just 'cause.", "For everyone's sake.", "That's how it went."
-    1. "I don't really know.", "To find my reason."
-    1. "Press the red button", "Press the blue button."
-    1. "Heal us, please.", "Just dropping by."
-    1. "Fight Hariti", "Lower your weapons"
-    1. "Don't hide like that!", "Maybe you are..."
-    1. "Stay here", "Go to 8F", "Go to 4F", "Go to 1F"
-    1. "Manual Fusion", "Guided Fusion", "View cards", "Cancel"
-    1. "The Queen's is better.", "Maki's is better."
-    1. "Beginner tips", "Regular tips", "About Personas", "Advanced tips"
-    1. "Start game", "Check cards", "See explanations", "Cancel"
-    1. "Bet on Mark", "Bet on Brown"
-    1. "That's the plan.", "Not really."
-    1. "Yeah.", "That's"
-    1. "Yeah, I do.", "No, no one."
-    1. "A few.", "Not a one."
-    1. "I like the old way.", "I like the new way."
-    1. "Sure, put me down.", "Don't you dare."
-    1. "Buy", "Sell", "Equip", "Cancel"
-    1. "Trade for items", "Trade for incense", "Equip", "Cancel"
-    1. "Normal", "Beginner", "Expert"
-    1. "Yes, it was.", "On second thought..."
-
-    <ol start="0">
-        <li>"Yes", "No"</li>
-        <li>"Sure.", "No way."</li>
-        <li>"Yeah,", "No, I don't"</li>
-        <li>"Start game", "Check coins", "See explanations", "Stop playing"</li>
-        <li>"No", "Yes"</li>
-        <li>"Game rules", "Controls", "Winning hands", "Go back"</li>
-        <li>"Game rules", "Controls", "Tips", "Go back"</li>
-        <li>"Let them join", "Don't let them join"</li>
-        <li>"Help her", "Don't help her"</li>
-        <li>"Don't leave", "Leave"</li>
-        <li>"Don't open it", "Open it"</li>
-        <li>"Don't listen", "Listen"</li>
-        <li>"Create Persona", "Take on Persona", "Talk", "Leave"</li>
-        <li>"Stop hiding.", "Yes, it's safe here.", "That's true, but...", "I don't really know."</li>
-        <li>"For myself.", "Just 'cause.", "For everyone's sake.", "That's how it went."</li>
-        <li>"I don't really know.", "To find my reason."</li>
-        <li>"Press the red button", "Press the blue button."</li>
-        <li>"Heal us, please.", "Just dropping by."</li>
-        <li>"Fight Hariti", "Lower your weapons"</li>
-        <li>"Don't hide like that!", "Maybe you are..."</li>
-        <li>"Stay here", "Go to 8F", "Go to 4F", "Go to 1F"</li>
-        <li>"Manual Fusion", "Guided Fusion", "View cards", "Cancel"</li>
-        <li>"The Queen's is better.", "Maki's is better."</li>
-        <li>"Beginner tips", "Regular tips", "About Personas", "Advanced tips"</li>
-        <li>"Start game", "Check cards", "See explanations", "Cancel"</li>
-        <li>"Bet on Mark", "Bet on Brown"</li>
-        <li>"That's the plan.", "Not really."</li>
-        <li>"Yeah.", "That's"</li>
-        <li>"Yeah, I do.", "No, no one."</li>
-        <li>"A few.", "Not a one."</li>
-        <li>"I like the old way.", "I like the new way."</li>
-        <li>"Sure, put me down.", "Don't you dare."</li>
-        <li>"Buy", "Sell", "Equip", "Cancel"</li>
-        <li>"Trade for items", "Trade for incense", "Equip", "Cancel"</li>
-        <li>"Normal", "Beginner", "Expert"</li>
-        <li>"Yes, it was.", "On second thought..."</li>
-    </ol>
+    | OPTIONS_ID | Options |
+    | ---------- | ----- |
+    | 0 | "Yes", "No" |
+    | 1 | "Sure.", "No way." |
+    | 2 | "Yeah,", "No, I don't" |
+    | 3 | "Start game", "Check coins", "See explanations", "Stop playing" |
+    | 4 | "No", "Yes" |
+    | 5 | "Game rules", "Controls", "Winning hands", "Go back" |
+    | 6 | "Game rules", "Controls", "Tips", "Go back" |
+    | 7 | "Let them join", "Don't let them join" |
+    | 8 | "Help her", "Don't help her" |
+    | 9 | "Don't leave", "Leave" |
+    | 10 | "Don't open it", "Open it" |
+    | 11 | "Don't listen", "Listen" |
+    | 12 | "Create Persona", "Take on Persona", "Talk", "Leave" |
+    | 13 | "Stop hiding.", "Yes, it's safe here.", "That's true, but...", "I don't really know." |
+    | 14 | "For myself.", "Just 'cause.", "For everyone's sake.", "That's how it went." |
+    | 15 | "I don't really know.", "To find my reason." |
+    | 16 | "Press the red button", "Press the blue button." |
+    | 17 | "Heal us, please.", "Just dropping by." |
+    | 18 | "Fight Hariti", "Lower your weapons" |
+    | 19 | "Don't hide like that!", "Maybe you are..." |
+    | 20 | "Stay here", "Go to 8F", "Go to 4F", "Go to 1F" |
+    | 21 | "Manual Fusion", "Guided Fusion", "View cards", "Cancel" |
+    | 22 | "The Queen's is better.", "Maki's is better." |
+    | 23 | "Beginner tips", "Regular tips", "About Personas", "Advanced tips" |
+    | 24 | "Start game", "Check cards", "See explanations", "Cancel" |
+    | 25 | "Bet on Mark", "Bet on Brown" |
+    | 26 | "That's the plan.", "Not really." |
+    | 27 | "Yeah.", "That's" |
+    | 28 | "Yeah, I do.", "No, no one." |
+    | 29 | "A few.", "Not a one." |
+    | 30 | "I like the old way.", "I like the new way." |
+    | 31 | "Sure, put me down.", "Don't you dare." |
+    | 32 | "Buy", "Sell", "Equip", "Cancel" |
+    | 33 | "Trade for items", "Trade for incense", "Equip", "Cancel" |
+    | 34 | "Normal", "Beginner", "Expert" |
+    | 35 | "Yes, it was.", "On second thought..." |
 
 * **SET_COLOR** - sets the following text to the color specified by the parameter.
     ```

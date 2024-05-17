@@ -68,7 +68,6 @@ public class TextList {
                     case AWAITING_INPUT:
                     case PLAYER_FIRST_NAME:
                     case PLAYER_NICKNAME:
-                    case UNKNOWN06:
                         toRet.append(START_SPECIAL).append(instr.name()).append(END_SPECIAL);
                         break;
                     case LINE_BREAK:
@@ -84,6 +83,7 @@ public class TextList {
                         else toRet.append(START_SPECIAL).append(instr.name()).append(END_SPECIAL);
                         break;
                     case WAIT:
+                    case UNKNOWN06:
                         toRet.append(START_SPECIAL).append(instr.name()).append(PARAM_SEPARATOR);
                         data = FileReadWriteUtils.readShort(file, ByteOrder.LITTLE_ENDIAN);
                         toRet.append(data).append(END_SPECIAL);
@@ -212,6 +212,7 @@ public class TextList {
                         FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
                         if (split[0].compareTo(Library.TextInstruction.WAIT.name()) == 0 ||
                                 split[0].compareTo(Library.TextInstruction.SHOW_OPTIONS.name()) == 0 ||
+                                split[0].compareTo(Library.TextInstruction.UNKNOWN06.name()) == 0 ||
                                 split[0].compareTo(Library.TextInstruction.PRINT_ICON.name()) == 0) {
                             data = Short.parseShort(split[1]); // the value
                             FileReadWriteUtils.writeShort(outputFile, ByteOrder.LITTLE_ENDIAN, data);
