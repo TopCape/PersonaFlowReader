@@ -504,14 +504,14 @@ public class EventFileOps {
                 // get followup int, which corresponds to the address to jump to
                 address = FileReadWriteUtils.readInt(inputFile, valOrder);
 
-                label = addLabel(address);
+                label = getLabel(address);
 
                 return "\t" + name + "\t" + label + "\n";
             case jump_if:
                 name = flowInstr.name();
                 String condition = getShortString(inputFile);
                 address = FileReadWriteUtils.readInt(inputFile, valOrder);
-                label = addLabel(address);
+                label = getLabel(address);
 
                 return "\t" + name + "\t" + condition + "," + label + "\t" + Library.COMMENT_SYMBOL + " the parameter's exact meaning is unknown, but it might be related to game flags\n";
             //case UNKNOWN_COMMAND_27:
@@ -559,7 +559,7 @@ public class EventFileOps {
                 name = flowInstr.name();
                 param = getShortString(inputFile);
                 address = getInt(inputFile);
-                label = addLabel(address);
+                label = getLabel(address);
 
                 return "\t" + name + "\t" + param + "," + label + "\t"+ Library.COMMENT_SYMBOL + " " + name + " <option num?>,<label>\n";
             case ld_text:
@@ -567,6 +567,12 @@ public class EventFileOps {
                 name = simpleInstructionCheck(check, flowInstr.name(), instr);
                 address = getInt(inputFile);
                 return "\t" + name + "\t" + textList.indexOfText(address) + "\t"+ Library.COMMENT_SYMBOL + " idx of text in .text section\n";
+            case unk_cmd_58:
+                name = flowInstr.name();
+                check = FileReadWriteUtils.readShort(inputFile, valOrder);
+                address = getInt(inputFile);
+                label = getLabel(address);
+                return "\t" + name + "\t" + getShortString(check) + "," +  label + "\t" + Library.COMMENT_SYMBOL + "unknown, but uses a label\n";
             case open_dialog:
                 check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
                 name = simpleInstructionCheck(check, flowInstr.name(), instr);
@@ -717,7 +723,8 @@ public class EventFileOps {
                 while(outputFile.getFilePointer() % 8 != 0) outputFile.writeByte(0);
 
                 // jump if instruction
-            } else if (instr.compareTo(Library.FlowInstruction.jump_if.name()) == 0) {
+            } else if (instr.compareTo(Library.FlowInstruction.jump_if.name()) == 0 ||
+                    instr.compareTo(Library.FlowInstruction.unk_cmd_58.name()) == 0) {
                 String param = paramSplit[0];
                 String label = paramSplit[1];
                 String labelNum = label.split(Library.LABEL_SEPARATOR)[1];
@@ -941,7 +948,7 @@ public class EventFileOps {
 
             // checking first address position
             if (address1 != Library.MINUS_1_INT) {
-                String label = addLabel(address1);
+                String label = getLabel(address1);
                 //outputFile.writeBytes(String.format("%02d\t\t%s\t\t%s <Character in scene>:  <Label to code that executes when spoken to>\n", i, label, Library.COMMENT_SYMBOL));
                 outputFile.writeBytes(String.format("%s", label));
             } else {
@@ -952,7 +959,7 @@ public class EventFileOps {
 
             // checking second address position
             if (address2 != Library.MINUS_1_INT) {
-                String label = addLabel(address2);
+                String label = getLabel(address2);
 
                 outputFile.writeBytes(String.format("%s", label));
             } else {
@@ -1034,7 +1041,7 @@ public class EventFileOps {
             short unknown = FileReadWriteUtils.readShort(inputFile, valOrder);
             int address = FileReadWriteUtils.readInt(inputFile, valOrder);
 
-            String label = addLabel(address);
+            String label = getLabel(address);
 
             outputFile.writeBytes(String.format("\t%03d\t%03d\t%s\n", x, y, label));
         }
@@ -1129,7 +1136,7 @@ public class EventFileOps {
      * @param address the address the label points to
      * @return the label's name
      */
-    private static String addLabel(int address) {
+    private static String getLabel(int address) {
         String label;
         if (!labels.containsKey(address)) {
             label = Library.LABEL_TXT + Library.LABEL_SEPARATOR + labelNum++;
