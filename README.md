@@ -189,6 +189,13 @@ This is the main section of the file. It stores the event script itself. The kno
     unk_cmd_58  <UNKNOWN>,<LABEL_NAME>
     ```
 
+* **unk_cmd_44**, **unk_cmd_45** and **unk_cmd_47** - these, similarly to the previous command, are unknown in function but they posess a short parameter and an address, so they must be treated differently from the generic unknown instructions. These have been found in the file related to the shrine scene, triggered when you talk to the butterfly and it heals you. These commands could be related to healing your party members and removing status effects.
+    ```
+    unk_cmd_44  <UNKNOWN>,<LABEL_NAME>
+    unk_cmd_45  <UNKNOWN>,<LABEL_NAME>
+    unk_cmd_47  <UNKNOWN>,<LABEL_NAME>
+    ```
+
 * **open_dialog** - displays the dialog box at the bottom part of the screen. It has no parameters.
     ```
     open_dialog

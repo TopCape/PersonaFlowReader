@@ -73,9 +73,9 @@ public class Library {
         UNKNOWN_COMMAND_3D,
         UNKNOWN_COMMAND_3E,
         UNKNOWN_COMMAND_3F,
-        UNKNOWN_COMMAND_44,
-        UNKNOWN_COMMAND_45,
-        UNKNOWN_COMMAND_47,
+        unk_cmd_44,
+        unk_cmd_45,
+        unk_cmd_47,
         open_save_menu,
         UNKNOWN_COMMAND_4C,
         wait,
@@ -150,9 +150,9 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x3D, FlowInstruction.UNKNOWN_COMMAND_3D);
         FLOW_INSTRUCTIONS.put((byte) 0x3E, FlowInstruction.UNKNOWN_COMMAND_3E);
         FLOW_INSTRUCTIONS.put((byte) 0x3F, FlowInstruction.UNKNOWN_COMMAND_3F);
-        FLOW_INSTRUCTIONS.put((byte) 0x44, FlowInstruction.UNKNOWN_COMMAND_44);
-        FLOW_INSTRUCTIONS.put((byte) 0x45, FlowInstruction.UNKNOWN_COMMAND_45);
-        FLOW_INSTRUCTIONS.put((byte) 0x47, FlowInstruction.UNKNOWN_COMMAND_47);
+        FLOW_INSTRUCTIONS.put((byte) 0x44, FlowInstruction.unk_cmd_44);
+        FLOW_INSTRUCTIONS.put((byte) 0x45, FlowInstruction.unk_cmd_45);
+        FLOW_INSTRUCTIONS.put((byte) 0x47, FlowInstruction.unk_cmd_47);
         FLOW_INSTRUCTIONS.put((byte) 0x4B, FlowInstruction.open_save_menu);
         FLOW_INSTRUCTIONS.put((byte) 0x4C, FlowInstruction.UNKNOWN_COMMAND_4C);
         FLOW_INSTRUCTIONS.put((byte) 0x4d, FlowInstruction.wait);
@@ -203,9 +203,9 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3D, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3E, (byte)2);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3F, (byte)1);
-        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_44, (byte)1);
-        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_45, (byte)1);
-        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_47, (byte)1);
+        PARAM_NUM.put(FlowInstruction.unk_cmd_44, (byte)1);
+        PARAM_NUM.put(FlowInstruction.unk_cmd_45, (byte)1);
+        PARAM_NUM.put(FlowInstruction.unk_cmd_47, (byte)1);
         PARAM_NUM.put(FlowInstruction.open_save_menu, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_4C, (byte)0);
         PARAM_NUM.put(FlowInstruction.wait, (byte)0);

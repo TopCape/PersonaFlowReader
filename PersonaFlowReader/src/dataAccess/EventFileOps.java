@@ -568,11 +568,15 @@ public class EventFileOps {
                 address = getInt(inputFile);
                 return "\t" + name + "\t" + textList.indexOfText(address) + "\t"+ Library.COMMENT_SYMBOL + " idx of text in .text section\n";
             case unk_cmd_58:
+                // the three below are related to healing the party?
+            case unk_cmd_44:
+            case unk_cmd_45:
+            case unk_cmd_47:
                 name = flowInstr.name();
                 check = FileReadWriteUtils.readShort(inputFile, valOrder);
                 address = getInt(inputFile);
                 label = getLabel(address);
-                return "\t" + name + "\t" + getShortString(check) + "," +  label + "\t" + Library.COMMENT_SYMBOL + "unknown, but uses a label\n";
+                return "\t" + name + "\t" + getShortString(check) + "," +  label + "\t" + Library.COMMENT_SYMBOL + " unknown, but uses a label\n";
             case open_dialog:
                 check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
                 name = simpleInstructionCheck(check, flowInstr.name(), instr);
@@ -724,6 +728,9 @@ public class EventFileOps {
 
                 // jump if instruction
             } else if (instr.compareTo(Library.FlowInstruction.jump_if.name()) == 0 ||
+                    instr.compareTo(Library.FlowInstruction.unk_cmd_44.name()) == 0 ||
+                    instr.compareTo(Library.FlowInstruction.unk_cmd_45.name()) == 0 ||
+                    instr.compareTo(Library.FlowInstruction.unk_cmd_47.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_58.name()) == 0) {
                 String param = paramSplit[0];
                 String label = paramSplit[1];
