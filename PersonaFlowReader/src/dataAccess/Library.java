@@ -15,6 +15,7 @@ public class Library {
 
     public static final String SECTION_KEYWORD = "section";
     public static final String TALK_SECTION_KEYWORD = ".talk";
+    public static final String TALK2_SECTION_KEYWORD = ".talk2";
     public static final String POS_SECTION_KEYWORD = ".positions";
     public static final String INTER_SECTION_KEYWORD = ".interactables";
     public static final String CODE_AREA_KEYWORD = ".code";
@@ -32,11 +33,22 @@ public class Library {
     public static final long ADDRESS_WITH_POSITION_DATA_SIZE_POINTER = 0x38;
     public static final long ADDRESS_WITH_INTERACTABLE_DATA_SIZE_POINTER = 0x48;
 
+
     public static final int ADDRESS_OF_CHARACTER_DATA = 0x1F4;
     public static final byte CHARACTER_DATA_SIZE = 0x24;
+    public static final int CHARACTER_DATA_NUM = 64;
     public static final byte CHARACTER_DATA_EVENT_ADDRESS_1_OFFSET = 0x4;
     public static final byte CHARACTER_DATA_EVENT_ADDRESS_2_OFFSET = 0xc; // offset starting from the end of the above event address value
     public static final byte CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET = 0x14;
+
+    public static final int ADDRESS_OF_SECONDARY_CHARACTER_DATA = 0xAF4;
+    public static final int SECONDARY_CHARACTER_DATA_NUM = 8;
+    public static final byte SECONDARY_CHARACTER_DATA_SIZE = 0x1C;
+    public static final byte SECONDARY_CHARACTER_DATA_EVENT_ADDRESS_2_OFFSET = 0x8; // offset starting from the end of the previous event address
+    public static final byte SECONDARY_CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET = 0x10;
+
+
+
 
     public static final int MINUS_1_INT = 0xFFFFFFFF;
 
