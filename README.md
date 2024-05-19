@@ -161,9 +161,9 @@ This is the main section of the file. It stores the event script itself. The kno
     ld_file  <FILE_NUM>,<UNKNOWN>
     ```
 
-* **ld_3d_map** - This loads the player into a 3D map (those first person maze sections of the game). The first parameter is the map's ID. The second and third are the X and Y coordinates the player will be loaded into within that map. Parameter 4 holds the direction, which is represented by a value from 0 to 3, representing E, W, S and N respectively. The fifth parameter is unknown.
+* **ld_3d_map** - This loads the player into a 3D map (those first person maze sections of the game). The first parameter is the map's ID. The second is unknown. The third and fourth are the X and Y coordinates the player will be loaded into within that map. Parameter 5 holds the direction, which is represented by a value from 0 to 3, representing E, W, S and N respectively. The sixth parameter is unknown.
     ```
-    ld_file  <MAP_ID>,<X>,<Y>,<DIRECTION>,<UNKNOWN>
+    ld_file  <MAP_ID>,<UNKNOWN><X>,<Y>,<DIRECTION>,<UNKNOWN>
     ```
 
 * **play_MV** - plays a video file. The first parameter is the name of the file (TODO: change this. Just realized that there are movies that don't have a MVXX.pmf type name). The second parameter is unknown.
