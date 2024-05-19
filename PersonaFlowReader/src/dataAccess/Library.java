@@ -101,6 +101,7 @@ public class Library {
         UNKNOWN_COMMAND_6D,
         plan_char_mov,
         UNKNOWN_COMMAND_74,
+        UNKNOWN_COMMAND_73,
         fade_char,
         follow_char,
         UNKNOWN_COMMAND_79,
@@ -178,6 +179,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x6C, FlowInstruction.screen_fx);
         FLOW_INSTRUCTIONS.put((byte) 0x6D, FlowInstruction.UNKNOWN_COMMAND_6D);
         FLOW_INSTRUCTIONS.put((byte) 0x6E, FlowInstruction.plan_char_mov);
+        FLOW_INSTRUCTIONS.put((byte) 0x73, FlowInstruction.UNKNOWN_COMMAND_73);
         FLOW_INSTRUCTIONS.put((byte) 0x74, FlowInstruction.UNKNOWN_COMMAND_74);
         FLOW_INSTRUCTIONS.put((byte) 0x76, FlowInstruction.fade_char);
         FLOW_INSTRUCTIONS.put((byte) 0x78, FlowInstruction.follow_char);
@@ -232,6 +234,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.screen_fx, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_6D, (byte)0);
         PARAM_NUM.put(FlowInstruction.plan_char_mov, (byte)1);
+        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_73, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_74, (byte)0);
         PARAM_NUM.put(FlowInstruction.fade_char, (byte)0);
         PARAM_NUM.put(FlowInstruction.follow_char, (byte)0);
