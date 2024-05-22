@@ -68,6 +68,7 @@ public class TextList {
                     case AWAITING_INPUT:
                     case PLAYER_FIRST_NAME:
                     case PLAYER_NICKNAME:
+                    case PLAYER_LAST_NAME:
                         toRet.append(START_SPECIAL).append(instr.name()).append(END_SPECIAL);
                         break;
                     case LINE_BREAK:
