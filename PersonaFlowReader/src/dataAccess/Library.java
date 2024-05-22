@@ -743,7 +743,7 @@ public class Library {
                 return "deep sounding lightning?";
             case 0x32:
                 return "big metal gate quick open";
-            case 0x4D:
+            case 0x4D: // checked in 0x088DEA60
                 return "lightning_2";
 
                 default:

@@ -169,6 +169,11 @@ public class EventFileOps {
 
                 inputFile.seek(Library.ADDRESS_WITH_FLOW_SCRIPT_POINTER);
                 int flowStartAddr = FileReadWriteUtils.readInt(inputFile, valOrder);
+                if (flowStartAddr == -1) {
+                    System.out.println("EMPTY FLOW FILE");
+                    outputFile.writeBytes("EMPTY FLOW FILE");
+                    return;
+                }
                 inputFile.seek(flowStartAddr);
 
                 // section .talk
@@ -764,6 +769,9 @@ public class EventFileOps {
                 int currAddr = (int) outputFile.getFilePointer();
                 addLabelRef(outputFile, label, currAddr);
 
+                // padding
+                while(outputFile.getFilePointer() % 8 != 0) outputFile.writeByte(0);
+
                 // jump if instruction
             } else if (instr.compareTo(Library.FlowInstruction.jump_if.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_44.name()) == 0 ||
@@ -1311,27 +1319,39 @@ public class EventFileOps {
     }
 
     private static byte extractByteFromString(String value) throws OperationNotSupportedException {
-        if (value.substring(0, 2).compareTo(Library.HEX_PREFIX) != 0) {
+        try {
+            if (value.substring(0, 2).compareTo(Library.HEX_PREFIX) != 0) {
+                throw new OperationNotSupportedException("byte value is not formatted correctly");
+            }
+            String prefixRemoved = value.substring(2);
+            return (byte) Short.parseShort(prefixRemoved, 16);
+        } catch (StringIndexOutOfBoundsException e) {
             throw new OperationNotSupportedException("byte value is not formatted correctly");
         }
-        String prefixRemoved = value.substring(2);
-        return (byte) Short.parseShort(prefixRemoved, 16);
     }
 
     private static short extractShortFromString(String value) throws OperationNotSupportedException {
-        if (value.substring(0, 2).compareTo(Library.HEX_PREFIX) != 0) {
+        try {
+            if (value.substring(0, 2).compareTo(Library.HEX_PREFIX) != 0) {
+                throw new OperationNotSupportedException("short value is not formatted correctly");
+            }
+            String prefixRemoved = value.substring(2);
+            return (short) Integer.parseInt(prefixRemoved, 16);
+        } catch (StringIndexOutOfBoundsException e) {
             throw new OperationNotSupportedException("short value is not formatted correctly");
         }
-        String prefixRemoved = value.substring(2);
-        return (short) Integer.parseInt(prefixRemoved, 16);
     }
 
     private static int extractIntFromString(String value) throws OperationNotSupportedException {
-        if (value.substring(0, 2).compareTo(Library.HEX_PREFIX) != 0) {
+        try {
+            if (value.substring(0, 2).compareTo(Library.HEX_PREFIX) != 0) {
+                throw new OperationNotSupportedException("int value is not formatted correctly");
+            }
+            String prefixRemoved = value.substring(2);
+            return (int) Long.parseLong(prefixRemoved, 16);
+        } catch (StringIndexOutOfBoundsException e) {
             throw new OperationNotSupportedException("int value is not formatted correctly");
         }
-        String prefixRemoved = value.substring(2);
-        return (int) Long.parseLong(prefixRemoved, 16);
     }
 
     private static String getByteString(RandomAccessFile file) throws IOException {
