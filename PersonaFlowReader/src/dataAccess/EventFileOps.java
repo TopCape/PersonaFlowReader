@@ -618,7 +618,15 @@ public class EventFileOps {
                 check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
                 name = simpleInstructionCheck(check, flowInstr.name(), instr);
                 address = getInt(inputFile);
-                return "\t" + name + "\t" + textList.indexOfText(address) + "\t"+ Library.COMMENT_SYMBOL + " idx of text in .text section\n";
+                int textIdx = textList.indexOfText(address);
+
+                // sometimes, text that ISN'T in the text table is used by the game (thanks developers)
+                // in these cases, the string has to be obtained based on the address, and then added to the text list
+                if (textIdx == -1 ) {
+                    textList.addText(inputFile, address, true);
+                    textIdx = textList.indexOfText(address);
+                }
+                return "\t" + name + "\t" + textIdx + "\t"+ Library.COMMENT_SYMBOL + " idx of text in .text section\n";
             case unk_cmd_58:
                 // the three below are related to healing the party?
             case unk_cmd_44:

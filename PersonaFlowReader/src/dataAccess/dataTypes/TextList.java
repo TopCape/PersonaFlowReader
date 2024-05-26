@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
 
 public class TextList {
 
@@ -19,12 +20,12 @@ public class TextList {
 
     private static final String PARAM_SEPARATOR = ",";
 
-    private final int size;
+    private int size;
     //private final String[] textList;
-    private final byte[][] textList;
-    private final int[] refList;
+    private final LinkedList<String> textList;
+    private final LinkedList<Integer> refList;
 
-    public TextList(int size, byte[][] textList, int[] refList) {
+    public TextList(int size, LinkedList<String> textList, LinkedList<Integer> refList) {
         this.size = size;
         this.textList = textList;
         this.refList = refList;
@@ -36,16 +37,12 @@ public class TextList {
 
         int size = FileReadWriteUtils.readInt(file, ByteOrder.LITTLE_ENDIAN);
 
-        int[] refList = new int[size];
-        byte[][] textList = new byte[size][500];
+        LinkedList<Integer> refList = new LinkedList<>();
+        LinkedList<String> textList = new LinkedList<>();
         for (int i = 0; i < size; i++) {
             int textRef = FileReadWriteUtils.readInt(file, ByteOrder.LITTLE_ENDIAN);
-            refList[i] = textRef;
-
-            String toAdd = getText(file, textRef, oneLine);
-            //textList[i] = toAdd.getBytes(Charset.forName("windows-1252"));
-            //textList[i] = toAdd.getBytes(Charset.forName("Cp1252"));
-            textList[i] = toAdd.getBytes(StandardCharsets.UTF_8);
+            refList.add(textRef);
+            textList.add(getText(file, textRef, oneLine));
         }
         file.seek(pointerBK);
         return new TextList(size, textList, refList);
@@ -84,7 +81,6 @@ public class TextList {
                         else toRet.append(START_SPECIAL).append(instr.name()).append(END_SPECIAL);
                         break;
                     case WAIT:
-                    case UNKNOWN06:
                         toRet.append(START_SPECIAL).append(instr.name()).append(PARAM_SEPARATOR);
                         data = FileReadWriteUtils.readShort(file, ByteOrder.LITTLE_ENDIAN);
                         toRet.append(data).append(END_SPECIAL);
@@ -106,6 +102,7 @@ public class TextList {
 
                         break;
                     case SET_COLOR: // sets a color
+                    case LEGACY_SET_COLOR:
                         data = FileReadWriteUtils.readShort(file, ByteOrder.LITTLE_ENDIAN);
                         if (!oneLine) {
                             toRet.append(Library.TEXT_COLORS_ANSI.get(data));
@@ -213,11 +210,11 @@ public class TextList {
                         FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
                         if (split[0].compareTo(Library.TextInstruction.WAIT.name()) == 0 ||
                                 split[0].compareTo(Library.TextInstruction.SHOW_OPTIONS.name()) == 0 ||
-                                split[0].compareTo(Library.TextInstruction.UNKNOWN06.name()) == 0 ||
                                 split[0].compareTo(Library.TextInstruction.PRINT_ICON.name()) == 0) {
                             data = Short.parseShort(split[1]); // the value
                             FileReadWriteUtils.writeShort(outputFile, ByteOrder.LITTLE_ENDIAN, data);
-                        } else if (split[0].compareTo(Library.TextInstruction.SET_COLOR.name()) == 0) {
+                        } else if (split[0].compareTo(Library.TextInstruction.SET_COLOR.name()) == 0 ||
+                                split[0].compareTo(Library.TextInstruction.LEGACY_SET_COLOR.name()) == 0) {
                             data = Library.TEXT_COLORS_REVERSE.get(split[1].charAt(0)); // the color
                             FileReadWriteUtils.writeShort(outputFile, ByteOrder.LITTLE_ENDIAN, data);
                         } else {
@@ -258,8 +255,8 @@ public class TextList {
         toRet.append("Number of dialogs: ").append(this.size).append("\n\n");
         for (int i = 0; i < this.size; i++) {
             //String text = new String(this.textList[i], StandardCharsets.UTF_8);
-            String text = new String(this.textList[i], StandardCharsets.UTF_8);
-            toRet.append(i).append("(").append(String.format("0x%08x", refList[i])).append(")").append(":\n")
+            String text = this.textList.get(i);
+            toRet.append(i).append("(").append(String.format("0x%08x", refList.get(i))).append(")").append(":\n")
                     .append(text).append("\n\n");
         }
         return toRet.toString();
@@ -271,7 +268,7 @@ public class TextList {
         for (int i = 0; i < this.size; i++) {
             //toRet.append("\t").append(String.format("%03d", i)).append("\"").append((this.textList[i])).append("\"\n");
             outputFile.writeBytes(String.format("\t%03d:", i));
-            outputFile.write(this.textList[i]);
+            outputFile.write(textList.get(i).getBytes());
             outputFile.writeBytes("\n");
         }
         //return toRet.toString();
@@ -279,18 +276,26 @@ public class TextList {
 
     public int indexOfText(int address) {
         for (int i = 0; i < size; i++) {
-            if (refList[i] == address) {
+            if (this.refList.get(i) == address) {
                 return i;
             }
         }
         return -1;
     }
 
+    public void addText(RandomAccessFile file, int address, boolean oneLine) throws IOException {
+        String text = getText(file, address, oneLine);
+        this.refList.add(address);
+        this.textList.add(text);
+
+        this.size++;
+    }
+
     public int getFirstAddr() {
-        return refList[0];
+        return this.refList.get(0);
     }
 
     public int getRef(int idx) {
-        return this.refList[idx];
+        return this.refList.get(idx);
     }
 }
