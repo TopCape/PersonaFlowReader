@@ -218,8 +218,7 @@ public class EventFileOps {
                 }
 
                 // Code can exist AFTER the text, so gotta check if there are labels that weren't achieved
-
-                boolean allDone = false;
+                boolean allDone = labels.isEmpty();
                 while (!allDone) {
                     HashMap<Integer, Pair<String, Boolean>> auxMap = (HashMap<Integer, Pair<String, Boolean>>) labels.clone();
                     int labelsSize = labels.entrySet().size();
@@ -583,7 +582,15 @@ public class EventFileOps {
                 name = flowInstr.name();
                 short p = getShortVal(inputFile);
                 param = String.format(Library.HEX_PREFIX + "%04x", p);
-                return "\t" + name + "\t" + param + "\t"+ Library.COMMENT_SYMBOL + " " + Library.BATTLES[p] + "\n";
+
+                String battleName;
+                if (p > Library.BATTLES.length-1) {
+                    battleName = "unknown";
+                } else {
+                    battleName = Library.BATTLES[p];
+                }
+
+                return "\t" + name + "\t" + param + "\t"+ Library.COMMENT_SYMBOL + " " + battleName + "\n";
             case ld_world_map:
                 name = flowInstr.name();
                 param = getShortString(inputFile);
@@ -637,11 +644,15 @@ public class EventFileOps {
                     textIdx = textList.indexOfText(address);
                 }
                 return "\t" + name + "\t" + textIdx + "\t"+ Library.COMMENT_SYMBOL + " idx of text in .text section\n";
-            case unk_cmd_58:
+
                 // the three below are related to healing the party?
             case unk_cmd_44:
             case unk_cmd_45:
             case unk_cmd_47:
+            case unk_cmd_58:
+            case unk_cmd_59:
+            case unk_cmd_5A:
+            case unk_cmd_3B:
                 name = flowInstr.name();
                 check = FileReadWriteUtils.readShort(inputFile, valOrder);
                 address = getInt(inputFile);
@@ -793,10 +804,13 @@ public class EventFileOps {
 
                 // jump if instruction
             } else if (instr.compareTo(Library.FlowInstruction.jump_if.name()) == 0 ||
+                    instr.compareTo(Library.FlowInstruction.unk_cmd_3B.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_44.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_45.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_47.name()) == 0 ||
-                    instr.compareTo(Library.FlowInstruction.unk_cmd_58.name()) == 0) {
+                    instr.compareTo(Library.FlowInstruction.unk_cmd_58.name()) == 0 ||
+                    instr.compareTo(Library.FlowInstruction.unk_cmd_59.name()) == 0 ||
+                    instr.compareTo(Library.FlowInstruction.unk_cmd_5A.name()) == 0) {
                 String param = paramSplit[0];
                 String label = paramSplit[1];
 
@@ -1013,13 +1027,13 @@ public class EventFileOps {
             int address2 = FileReadWriteUtils.readInt(inputFile, valOrder);
 
             // If both addresses are -1, then there is nothing to write
-            if (address1 == Library.MINUS_1_INT && address2 == Library.MINUS_1_INT) {
+            if ((address1 == Library.MINUS_1_INT || address1 == 0) && (address2 == Library.MINUS_1_INT || address2 == 0)) {
                 continue;
             }
             outputFile.writeBytes(String.format("\t%02d\t\t", i));
 
             // checking first address position
-            if (address1 != Library.MINUS_1_INT) {
+            if (address1 != Library.MINUS_1_INT && address1 != 0) {
                 String label = getLabel(address1);
                 //outputFile.writeBytes(String.format("%02d\t\t%s\t\t%s <Character in scene>:  <Label to code that executes when spoken to>\n", i, label, Library.COMMENT_SYMBOL));
                 outputFile.writeBytes(String.format("%s", label));
@@ -1030,7 +1044,7 @@ public class EventFileOps {
             outputFile.writeBytes(",");
 
             // checking second address position
-            if (address2 != Library.MINUS_1_INT) {
+            if (address2 != Library.MINUS_1_INT  && address2 != 0) {
                 String label = getLabel(address2);
 
                 outputFile.writeBytes(String.format("%s", label));
