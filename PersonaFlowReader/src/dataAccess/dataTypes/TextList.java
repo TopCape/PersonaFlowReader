@@ -233,9 +233,6 @@ public class TextList {
                 special.append(currChar);
                 continue;
             }
-            if (currChar.compareTo("(") == 0) {
-                System.out.println("a");
-            }
 
             // When RandomAccessFile reads more complex characters, it puts them
             if ((byte)currChar.charAt(0) < 0) {
