@@ -692,13 +692,15 @@ public class EventFileOps {
 
                 // the three below are related to healing the party?
             case unk_cmd_2F:
+            case unk_cmd_3A:
+            case unk_cmd_3B:
             case unk_cmd_44:
             case unk_cmd_45:
             case unk_cmd_47:
             case unk_cmd_58:
             case unk_cmd_59:
             case unk_cmd_5A:
-            case unk_cmd_3B:
+            case unk_cmd_87:
                 name = flowInstr.name();
                 check = FileReadWriteUtils.readShort(inputFile, valOrder);
                 address = getInt(inputFile);
@@ -851,13 +853,15 @@ public class EventFileOps {
                 // jump if instruction
             } else if (instr.compareTo(Library.FlowInstruction.jump_if.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_2F.name()) == 0 ||
+                    instr.compareTo(Library.FlowInstruction.unk_cmd_3A.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_3B.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_44.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_45.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_47.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_58.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_59.name()) == 0 ||
-                    instr.compareTo(Library.FlowInstruction.unk_cmd_5A.name()) == 0) {
+                    instr.compareTo(Library.FlowInstruction.unk_cmd_5A.name()) == 0 ||
+                    instr.compareTo(Library.FlowInstruction.unk_cmd_87.name()) == 0) {
                 String param = paramSplit[0];
                 String label = paramSplit[1];
 
