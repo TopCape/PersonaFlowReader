@@ -25,6 +25,11 @@ public class TextList {
     private final LinkedList<String> textList;
     private final LinkedList<Integer> refList;
 
+    public TextList() {
+        this.textList = new LinkedList<>();
+        this.refList = new LinkedList<>();
+    }
+
     public TextList(int size, LinkedList<String> textList, LinkedList<Integer> refList) {
         this.size = size;
         this.textList = textList;

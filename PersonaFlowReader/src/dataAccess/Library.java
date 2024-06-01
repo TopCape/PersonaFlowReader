@@ -515,15 +515,42 @@ public class Library {
         TEXT_CODES.put((short)0x0118, "x");
         TEXT_CODES.put((short)0x0119, "y");
         TEXT_CODES.put((short)0x011A, "z");
-        TEXT_CODES.put((short)0x011F, "あ");
 
+        TEXT_CODES.put((short)0x011F, "ぁ");
         TEXT_CODES.put((short)0x0122, "い");
+        TEXT_CODES.put((short)0x0125, "ぇ");
+        TEXT_CODES.put((short)0x0126, "え");
+        TEXT_CODES.put((short)0x0129, "か");
+        TEXT_CODES.put((short)0x012A, "が");
+        TEXT_CODES.put((short)0x0135, "し");
         TEXT_CODES.put((short)0x0137, "す");
+        TEXT_CODES.put((short)0x013B, "そ");
+        TEXT_CODES.put((short)0x013D, "た");
+        TEXT_CODES.put((short)0x013E, "だ");
+        TEXT_CODES.put((short)0x0141, "っ");
+        TEXT_CODES.put((short)0x0144, "て");
         TEXT_CODES.put((short)0x0145, "で");
+        TEXT_CODES.put((short)0x0148, "な");
+        TEXT_CODES.put((short)0x014B, "ね");
+        TEXT_CODES.put((short)0x014C, "の");
+        TEXT_CODES.put((short)0x0154, "ぶ");
         TEXT_CODES.put((short)0x015C, "ま");
+        TEXT_CODES.put((short)0x0161, "ゃ");
+        TEXT_CODES.put((short)0x0168, "り");
         TEXT_CODES.put((short)0x016D, "わ");
+        TEXT_CODES.put((short)0x0170, "を");
+        TEXT_CODES.put((short)0x0171, "ん");
+        TEXT_CODES.put((short)0x0181, "ア");
         TEXT_CODES.put((short)0x0187, "エ");
+        TEXT_CODES.put((short)0x018C, "キ");
+        TEXT_CODES.put((short)0x019A, "セ");
+        TEXT_CODES.put((short)0x019C, "ソ");
+        TEXT_CODES.put((short)0x01A9, "ナ");
+        TEXT_CODES.put((short)0x01B9, "ペ");
+        TEXT_CODES.put((short)0x01C3, "ャ");
+        TEXT_CODES.put((short)0x01C4, "ヤ");
         TEXT_CODES.put((short)0x01CA, "リ");
+        TEXT_CODES.put((short)0x01CB, "ル");
 
         TEXT_CODES.put((short)0x0204, "♥");
         TEXT_CODES.put((short)0x0205, "♦");
@@ -531,8 +558,21 @@ public class Library {
         TEXT_CODES.put((short)0x0207, "♣");
 
         TEXT_CODES.put((short)0x07FB, "興");
+        TEXT_CODES.put((short)0x082A, "苦");
+        TEXT_CODES.put((short)0x08A9, "見");
+        TEXT_CODES.put((short)0x09F1, "子");
+        TEXT_CODES.put((short)0x0A29, "自");
         TEXT_CODES.put((short)0x0B5B, "深");
+        TEXT_CODES.put((short)0x0BB6, "生");
+        TEXT_CODES.put((short)0x0CEA, "男");
+        TEXT_CODES.put((short)0x0DAB, "徒");
+        TEXT_CODES.put((short)0x0F6A, "分");
+        TEXT_CODES.put((short)0x0FD8, "帽");
         TEXT_CODES.put((short)0x1021, "味");
+        TEXT_CODES.put((short)0x1022, "未");
+        TEXT_CODES.put((short)0x10AC, "様");
+        TEXT_CODES.put((short)0x10C8, "来");
+        TEXT_CODES.put((short)0x114A, "労");
         // following short values display a standard ? in-game
         // values not in this map display as mid-level dots in-game
 
