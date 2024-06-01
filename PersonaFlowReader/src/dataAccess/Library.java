@@ -29,6 +29,7 @@ public class Library {
     public static final String UNKNOWN_INSTR_TEXT = "unknown";
     public static final byte CMD_START = (byte)0xFF;
     public static final String HEX_PREFIX = "0x";
+    public static final String BASE_DIR = "./";
 
     public static final long STARTING_SONG_ADDRESS = 0x02;
 

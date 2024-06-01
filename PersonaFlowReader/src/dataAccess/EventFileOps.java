@@ -11,14 +11,27 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class EventFileOps {
 
     private static final String READ_MODE = "r";
     private static final String WRITE_MODE = "rw";
-    private static final String EXTENSION_1 = ".BIN";
-    private static final String EXTENSION_2 = ".bin";
+    public static final String EXTENSION_1 = ".BIN";
+    public static final String EXTENSION_2 = ".bin";
+    public static final String EVENT_SCRIPT_EXTENSION_1 = ".EVS";
+    public static final String EVENT_SCRIPT_EXTENSION_2 = ".evs";
+    public static final String DEC_SCRIPT_EXTENSION_1 = ".DEC";
+    public static final String DEC_SCRIPT_EXTENSION_2 = ".dec";
+    public static final String EXTRACTED_DIR_NAME = "extracted";
+    public static final String OUTPUT_DIR_NAME = "output";
+    public static final int BASE_EVS_FILENAME_SIZE = 6;
 
     private static int labelNum;
     private static boolean isLastInstruction;
@@ -44,7 +57,7 @@ public class EventFileOps {
 
     public static void extract(String path) throws IOException, OperationNotSupportedException {
         if (!path.endsWith(EXTENSION_1) && !path.endsWith(EXTENSION_2)) {
-            System.out.println("PATH was: " + path);
+            //System.out.println("PATH was: " + path);
             throw new OperationNotSupportedException("Only .bin files are supported");
         }
 
@@ -56,10 +69,19 @@ public class EventFileOps {
             String[] pathArray = path.split("/");
             String baseNameWExt = pathArray[pathArray.length-1];
             String baseName = baseNameWExt.substring(0, baseNameWExt.length()-4);
-            basePath = path.substring(0, path.length()-baseNameWExt.length()) + baseName;
+            //basePath = path.substring(0, path.length()-baseNameWExt.length()) + baseName;
+            String initialPath = pathArray[0] + "/" + EXTRACTED_DIR_NAME + "/";
 
             // create directory if it doesn't exist
-            File dir = new File(basePath);
+            File dir = new File(initialPath);
+            if (!dir.exists()) {
+                dir.mkdir();
+            }
+
+            basePath = initialPath + baseName;
+
+            // create directory if it doesn't exist
+            dir = new File(basePath);
             if (!dir.exists()) {
                 dir.mkdir();
             }
@@ -67,7 +89,7 @@ public class EventFileOps {
             // getting each inner file
             for (int i = 0; i < addressList.getListSize(); i++) {
                 String nameAddition = String.format("_%03d", i);
-                String newFileName = basePath + "/" + baseName + nameAddition + ".BIN";
+                String newFileName = basePath + "/" + baseName + nameAddition + EVENT_SCRIPT_EXTENSION_1;
 
                 int fileAddr = addressList.getStartAddress(i);
                 if (fileAddr == -1) break;
@@ -80,44 +102,53 @@ public class EventFileOps {
                         newFile.writeInt(baseFile.readInt());
                     }
                 } catch (Exception e) {
-                    System.out.println("ERR Making new file: " + e.getMessage());
+                    System.out.println(e.getMessage());
                     throw e;
                 }
             }
         } catch (Exception e) {
-            System.out.println("ERR Opening file for extraction: " + e.getMessage());
+            System.out.println(e.getMessage());
             throw e;
         }
     }
 
-    public static void archive(String dirPath) throws OperationNotSupportedException, IOException {
-        File dir = new File(dirPath);
-        File[] directoryListing = dir.listFiles();
+    public static void archive(String dirPath, String destinationDir, String filename) throws OperationNotSupportedException, IOException {
+        //File dir = new File(dirPath);
+        //File[] directoryListing = dir.listFiles();
 
         int startAddr = 0x800;
         LinkedList<InnerFileAddress> fileAddrList = new LinkedList<>();
-        if (directoryListing != null) {
-            if (directoryListing.length == 0) {
-                throw new OperationNotSupportedException("The directory is empty");
-            }
-            for (File child : directoryListing) {
-                int endAddr = (int) (child.length() + startAddr);
+
+        try (Stream<Path> pathStream = Files.list(Paths.get(dirPath))){
+
+            LinkedList<Path> pathList = new LinkedList<>();
+            pathStream
+                    .filter(s -> s.toString().toUpperCase().endsWith(EVENT_SCRIPT_EXTENSION_1))
+                    //.sorted()
+                    .forEach(pathList::add);
+            //LinkedList<Path> pathList = pathStream.collect(Collectors.toCollection(LinkedList::new));
+
+            for(Path child : pathList) {
+                int endAddr = (int) ((child.toFile().length() + startAddr));
                 InnerFileAddress fileAddr = new InnerFileAddress(startAddr, endAddr);
                 fileAddrList.add(fileAddr);
                 startAddr = endAddr;
             }
             InnerFileAddressList fileList = new InnerFileAddressList(fileAddrList);
 
-            if (dirPath.charAt(dirPath.length()-1) == '/') dirPath = dirPath.substring(0, dirPath.length()-1);
+            /*if (dirPath.charAt(dirPath.length()-1) == '/') dirPath = dirPath.substring(0, dirPath.length()-1);
             String[] seg = dirPath.split("/");
             String fileName = seg[seg.length-1];
-            String destinationFile = dirPath + "/" + fileName + "_NEW.BIN";
+            String destinationFile = dirPath + "/" + fileName + ".BIN";
+            */
+
+            String destinationFile = destinationDir + filename + EventFileOps.EXTENSION_1;
 
             try (RandomAccessFile file = new RandomAccessFile(destinationFile, WRITE_MODE)) {
                 fileList.writeFileAddresses(file, valOrder);
 
-                for (File child : directoryListing) {
-                    try (RandomAccessFile subFile = new RandomAccessFile(child, READ_MODE)) {
+                for (Path child : pathList) {
+                    try (RandomAccessFile subFile = new RandomAccessFile(child.toFile(), READ_MODE)) {
                         int sizeInInts = (int) subFile.length() / 4;
                         for (int i = 0; i < sizeInInts; i++) {
                             file.writeInt(subFile.readInt());
@@ -128,14 +159,42 @@ public class EventFileOps {
                     }
                 }
 
+                /*String prevFilename = null;
+                for (Object child : pathStream.toArray()) {
+                    if (prevFilename == null) {
+                        prevFilename = ((File)child).getName();
+                        continue;
+                    }
+                    String currFilename = ((File)child).getName();
+                    String prevFilenameComp = prevFilename.substring(0, BASE_EVS_FILENAME_SIZE);
+                    String currFilenameComp = currFilename.substring(0, BASE_EVS_FILENAME_SIZE);
+
+                    String fileToUse;
+                    // checking if the files have the same base name (E0_000.EVS vs E0_000_ENCRYPTED.EVS)
+                    if (prevFilenameComp.compareTo(currFilenameComp) == 0) {
+                        fileToUse = prevFilename.length() < currFilename.length() ? currFilename : prevFilename;
+                    } else { // gotta write the previous file
+
+                    }
+
+                    try (RandomAccessFile subFile = new RandomAccessFile((File)child, READ_MODE)) {
+                        int sizeInInts = (int) subFile.length() / 4;
+                        for (int i = 0; i < sizeInInts; i++) {
+                            file.writeInt(subFile.readInt());
+                        }
+                    } catch (Exception e) {
+                        System.out.println("ERR in reading subfile for archiving: " + e.getMessage());
+                        throw e;
+                    }
+                }*/
+
             } catch (Exception e) {
                 System.out.println("ERR in archiving process: " + e.getMessage());
                 throw e;
             }
 
-
-        } else {
-            throw new OperationNotSupportedException("It must be a directory path");
+        } catch (Exception e) {
+            throw new OperationNotSupportedException(e.getMessage());
         }
     }
 
@@ -284,12 +343,12 @@ public class EventFileOps {
                 textList.writeText(outputFile);
 
             } catch (Exception e) {
-                System.out.println("ERR opening file to write decoded to: " + e.getMessage());
+                //System.out.println("ERR opening file to write decoded to: " + e.getMessage());
                 throw e;
             }
 
         } catch (Exception e) {
-            System.out.println("ERR opening file to decode: " + e.getMessage());
+            //System.out.println("ERR opening file to decode: " + e.getMessage());
             throw e;
         }
     }
@@ -307,8 +366,9 @@ public class EventFileOps {
         textReferenceLocations.clear();
         labelReferenceLocations.clear();
         int textListSize;
+        String outputPath = inputPath.substring(0, inputPath.length()-4) + "_temp" + EVENT_SCRIPT_EXTENSION_1;
         try (RandomAccessFile inputFile = new RandomAccessFile(inputPath, READ_MODE)) {
-            String outputPath = inputPath.substring(0, inputPath.length()-4) + "_ENCODED.BIN";
+            //String outputPath = inputPath.substring(0, inputPath.length()-4) + EVENT_SCRIPT_EXTENSION_1;
 
             // delete file if it already exists
             File file = new File(outputPath);
@@ -526,12 +586,24 @@ public class EventFileOps {
 
 
             } catch (Exception e) {
-                System.out.println("ERR opening file to write encoded to: " + e.getMessage());
+                System.out.println(e.getMessage());
                 throw e;
             }
         } catch (Exception e) {
-            System.out.println("ERR opening file to encode: " + e.getMessage());
+            System.out.println(e.getMessage());
             throw e;
+        }
+
+        String ogPath = inputPath.substring(0, inputPath.length()-4) + EVENT_SCRIPT_EXTENSION_1;
+        File ogFile = new File(ogPath);
+        File tempFile = new File(outputPath);
+
+        if (ogFile.exists()) {
+            if (ogFile.delete()) {
+                if (tempFile.renameTo(ogFile)) {
+                    System.out.println("DONE");
+                }
+            }
         }
     }
 
@@ -543,7 +615,7 @@ public class EventFileOps {
      * @param isJ {@code:true} if the event file was extracted from the japanese version of the game
      */
     private static void fillFileBeginning(String path, RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isJ) throws IOException, OperationNotSupportedException {
-        String ogPath = path.substring(0, path.length()-3) + "BIN";
+        String ogPath = path.substring(0, path.length()-4) + EVENT_SCRIPT_EXTENSION_1;
         try (RandomAccessFile ogFile = new RandomAccessFile(ogPath, READ_MODE)) {
             ogFile.seek(Library.ADDRESS_WITH_FLOW_SCRIPT_POINTER - (isJ ? 4 : 0));
             int startAddr = FileReadWriteUtils.readInt(ogFile, valOrder);

@@ -10,33 +10,40 @@ This tool allows the "decompilation" and "compilation" of Persona 1 event files.
 
 Most of the file is still unknown (to me), so it is copied from the base file and edited to fit new code that a user may have written.
 
-# TODO: make the CMD "interface" for users
 
 ## How to use
 
 There are many options when you start the program. Press the corresponding number and it will lask you for the specifics for each option.
 
-### Extract Event Files
+### Setup
+Create a folder with the name "OG" in the same directory as the program and paste EX.BIN files into it, where X is a number from 0 to 4. These are event files that are present in PSP_GAME/USRDIR/pack/, in Persona 1's files.
 
-Event files are the files present in PSP_GAME/USRDIR/pack/, in Persona 1's files, with the names EX.BIN, where X is a number from 0 to 4. Each of these files have many event files inside of them, relating to types of event scenes in the game. E0 has SEBEC related event files and E1 has SQQ related event files, for instance.
+At any time during the process, entering a "-1" will exit the current menu.
 
-When this option is used, the internal event files are all extracted to a folder in the same directory and with the same name as the extracted event file. All internal files will be labeled with the name of the extracted event file + a suffix number based on their order in the file (ex. for E0.BIN, the first file inside it will be extracted to E0/E0_000.BIN).
+**IMPORTANT**: The program depends on the names of the files and the specific paths within the program's directory. **DO NOT CHANGE THEM**. The only exception is for operations that also accept directories, as indicated in the instructions as the parameters are being asked.
+
+### 0: Extract Event Files
+
+Each of these files have many event files inside of them, relating to types of event scenes in the game. E0 has SEBEC related event files and E1 has SQQ related event files, for instance.
+
+When this option is used, the internal event files are all extracted to a folder called "extracted" in the same directory as the program and with the same name as the extracted event file. All internal files will be labeled with the name of the extracted event file + a suffix number based on their order in the file (ex. for E0.BIN, the first file inside it will be extracted to E0/E0_000.EVS). The .EVS extension is used for the extracted event files and stands for EVent Script. This operation requires the user to write the name of the original EX.BIN file when prompted.
 
 
-### Archive Event Files
+### 1: Decode Event File
 
-This option grabs all the files in the specified folder and creats an EX.BIN type file from them. Basically, it rebuilds the original event file based on all of the files in a folder.
+This option outputs a .DEC file with the same name as the input file (ex. E0_000.EVS -> E0_000.DEC). The outputed file is in a text format that is readable by any text editor software. The operation requests the name of the file to decode (including the extension) or a folder path (ending in "/") with the files to decode inside.
 
-**WARNING**: This will archive ALL files inside the folder, so make sure there are no repeated files, such as E0_000.BIN and E0_000_DECODED.BIN, as it will add both of these to the file instead of just one of them.
+I recommend using Notepad++ as I created a language style file for it. This has custom colors for different instructions and situations, which make the files easier to read. The file is present in the "Notepaddpp_style" folder. In Notepad++, go to the "Language" tab > "User Defined Language" > "Define your language..." and in here, click "Import". Navigate to the "Notepaddpp_style" folder and import the .xml inside. Now, this style should automatically be selected for every .DEC file you open.
 
+The text file itself contains the code inside of the event file in an assembly language-like format. Not every instruction is known, so those are written as "unknown", followed by the bytes it is comprised of. Some instructions have parameters that are also unknown.
 
-### Decode Event File
+### 2: Encode Event File
 
-This option outputs a .DEC file with the same name as the input file (ex. E0_000.BIN -> E0_000.DEC). The outputed file is in a text format that is readable by any text editor software. 
+This option encodes a .DEC file specified by the user (extension included), replacing the original .EVS of the same name. Similarly to the decode instruction, this one can also receive a directory path, provided it ends in "/".
 
-I recommend using Notepad++ as I created a language style file for it which helps to read the text inside. The file is present in the "Notepaddpp_style" folder. In Notepad++, go to the "Language" tab > "User Defined Language" > "Define your language..." and in here, click "Import". Navigate to the "Notepaddpp_style" folder and import the .xml inside. Now, this style should automatically be selected for every .DEC file you open.
+### 3: Archive Event Files
 
-The text file itself contains the code inside of the event file in an assembly language-like format. Not every instruction is known, so those are written as "unknown", followed by the bytes it is comprised of. Some instructions have parameters that are also unknown. Any known parameters appear more discript either in a comment or as a value itself.
+This option reads all the files in the specified folder and creats an EX.BIN type file from them. This EX.BIN file is the file that the user should paste back into the game to apply their changes.
 
 
 
