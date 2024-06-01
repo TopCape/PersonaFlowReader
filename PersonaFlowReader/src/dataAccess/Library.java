@@ -517,10 +517,22 @@ public class Library {
         TEXT_CODES.put((short)0x011A, "z");
         TEXT_CODES.put((short)0x011F, "あ");
 
+        TEXT_CODES.put((short)0x0122, "い");
+        TEXT_CODES.put((short)0x0137, "す");
+        TEXT_CODES.put((short)0x0145, "で");
+        TEXT_CODES.put((short)0x015C, "ま");
+        TEXT_CODES.put((short)0x016D, "わ");
+        TEXT_CODES.put((short)0x0187, "エ");
+        TEXT_CODES.put((short)0x01CA, "リ");
+
         TEXT_CODES.put((short)0x0204, "♥");
         TEXT_CODES.put((short)0x0205, "♦");
         TEXT_CODES.put((short)0x0206, "♠");
         TEXT_CODES.put((short)0x0207, "♣");
+
+        TEXT_CODES.put((short)0x07FB, "興");
+        TEXT_CODES.put((short)0x0B5B, "深");
+        TEXT_CODES.put((short)0x1021, "味");
         // following short values display a standard ? in-game
         // values not in this map display as mid-level dots in-game
 
@@ -649,10 +661,10 @@ public class Library {
             "Nemesis 6 battle",
             "Thanatos 1 battle",
             "Thanatos 2 battle",
-            "Snow Queen mask battle",
-            "Queen Asura battle",
-            "bad ending last battle",
-            "Pandora fase 2"
+            "Snow Queen mask battle", // 1F
+            "Queen Asura battle", // 20
+            "bad ending last battle", // 21
+            "Pandora fase 2" // 22
     };
 
     public static final String[][] OPTIONS = {
