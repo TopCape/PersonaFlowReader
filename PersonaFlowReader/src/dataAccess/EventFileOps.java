@@ -1303,6 +1303,9 @@ public class EventFileOps {
      * @throws IOException I/O file stuff
      */
     private static void encodePositionOrInteractableSection(RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isInteractable, boolean isJ) throws IOException {
+        // TODO: write over all the references in these data structures, in case user wants to change what character has a reference
+        // Right now, the program just writes the ones in the decoded file, it doesn't overwrite non-existing ones with FFFFFFFF
+
         // backing up the pointer to restore it after the positions
         long pointerBK = outputFile.getFilePointer();
 
