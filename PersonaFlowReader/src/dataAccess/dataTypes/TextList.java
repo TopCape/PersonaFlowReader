@@ -148,7 +148,11 @@ public class TextList {
                         break;
                 }
             } else { // it's text
-                toRet.append(Library.TEXT_CODES.get(data));
+                if (Library.TEXT_CODES.containsKey(data)) {
+                    toRet.append(Library.TEXT_CODES.get(data));
+                } else {
+                    toRet.append(String.format("{%04X}", data));
+                }
             }
             data = FileReadWriteUtils.readShort(file, ByteOrder.BIG_ENDIAN);
         }
