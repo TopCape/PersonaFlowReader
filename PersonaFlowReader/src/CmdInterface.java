@@ -13,6 +13,9 @@ public class CmdInterface {
     private static final String EXTRACTED_PATH = Library.BASE_DIR + EventFileOps.EXTRACTED_DIR_NAME + "/";
     private static final String CANCEL_STRING = "(Enter \"-1\" at any time to cancel the current operation and go back by one \"screen\")";
 
+    /**
+     * The main execution loop for this cmd interface
+     */
     public static void run() {
         Scanner sc = new Scanner(System.in);
 
@@ -59,6 +62,12 @@ public class CmdInterface {
 
     }
 
+    /**
+     * Method for extracting .BIN
+     * @param sc the Scanner object to read more user inputs
+     * @throws OperationNotSupportedException custom exception messages here
+     * @throws IOException file related exceptions
+     */
     private static void extractBIN(Scanner sc) throws OperationNotSupportedException, IOException {
         System.out.println("Enter the filename (including the extension):");
         String filename = requestInput(sc);
@@ -70,6 +79,12 @@ public class CmdInterface {
         System.out.println("The files have been extracted");
     }
 
+    /**
+     * Method for decoding .EVS files
+     * @param sc the Scanner object to read more user inputs
+     * @throws OperationNotSupportedException custom exception messages here
+     * @throws IOException file related exceptions
+     */
     private static void decodeEVS(Scanner sc) throws OperationNotSupportedException, IOException {
         boolean isJ = isJpn(sc) > 0;
 
@@ -96,6 +111,12 @@ public class CmdInterface {
 
     }
 
+    /**
+     * Method for encoding .DEC files
+     * @param sc the Scanner object to read more user inputs
+     * @throws OperationNotSupportedException custom exception messages here
+     * @throws IOException file related exceptions
+     */
     private static void encodeDEC(Scanner sc) throws OperationNotSupportedException, IOException {
         boolean isJ = isJpn(sc) > 0;
 
@@ -121,6 +142,12 @@ public class CmdInterface {
         }
     }
 
+    /**
+     * Method for combining .EVS files back into a .BIN
+     * @param sc the Scanner object to read more user inputs
+     * @throws OperationNotSupportedException custom exception messages here
+     * @throws IOException file related exceptions
+     */
     private static void combineEVS(Scanner sc) throws OperationNotSupportedException, IOException {
         System.out.println("Enter the name of the folder that contains the extracted files (should be the same as the original file, \"Ex\"):");
         String inFolder = requestInput(sc);
@@ -156,6 +183,11 @@ public class CmdInterface {
         EventFileOps.archive(actualPath, destinationDir, filename);
     }
 
+    /**
+     * Auxiliary method for asking the user if the extracted files are from the japanese version of the game
+     * @param sc the Scanner object to read more user inputs
+     * @return {@code 1} for yes, {@code 0} for no or {@code -1} for none of the above
+     */
     private static int isJpn(Scanner sc) {
         while(true) {
             System.out.println("Were the files extracted from a japanese version of the game? (y/n):");
@@ -170,6 +202,12 @@ public class CmdInterface {
             else return yesOrNo;
         }
     }
+
+    /**
+     * Auxiliary method for receiving yes or no answers
+     * @param string the string input by the user
+     * @return {@code 1} for yes, {@code 0} for no or {@code -1} for none of the above
+     */
     private static int yesOrNo(String string) {
         if (string.compareToIgnoreCase("y") == 0) {
             return 1;
@@ -180,6 +218,11 @@ public class CmdInterface {
         }
     }
 
+    /**
+     * Auxiliary method to check if the user entered the cancel input, which makes the user go back by 1 "page"
+     * @param string the string input by the user
+     * @return {@code true} if the received value was -1
+     */
     private static boolean checkIfCancel(String string) {
         int value;
         try {
@@ -190,6 +233,11 @@ public class CmdInterface {
         }
     }
 
+    /**
+     * Auxiliary method for waiting for a number
+     * @param sc the Scanner object to read more user inputs
+     * @return the option number
+     */
     private static int requestOption(Scanner sc) {
         String input = requestInput(sc);
         int inputInt = -1;
@@ -201,11 +249,19 @@ public class CmdInterface {
         return inputInt;
     }
 
+    /**
+     * Auxiliary method to print the > and receive a line from the user input
+     * @param sc the Scanner object to read more user inputs
+     * @return a string of what the user wrote
+     */
     private static String requestInput(Scanner sc) {
         System.out.print("> ");
         return sc.nextLine();
     }
 
+    /**
+     * Prints the instructions of the interface
+     */
     private static void printInstructions() {
         System.out.println("Enter the corresponding number to choose from the following options:");
         System.out.println("0 - extract an Ex.BIN file");
@@ -216,25 +272,13 @@ public class CmdInterface {
         System.out.println();
     }
 
-    private static void encodeAll(String path, boolean isJ) throws OperationNotSupportedException, IOException {
-        File dir = new File(path);
-        File[] directoryListing = dir.listFiles();
-
-        if (directoryListing != null) {
-            if (directoryListing.length == 0) {
-                throw new OperationNotSupportedException("The directory is empty.");
-            }
-            for (File child : directoryListing) {
-                System.out.println(child.getName());
-                if (FileReadWriteUtils.getExtension(child.getPath()).compareToIgnoreCase("dec") == 0) {
-                    EventFileOps.encodeFlowScript(child.getPath(), isJ);
-                }
-            }
-        } else {
-            System.out.println("There is something wrong with the directory.");
-        }
-    }
-
+    /**
+     * Decodes all .EVS files in a directory
+     * @param path the directory path
+     * @param isJ {@code true} if the file was extracted from a japanese version of the game
+     * @throws OperationNotSupportedException custom exception messages here
+     * @throws IOException file related exceptions
+     */
     private static void decodeAll(String path, boolean isJ) throws OperationNotSupportedException, IOException {
         File dir = new File(path);
         File[] directoryListing = dir.listFiles();
@@ -247,6 +291,32 @@ public class CmdInterface {
                 System.out.println(child.getName());
                 if (FileReadWriteUtils.getExtension(child.getPath()).compareToIgnoreCase("evs") == 0) {
                     EventFileOps.decodeFlowScript(child.getPath(), isJ);
+                }
+            }
+        } else {
+            System.out.println("There is something wrong with the directory.");
+        }
+    }
+
+    /**
+     * Encodes all .DEC files in a directory
+     * @param path the directory path
+     * @param isJ {@code true} if the file was extracted from a japanese version of the game
+     * @throws OperationNotSupportedException custom exception messages here
+     * @throws IOException file related exceptions
+     */
+    private static void encodeAll(String path, boolean isJ) throws OperationNotSupportedException, IOException {
+        File dir = new File(path);
+        File[] directoryListing = dir.listFiles();
+
+        if (directoryListing != null) {
+            if (directoryListing.length == 0) {
+                throw new OperationNotSupportedException("The directory is empty.");
+            }
+            for (File child : directoryListing) {
+                System.out.println(child.getName());
+                if (FileReadWriteUtils.getExtension(child.getPath()).compareToIgnoreCase("dec") == 0) {
+                    EventFileOps.encodeFlowScript(child.getPath(), isJ);
                 }
             }
         } else {

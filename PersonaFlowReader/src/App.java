@@ -13,10 +13,8 @@ public class App {
 
     public static final ByteOrder order = ByteOrder.LITTLE_ENDIAN;
     public static final ByteOrder instructionOrder = ByteOrder.BIG_ENDIAN;
-    public static final int LIMIT = 3;
-    public static final String PATH = "../Efiles/E0.BIN";
 
-    public static void main(String[] args) throws OperationNotSupportedException, IOException {
+    public static void main(String[] args) {
         CmdInterface.run();
 
         // outside of ICU
