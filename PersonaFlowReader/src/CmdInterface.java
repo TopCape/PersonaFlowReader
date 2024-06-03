@@ -89,7 +89,7 @@ public class CmdInterface {
         int j = isJpn(sc);
         if (j < 0) return;
 
-        boolean isJ = isJpn(sc) > 0;
+        boolean isJ = j > 0;
 
         while (true) {
             System.out.println("Enter the filename (including the extension) or a directory (ending in \"/\") to decode all EVS files in it:");
@@ -124,7 +124,7 @@ public class CmdInterface {
         int j = isJpn(sc);
         if (j < 0) return;
 
-        boolean isJ = isJpn(sc) > 0;
+        boolean isJ = j > 0;
 
         while (true) {
             System.out.println("Enter the filename (including the extension) or a directory (ending in \"/\") to encode all DEC files in it:");
