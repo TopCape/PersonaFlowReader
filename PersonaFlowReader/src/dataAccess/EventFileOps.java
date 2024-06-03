@@ -88,6 +88,7 @@ public class EventFileOps {
             for (int i = 0; i < addressList.getListSize(); i++) {
                 String nameAddition = String.format("_%03d", i);
                 String newFileName = basePath + "/" + baseName + nameAddition + EVENT_SCRIPT_EXTENSION_1;
+                System.out.printf("%s\r", newFileName);
 
                 int fileAddr = addressList.getStartAddress(i);
                 if (fileAddr == -1) break;
@@ -103,6 +104,7 @@ public class EventFileOps {
                     System.out.println(e.getMessage());
                     throw e;
                 }
+                System.out.print("DONE\r");
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -146,15 +148,18 @@ public class EventFileOps {
                 fileList.writeFileAddresses(file, valOrder);
 
                 for (Path child : pathList) {
+                    System.out.printf("%s\r", child.toFile().getPath());
                     try (RandomAccessFile subFile = new RandomAccessFile(child.toFile(), READ_MODE)) {
                         int sizeInInts = (int) subFile.length() / 4;
                         for (int i = 0; i < sizeInInts; i++) {
                             file.writeInt(subFile.readInt());
                         }
+
                     } catch (Exception e) {
                         System.out.println("ERR in reading subfile for archiving: " + e.getMessage());
                         throw e;
                     }
+                    System.out.print("DONE\r");
                 }
 
                 /*String prevFilename = null;
@@ -363,6 +368,7 @@ public class EventFileOps {
         emptyLineHappened = false;
         textReferenceLocations.clear();
         labelReferenceLocations.clear();
+        labelReferenceRealVals.clear();
         int textListSize;
         String outputPath = inputPath.substring(0, inputPath.length()-4) + "_temp" + EVENT_SCRIPT_EXTENSION_1;
         try (RandomAccessFile inputFile = new RandomAccessFile(inputPath, READ_MODE)) {
@@ -599,7 +605,7 @@ public class EventFileOps {
         if (ogFile.exists()) {
             if (ogFile.delete()) {
                 if (tempFile.renameTo(ogFile)) {
-                    System.out.println("DONE");
+                    System.out.print("DONE\r");
                 }
             }
         }
