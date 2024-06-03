@@ -86,6 +86,9 @@ public class CmdInterface {
      * @throws IOException file related exceptions
      */
     private static void decodeEVS(Scanner sc) throws OperationNotSupportedException, IOException {
+        int j = isJpn(sc);
+        if (j < 0) return;
+
         boolean isJ = isJpn(sc) > 0;
 
         while (true) {
@@ -118,6 +121,9 @@ public class CmdInterface {
      * @throws IOException file related exceptions
      */
     private static void encodeDEC(Scanner sc) throws OperationNotSupportedException, IOException {
+        int j = isJpn(sc);
+        if (j < 0) return;
+
         boolean isJ = isJpn(sc) > 0;
 
         while (true) {
@@ -149,15 +155,26 @@ public class CmdInterface {
      * @throws IOException file related exceptions
      */
     private static void combineEVS(Scanner sc) throws OperationNotSupportedException, IOException {
-        System.out.println("Enter the name of the folder that contains the extracted files (should be the same as the original file, \"Ex\"):");
-        String inFolder = requestInput(sc);
+        String inFolder;
+        while(true) {
+            System.out.println("Enter the name of the folder that contains the extracted files (should be the same as the original file, \"Ex\"):");
+            inFolder = requestInput(sc);
 
-        boolean cancel = checkIfCancel(inFolder);
-        if (cancel) return;
+            boolean cancel = checkIfCancel(inFolder);
+            if (cancel) return;
 
+            if (inFolder.isEmpty()) {
+                System.out.println("You must enter a folder name");
+                continue;
+            }
+            break;
+        }
 
         System.out.println("Enter the output path (or just press ENTER for the default path, \"/output/\" in the program's directory)");
         String outFolder = requestInput(sc);
+
+        boolean cancel = checkIfCancel(outFolder);
+        if (cancel) return;
 
         if (inFolder.charAt(inFolder.length()-1) == '/') inFolder = inFolder.substring(0, inFolder.length()-1);
         String[] seg = inFolder.split("/");
