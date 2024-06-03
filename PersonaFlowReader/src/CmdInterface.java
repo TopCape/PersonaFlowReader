@@ -156,7 +156,7 @@ public class CmdInterface {
         if (cancel) return;
 
 
-        System.out.println("Enter the output path (or \"_\" for the default path, \"/output/\" in the program's directory)");
+        System.out.println("Enter the output path (or just press ENTER for the default path, \"/output/\" in the program's directory)");
         String outFolder = requestInput(sc);
 
         if (inFolder.charAt(inFolder.length()-1) == '/') inFolder = inFolder.substring(0, inFolder.length()-1);
@@ -164,7 +164,7 @@ public class CmdInterface {
         String filename = seg[seg.length-1];
 
         String destinationDir = outFolder;
-        if (outFolder.compareTo("_") == 0) {
+        if (outFolder.isEmpty()) {
             destinationDir = Library.BASE_DIR + EventFileOps.OUTPUT_DIR_NAME + "/";
         } else if (destinationDir.charAt(destinationDir.length()-1) != '/') {
             destinationDir += '/';
