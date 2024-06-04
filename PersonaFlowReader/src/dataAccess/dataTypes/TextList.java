@@ -247,6 +247,7 @@ public class TextList {
             }
             if (!Library.getInstance().TEXT_CODES_REVERSE.containsKey(currChar)) {
                 if (currChar.compareTo("'") == 0) currChar = "’"; // this char is used for Apostrophe instead of the standard '
+                else if (currChar.compareTo("\"") == 0) currChar = "”"; // this char can be used for quotes instead of the standard "
                 else throw new OperationNotSupportedException("Character " + currChar + " is not usable.");
             }
             data = Library.getInstance().TEXT_CODES_REVERSE.get(currChar);
