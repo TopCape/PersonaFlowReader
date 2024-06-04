@@ -676,7 +676,14 @@ public class EventFileOps {
 
         if (instr != Library.CMD_START) {
             // advance through padding
-            while ((instr = inputFile.readByte()) == (byte)0);
+            long t = 0;
+            long tries = inputFile.length() - inputFile.getFilePointer();
+            while ((instr = inputFile.readByte()) == (byte)0) {
+                t++;
+                if (t == tries-1) {
+                    break;
+                }
+            }
 
             // if, after the padding, the next byte still isn't an instruction, it must be text
             if (instr != Library.CMD_START) {
