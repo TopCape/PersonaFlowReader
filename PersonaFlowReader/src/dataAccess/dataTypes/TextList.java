@@ -4,6 +4,7 @@ import dataAccess.FileReadWriteUtils;
 import dataAccess.Library;
 import dataAccess.LongCharRandomAccessFile;
 
+import javax.naming.OperationNotSupportedException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
@@ -168,7 +169,7 @@ public class TextList {
         return toRet.toString();
     }
 
-    public static void encodeText(RandomAccessFile outputFile, String text, RandomAccessFile inputFile, int textInputPointer) throws IOException {
+    public static void encodeText(RandomAccessFile outputFile, String text, RandomAccessFile inputFile, int textInputPointer) throws IOException, OperationNotSupportedException {
         long pointerBK = inputFile.getFilePointer();
 
         //int length = text.length();
@@ -243,6 +244,10 @@ public class TextList {
                 inputFile.seek(textInputPointer+i);
                 currChar = "" + longCharFile.nextChar();
                 i += longCharFile.numOfBytes-1;
+            }
+            if (!Library.getInstance().TEXT_CODES_REVERSE.containsKey(currChar)) {
+                if (currChar.compareTo("'") == 0) currChar = "’"; // this char is used for Apostrophe instead of the standard '
+                else throw new OperationNotSupportedException("Character " + currChar + " is not usable.");
             }
             data = Library.getInstance().TEXT_CODES_REVERSE.get(currChar);
             FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
