@@ -47,10 +47,6 @@ This option encodes a .DEC file specified by the user (extension included), repl
 
 This option reads all the files in the specified folder and creats an EX.BIN type file from them. The resulting EX.BIN file is the file that the user should paste back into the game to apply their changes. The same output folder holds the edited EBOOT.BIN that should also be replaced in the game. If you want multiple EX.BIN files' changes to be reflected in the final EBOOT.BIN, don't remove the EBOOT.BIN in the output folder, as other archive operations will edit that file so the changes can stack.
 
-## Known issues
-At least in the japanese version of the files, the program doesn't encode some back properly. Make sure you only encode the files you edited and not all of the other ones. If you edit a file that has one of those encoding problems, feel free to create an issue and say what file caused it so it can be researched.
-
-
 
 # The Decoded Event File Format
 
