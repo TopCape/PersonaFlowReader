@@ -155,6 +155,11 @@ public class CmdInterface {
      * @throws IOException file related exceptions
      */
     private static void combineEVS(Scanner sc) throws OperationNotSupportedException, IOException {
+        int j = isJpn(sc);
+        if (j < 0) return;
+
+        boolean isJ = j > 0;
+
         String inFolder;
         while(true) {
             System.out.println("Enter the name of the folder that contains the extracted files (should be the same as the original file, \"Ex\"):");
@@ -197,7 +202,7 @@ public class CmdInterface {
         if (cancel) return;
 
         String actualPath = EXTRACTED_PATH + inFolder;
-        EventFileOps.archive(actualPath, destinationDir, filename);
+        EventFileOps.archive(OG_PATH, actualPath, destinationDir, filename, isJ);
     }
 
     /**

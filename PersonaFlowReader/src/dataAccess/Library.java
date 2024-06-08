@@ -62,6 +62,30 @@ public class Library {
     public static final String TABLE_COMMENT_SYMBOL = "#";
     public static final String COMMENT_INDICATOR = "\1"; // used to indicate a line was fully commented
 
+    public static final String TEMP_STRING = "_temp";
+
+    // For EBOOT modification
+    public static final String EBOOT_NAME = "EBOOT.BIN";
+
+    public static final int US_EBOOT_E0_FILELIST_ADDR = 0x1ED678;
+    /*
+    public static final int US_EBOOT_E1_FILELIST_ADDR = 0x1EC678;
+    public static final int US_EBOOT_E2_FILELIST_ADDR = 0x1EB678;
+    public static final int US_EBOOT_E3_FILELIST_ADDR = 0x1EA678;
+    public static final int US_EBOOT_E4_FILELIST_ADDR = 0x1E9678;
+    */
+
+    public static final int JP_EBOOT_E0_FILELIST_ADDR = 0x1EAA38;
+    /*
+    public static final int JP_EBOOT_E1_FILELIST_ADDR = 0x1E9A38;
+    public static final int JP_EBOOT_E2_FILELIST_ADDR = 0x1E8A38;
+    public static final int JP_EBOOT_E3_FILELIST_ADDR = 0x1E7A38;
+    public static final int JP_EBOOT_E4_FILELIST_ADDR = 0x1E6A38;
+     */
+
+    // to obtain the filelist of the other files, E0_ADDR - OFFSET*file_num
+    public static final int EBOOT_FILELIST_OFFSET = 0x1000;
+
     public enum FlowInstruction {
         NOTHING,
         ret,
