@@ -5,6 +5,7 @@ import dataAccess.Library;
 import javax.naming.OperationNotSupportedException;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class CmdInterface {
@@ -69,13 +70,18 @@ public class CmdInterface {
      * @throws IOException file related exceptions
      */
     private static void extractBIN(Scanner sc) throws OperationNotSupportedException, IOException {
-        System.out.println("Enter the filename (including the extension):");
-        String filename = requestInput(sc);
+        System.out.println("Enter the number of the file, or an interval separated by \"-\" (example: 0-4 extracts E0 to E4)");
+        String input = requestInput(sc);
 
-        boolean cancel = checkIfCancel(filename);
+        boolean cancel = checkIfCancel(input);
         if (cancel) return;
 
-        EventFileOps.extract(OG_PATH + filename);
+        for (Integer fileNum : getNumberInterval(input)) {
+            String filename = String.format("E%d.BIN", fileNum);
+            System.out.println("Extracting: " + filename);
+
+            EventFileOps.extract(OG_PATH + filename);
+        }
         System.out.println("The files have been extracted");
     }
 
@@ -160,30 +166,11 @@ public class CmdInterface {
 
         boolean isJ = j > 0;
 
-        String inFolder;
-        while(true) {
-            System.out.println("Enter the name of the folder that contains the extracted files (should be the same as the original file, \"Ex\"):");
-            inFolder = requestInput(sc);
-
-            boolean cancel = checkIfCancel(inFolder);
-            if (cancel) return;
-
-            if (inFolder.isEmpty()) {
-                System.out.println("You must enter a folder name");
-                continue;
-            }
-            break;
-        }
-
-        System.out.println("Enter the output path (or just press ENTER for the default path, \"/output/\" in the program's directory)");
+        System.out.println("Enter the output path (or just press ENTER for the default path, \"/output/\" in the program's directory):");
         String outFolder = requestInput(sc);
 
         boolean cancel = checkIfCancel(outFolder);
         if (cancel) return;
-
-        if (inFolder.charAt(inFolder.length()-1) == '/') inFolder = inFolder.substring(0, inFolder.length()-1);
-        String[] seg = inFolder.split("/");
-        String filename = seg[seg.length-1];
 
         String destinationDir = outFolder;
         if (outFolder.isEmpty()) {
@@ -198,11 +185,37 @@ public class CmdInterface {
             dir.mkdir();
         }
 
-        cancel = checkIfCancel(outFolder);
+        /*System.out.println("Enter the number of the file, or an interval separated by \"-\" (example: 0-4 extracts E0 to E4)");
+        String input = requestInput(sc);
+
+        boolean cancel = checkIfCancel(input);
         if (cancel) return;
 
-        String actualPath = EXTRACTED_PATH + inFolder;
-        EventFileOps.archive(OG_PATH, actualPath, destinationDir, filename, isJ);
+        for (Integer fileNum : getNumberInterval(input)) {
+            String filename = String.format("E%d.BIN", fileNum);
+            System.out.println("Extracting: " + filename);
+
+            EventFileOps.extract(OG_PATH + filename);
+        }
+         */
+
+
+        System.out.println("Enter the number of the file to combine back, or an interval separated by \"-\" (example: 0-4 combines E0 to E4):");
+        String input = requestInput(sc);
+
+        cancel = checkIfCancel(input);
+        if (cancel) return;
+
+        for (Integer fileNum : getNumberInterval(input)) {
+            String inFolder = String.format("E%d", fileNum);
+            System.out.println("Combining: " + inFolder);
+
+            String actualPath = EXTRACTED_PATH + inFolder;
+            EventFileOps.archive(OG_PATH, actualPath, destinationDir, inFolder, isJ);
+        }
+
+
+
     }
 
     /**
@@ -289,7 +302,7 @@ public class CmdInterface {
      * Prints the instructions of the interface
      */
     private static void printInstructions() {
-        System.out.println("Enter the corresponding number to choose from the following options:");
+        System.out.println("\n\n\nEnter the corresponding number to choose from the following options:");
         System.out.println("0 - extract an Ex.BIN file");
         System.out.println("1 - decode an EVS file");
         System.out.println("2 - encode a DEC file");
@@ -348,5 +361,35 @@ public class CmdInterface {
         } else {
             System.out.println("There is something wrong with the directory.");
         }
+    }
+
+    private static LinkedList<Integer> getNumberInterval(String input) {
+        LinkedList<Integer> fileNums = new LinkedList<>();
+        // It's an interval if...
+        if (input.indexOf('-') != -1) {
+            String[] split = input.split("-");
+            try {
+                int num1 = Integer.parseInt(split[0]);
+                int num2 = Integer.parseInt(split[1]);
+                int first = Math.min(num1, num2);
+                int last = Math.max(num1, num2);
+
+                for (int i = first; i <= last; i++) {
+                    fileNums.add(i);
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Not a number...");
+                throw e;
+            }
+        } else {
+            try {
+                int fileNum = Integer.parseInt(input);
+                fileNums.add(fileNum);
+            } catch (NumberFormatException e) {
+                System.out.println("Not a number...");
+                throw e;
+            }
+        }
+        return fileNums;
     }
 }
