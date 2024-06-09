@@ -57,6 +57,8 @@ public class CmdInterface {
             } catch (OperationNotSupportedException e) {
                 System.out.println(e.getMessage());
                 //throw e;
+            } catch (NumberFormatException e) {
+                System.out.println("Try again.");
             }
 
         }
@@ -78,6 +80,13 @@ public class CmdInterface {
 
         for (Integer fileNum : getNumberInterval(input)) {
             String filename = String.format("E%d.BIN", fileNum);
+
+            File folder = new File(filename);
+            if (!folder.exists()) {
+                System.out.println("Skipping: " + filename);
+                continue;
+            }
+
             System.out.println("Extracting: " + filename);
 
             EventFileOps.extract(OG_PATH + filename);
@@ -208,9 +217,16 @@ public class CmdInterface {
 
         for (Integer fileNum : getNumberInterval(input)) {
             String inFolder = String.format("E%d", fileNum);
-            System.out.println("Combining: " + inFolder);
 
             String actualPath = EXTRACTED_PATH + inFolder;
+
+            File folder = new File(actualPath);
+            if (!folder.exists()) {
+                System.out.println("Skipping: " + inFolder);
+                continue;
+            }
+
+            System.out.println("Combining: " + inFolder);
             EventFileOps.archive(OG_PATH, actualPath, destinationDir, inFolder, isJ);
         }
 
