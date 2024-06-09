@@ -329,7 +329,7 @@ public class EventFileOps {
                 while (!allDone) {
                     HashMap<Integer, Pair<String, Boolean>> auxMap = (HashMap<Integer, Pair<String, Boolean>>) labels.clone();
                     int labelsSize = labels.entrySet().size();
-                    int secondNum = 1;
+                    int secondNum = 0;
                     for (Map.Entry<Integer, Pair<String, Boolean>> entry: auxMap.entrySet()) {
                         int pointer = entry.getKey();
 
@@ -346,11 +346,18 @@ public class EventFileOps {
                         inputFile.seek(pointer);
                         isLastInstruction = false;
 
-                        // write the label before the instructions
-                        outputFile.writeBytes("\n" + labels.get(pointer).first + ":\n");
-                        labels.get(pointer).second = true;
+
 
                         while(!isLastInstruction) {
+                            int currPointer = (int) inputFile.getFilePointer();
+
+                            // Add label before instruction
+                            if (labels.containsKey(currPointer)) {
+                                outputFile.writeBytes("\n" + labels.get(currPointer).first + ":\n");
+                                labels.get(currPointer).second = true; // setting the label as having been printed
+                                labelsSize++;
+                            }
+
                             String textInst = decodeInstruction(inputFile, true, isJ);
                             outputFile.writeBytes(textInst);
                         }
