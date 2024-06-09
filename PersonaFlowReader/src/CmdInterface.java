@@ -261,12 +261,16 @@ public class CmdInterface {
      * @return the option number
      */
     private static int requestOption(Scanner sc) {
-        String input = requestInput(sc);
+        String input;
         int inputInt = -1;
-        try {
-            inputInt = Integer.parseInt(input);
-        } catch (NumberFormatException e) {
-            System.out.println("Not a number. Try again.\n");
+        while(true) {
+            input = requestInput(sc);
+            try {
+                inputInt = Integer.parseInt(input);
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Not a number. Try again.\n");
+            }
         }
         return inputInt;
     }
