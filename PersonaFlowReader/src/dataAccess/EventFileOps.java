@@ -830,6 +830,7 @@ public class EventFileOps {
 
                 // the three below are related to healing the party?
             case unk_cmd_2F:
+            case unk_cmd_30:
             case unk_cmd_3A:
             case unk_cmd_3B:
             case unk_cmd_44:
@@ -991,6 +992,7 @@ public class EventFileOps {
                 // jump if instruction
             } else if (instr.compareTo(Library.FlowInstruction.jump_if.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_2F.name()) == 0 ||
+                    instr.compareTo(Library.FlowInstruction.unk_cmd_30.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_3A.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_3B.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_44.name()) == 0 ||

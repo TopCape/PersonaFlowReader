@@ -101,7 +101,7 @@ public class Library {
         ld_3d_map,
         play_MV,
         unk_cmd_2F,
-        UNKNOWN_COMMAND_30,
+        unk_cmd_30,
         UNKNOWN_COMMAND_31,
         UNKNOWN_COMMAND_32,
         UNKNOWN_COMMAND_39,
@@ -238,7 +238,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x2C, FlowInstruction.ld_3d_map);
         FLOW_INSTRUCTIONS.put((byte) 0x2D, FlowInstruction.play_MV);
         FLOW_INSTRUCTIONS.put((byte) 0x2F, FlowInstruction.unk_cmd_2F);
-        FLOW_INSTRUCTIONS.put((byte) 0x30, FlowInstruction.UNKNOWN_COMMAND_30);
+        FLOW_INSTRUCTIONS.put((byte) 0x30, FlowInstruction.unk_cmd_30);
         FLOW_INSTRUCTIONS.put((byte) 0x31, FlowInstruction.UNKNOWN_COMMAND_31);
         FLOW_INSTRUCTIONS.put((byte) 0x32, FlowInstruction.UNKNOWN_COMMAND_32);
         FLOW_INSTRUCTIONS.put((byte) 0x39, FlowInstruction.UNKNOWN_COMMAND_39);
@@ -306,7 +306,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.ld_3d_map, (byte)1);
         PARAM_NUM.put(FlowInstruction.play_MV, (byte)0);
         PARAM_NUM.put(FlowInstruction.unk_cmd_2F, (byte)1);
-        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_30, (byte)1);
+        PARAM_NUM.put(FlowInstruction.unk_cmd_30, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_31, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_32, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_39, (byte)0);
