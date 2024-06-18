@@ -96,7 +96,7 @@ public class Library {
         UNKNOWN_COMMAND_27,
         battle,
         ld_world_map,
-        UNKNOWN_COMMAND_2A,
+        open_shop_menu,
         ld_file,
         ld_3d_map,
         play_MV,
@@ -233,7 +233,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x27, FlowInstruction.UNKNOWN_COMMAND_27);
         FLOW_INSTRUCTIONS.put((byte) 0x28, FlowInstruction.battle);
         FLOW_INSTRUCTIONS.put((byte) 0x29, FlowInstruction.ld_world_map);
-        FLOW_INSTRUCTIONS.put((byte) 0x2A, FlowInstruction.UNKNOWN_COMMAND_2A);
+        FLOW_INSTRUCTIONS.put((byte) 0x2A, FlowInstruction.open_shop_menu);
         FLOW_INSTRUCTIONS.put((byte) 0x2B, FlowInstruction.ld_file);
         FLOW_INSTRUCTIONS.put((byte) 0x2C, FlowInstruction.ld_3d_map);
         FLOW_INSTRUCTIONS.put((byte) 0x2D, FlowInstruction.play_MV);
@@ -301,7 +301,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_27, (byte)0);
         PARAM_NUM.put(FlowInstruction.battle, (byte)0);
         PARAM_NUM.put(FlowInstruction.ld_world_map, (byte)1);
-        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_2A, (byte)0);
+        PARAM_NUM.put(FlowInstruction.open_shop_menu, (byte)0);
         PARAM_NUM.put(FlowInstruction.ld_file, (byte)1);
         PARAM_NUM.put(FlowInstruction.ld_3d_map, (byte)1);
         PARAM_NUM.put(FlowInstruction.play_MV, (byte)0);

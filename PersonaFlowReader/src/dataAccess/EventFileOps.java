@@ -732,16 +732,16 @@ public class EventFileOps {
         // UNCOMMENT FOR DEBUG HERE
         //System.out.printf("yep: 0x%02x\n", instr);
         Library.FlowInstruction flowInstr = Library.getInstance().FLOW_INSTRUCTIONS.get(instr);
+        name = flowInstr.name();
         switch(flowInstr) {
             case ret:
-                name = flowInstr.name();
                 // advancing the 00s
                 getShortString(inputFile);
                 if (isPastText) isLastInstruction = true; // this is used for situations where the labels have to be used to know about more code
                 return "\t" + name + "\n";
             case jump:
                 check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
-                name = simpleInstructionCheck(check, Library.FlowInstruction.jump.name(), instr);
+                name = simpleInstructionCheck(check, name, instr);
 
                 // get followup int, which corresponds to the address to jump to
                 address = FileReadWriteUtils.readInt(inputFile, valOrder);
@@ -750,7 +750,6 @@ public class EventFileOps {
 
                 return "\t" + name + "\t" + label + "\n";
             case jump_if:
-                name = flowInstr.name();
                 String condition = getShortString(inputFile);
                 address = FileReadWriteUtils.readInt(inputFile, valOrder);
                 label = getLabel(address);
@@ -761,7 +760,6 @@ public class EventFileOps {
             //    param = getShortString(inputFile);
             //    return "\t" + name + "\t" + param + "\n";
             case battle:
-                name = flowInstr.name();
                 short p = getShortVal(inputFile);
                 param = String.format(Library.HEX_PREFIX + "%04x", p);
 
@@ -774,17 +772,18 @@ public class EventFileOps {
 
                 return "\t" + name + "\t" + param + "\t"+ Library.COMMENT_SYMBOL + " " + battleName + "\n";
             case ld_world_map:
-                name = flowInstr.name();
                 param = getShortString(inputFile);
                 addressStr = getIntString(inputFile);
                 return "\t" + name + "\t" + param + "," + addressStr + "\t"+ Library.COMMENT_SYMBOL + " loads a world map\n";
+            case open_shop_menu:
+                param = getShortString(inputFile); // shop type ?
+                return "\t" + name + "\t" + param + "\t" + Library.COMMENT_SYMBOL + " opens a shop menu, specified by the parameter\n";
+
             case ld_file:
-                name = flowInstr.name();
                 param = getShortString(inputFile);
                 addressStr = getIntString(inputFile);
                 return "\t" + name + "\t" + param + "," + addressStr + "\t"+ Library.COMMENT_SYMBOL + " loads another event file\n";
             case ld_3d_map:
-                name = flowInstr.name();
                 String mapID = getByteString(inputFile);
                 String unknown = getByteString(inputFile);
                 String x = getByteString(inputFile);
@@ -795,19 +794,15 @@ public class EventFileOps {
                 return "\t" + name + "\t" + mapID + "," + unknown + "," + x + "," + y + "," + direction + "," + fourthParam +
                         "\t"+ Library.COMMENT_SYMBOL + " ld_3d_map <map ID>,<unknown>,<X>,<Y>,<direction (0|1|2|3 -> E|W|S|N)>, <unknown>\n";
             case play_MV:
-                name = flowInstr.name();
                 param = String.format("MV%02x.pmf", inputFile.readByte());
                 param2 = getByteString(inputFile);
                 return "\t" + name + "\t" + param + "," + param2 + "\t"+ Library.COMMENT_SYMBOL + " second parameter is some kind of flag?\n";
             case open_save_menu:
-                name = flowInstr.name();
                 return "\t" + name + "\n";
             case wait:
-                name = flowInstr.name();
                 String ticks = getShortString(inputFile);
                 return "\t" + name + "\t" + ticks + "\t"+ Library.COMMENT_SYMBOL + " value in ticks \n";
             case player_option:
-                name = flowInstr.name();
                 param = getShortString(inputFile);
                 address = getInt(inputFile);
                 label = getLabel(address);
@@ -815,7 +810,7 @@ public class EventFileOps {
                 return "\t" + name + "\t" + param + "," + label + "\t"+ Library.COMMENT_SYMBOL + " " + name + " <option num?>,<label>\n";
             case ld_text:
                 check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
-                name = simpleInstructionCheck(check, flowInstr.name(), instr);
+                name = simpleInstructionCheck(check, name, instr);
                 address = getInt(inputFile);
                 int textIdx = textList.indexOfText(address);
 
@@ -840,21 +835,19 @@ public class EventFileOps {
             case unk_cmd_59:
             case unk_cmd_5A:
             case unk_cmd_87:
-                name = flowInstr.name();
                 check = FileReadWriteUtils.readShort(inputFile, valOrder);
                 address = getInt(inputFile);
                 label = getLabel(address);
                 return "\t" + name + "\t" + getShortString(check) + "," +  label + "\t" + Library.COMMENT_SYMBOL + " unknown, but uses a label\n";
             case open_dialog:
                 check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
-                name = simpleInstructionCheck(check, flowInstr.name(), instr);
+                name = simpleInstructionCheck(check, name, instr);
                 return "\t" + name + "\t"+ Library.COMMENT_SYMBOL + " opens dialog box graphic\n";
             case close_dialog:
                 check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
-                name = simpleInstructionCheck(check, flowInstr.name(), instr);
+                name = simpleInstructionCheck(check, name, instr);
                 return "\t" + name + "\t"+ Library.COMMENT_SYMBOL + " closes dialog box graphic\n";
             case pose:
-                name = flowInstr.name();
                 byte character = inputFile.readByte();
                 byte pose = inputFile.readByte();
                 String poseStr;
@@ -866,63 +859,51 @@ public class EventFileOps {
                         + getByteString(inputFile) + "," + getIntString(inputFile) + "\t"
                         + Library.COMMENT_SYMBOL + " pose <character ID>,<pose>,<X>,<Y>,<direction>,<unknown>,<unknown>\n";
             case fx:
-                name = flowInstr.name();
                 return "\t" + name + "\t" + getByteString(inputFile) + "," + getByteString(inputFile) + ","
                         + getIntString(inputFile) + "," + getIntString(inputFile) + "\t"+ Library.COMMENT_SYMBOL + " makes effect happen, like lightning. No idea of the specifics\n";
             case clr_char:
-                name = flowInstr.name();
                 param = getShortString(inputFile);
                 return "\t" + name + "\t" + param + "\t"+ Library.COMMENT_SYMBOL + " this clears the character numbered in the parameter\n";
             case ld_portrait:
-                name = flowInstr.name();
                 smolParam = inputFile.readByte(); // character ID
                 return "\t" + name + "\t" + Library.PORTRAIT_CHARS.values()[smolParam] + "," + Library.PORTRAIT_ORIENTATION.values()[inputFile.readByte()] +
                         "\n";
             case close_portrait:
                 check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
-                name = simpleInstructionCheck(check, flowInstr.name(), instr);
+                name = simpleInstructionCheck(check, name, instr);
                 return "\t" + name + "\t"+ Library.COMMENT_SYMBOL + " closes portrait graphic\n";
             case emote:
-                name = flowInstr.name();
                 smolParam = inputFile.readByte(); // character ID
                 return "\t" + name + "\t" + smolParam + "," + Library.EMOTES.values()[inputFile.readByte()] + "\t"+ Library.COMMENT_SYMBOL + " first parameter = character ID (dependent on scene)\n";
             case screen_fx:
-                name = flowInstr.name();
                 check = getShortVal(inputFile);
                 return "\t" + name + "\t" + getShortString(check) + "\t"+ Library.COMMENT_SYMBOL + " does an effect that fills the full screen. In this case, " + Library.SCREEN_EFFECTS[check] + "\n";
             case fade_char:
-                name = flowInstr.name();
                 return "\t" + name + "\t" + inputFile.readByte() + "," + inputFile.readByte() + "\t"+ Library.COMMENT_SYMBOL + " fades character with ID in first param with speed in second param\n";
             case plan_char_mov:
-                name = flowInstr.name();
                 return "\t" + name + "\t"
                         + getByteString(inputFile) + "," + getByteString(inputFile) + "," + getByteString(inputFile) + "," +
                         getByteString(inputFile) + "," + getByteString(inputFile) + "," + getByteString(inputFile)
                         + "\t"+ Library.COMMENT_SYMBOL + " " + name + "\t<character ID>,<trajectory idx>,<speed>,<direction_at_destination>,...\n";
 
             case follow_char:
-                name = flowInstr.name();
                 check = getShortVal(inputFile);
                 return "\t" + name + "\t" + check + "\t"+ Library.COMMENT_SYMBOL + " sets camera to follow character. parameter = character ID (dependent on scene)\n";
             case clr_emote:
-                name = flowInstr.name();
                 check = getShortVal(inputFile);
                 return "\t" + name + "\t" + check + "\t"+ Library.COMMENT_SYMBOL + " clears the emote of the character in the parameter\n";
             case do_planned_moves:
                 check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
-                name = simpleInstructionCheck(check, flowInstr.name(), instr); // HERE
+                name = simpleInstructionCheck(check, name, instr); // HERE
                 return "\t" + name + "\t"+ Library.COMMENT_SYMBOL + " executes the previously planned character movements\n";
 
             case tp_char:
-                name = flowInstr.name();
                 param = getShortString(inputFile);
                 return "\t" + name + "\t" + param + "," + getIntString(inputFile) + "\t"+ Library.COMMENT_SYMBOL + " sets position/direction of a character, specifics of parameters are unknown\n";
             case play_song:
-                name = flowInstr.name();
                 param = getShortString(inputFile);
                 return "\t" + name + "\t" + param + "\t"+ Library.COMMENT_SYMBOL + " plays the song whose ID is in the parameter\n";
             case play_sfx:
-                name = flowInstr.name();
                 check = getShortVal(inputFile);
                 return "\t" + name + "\t" + getShortString(check) + "\t"+ Library.COMMENT_SYMBOL + " plays sfx: " + Library.getSFXDescription(check) + "\n";
             default:
@@ -1015,6 +996,7 @@ public class EventFileOps {
                 // simple 1 short parameter instructions
             } else if (instr.compareTo(Library.FlowInstruction.UNKNOWN_COMMAND_27.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.battle.name()) == 0 ||
+                    instr.compareTo(Library.FlowInstruction.open_shop_menu.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.wait.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.clr_char.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.screen_fx.name()) == 0 ||
