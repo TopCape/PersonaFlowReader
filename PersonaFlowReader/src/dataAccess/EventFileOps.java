@@ -797,13 +797,13 @@ public class EventFileOps {
                 param = String.format("MV%02x.pmf", inputFile.readByte());
                 param2 = getByteString(inputFile);
                 return "\t" + name + "\t" + param + "," + param2 + "\t"+ Library.COMMENT_SYMBOL + " second parameter is some kind of flag?\n";
-            case doctor_fee:
+            case heal_fee:
                 getShortString(inputFile); // skipping zeroes
                 int fee = getInt(inputFile);
                 address = getInt(inputFile);
                 label = getLabel(address);
 
-                return "\t" + name + "\t" + fee + "," + label + "\t" + Library.COMMENT_SYMBOL + " doctor_fee <fee, label when not enough money>\n";
+                return "\t" + name + "\t" + fee + "," + label + "\t" + Library.COMMENT_SYMBOL + " heal_fee <fee, label when not enough money>\n";
             case open_save_menu:
                 return "\t" + name + "\n";
             case wait:
@@ -1061,7 +1061,7 @@ public class EventFileOps {
                 outputFile.writeByte(Library.getInstance().FLOW_INSTRUCTIONS_REVERSE.get(instr));
                 outputFile.writeByte((byte) Short.parseShort(param1, 16));
                 outputFile.writeByte((byte) Short.parseShort(param2.substring(2), 16));
-            } else if (instr.compareTo(Library.FlowInstruction.doctor_fee.name()) == 0) {
+            } else if (instr.compareTo(Library.FlowInstruction.heal_fee.name()) == 0) {
                 String fee = paramSplit[0];
                 String label = paramSplit[1];
 
