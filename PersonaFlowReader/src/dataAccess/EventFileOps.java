@@ -797,6 +797,13 @@ public class EventFileOps {
                 param = String.format("MV%02x.pmf", inputFile.readByte());
                 param2 = getByteString(inputFile);
                 return "\t" + name + "\t" + param + "," + param2 + "\t"+ Library.COMMENT_SYMBOL + " second parameter is some kind of flag?\n";
+            case doctor_fee:
+                getShortString(inputFile); // skipping zeroes
+                int fee = getInt(inputFile);
+                address = getInt(inputFile);
+                label = getLabel(address);
+
+                return "\t" + name + "\t" + fee + "," + label + "\t" + Library.COMMENT_SYMBOL + " doctor_fee <fee, label when not enough money>\n";
             case open_save_menu:
                 return "\t" + name + "\n";
             case wait:
@@ -1047,13 +1054,26 @@ public class EventFileOps {
                 outputFile.writeByte(extractByteFromString(param5));
             } else if (instr.compareTo(Library.FlowInstruction.play_MV.name()) == 0) {
                 String movieFileName = paramSplit[0]; // format: MVXX.pmf, where XX is the number
-                String param1 = movieFileName.substring(2,4); // byte (hex without 0x)
+                String param1 = movieFileName.substring(2, 4); // byte (hex without 0x)
                 String param2 = paramSplit[1]; // byte (hex)
 
                 outputFile.writeByte(Library.CMD_START);
                 outputFile.writeByte(Library.getInstance().FLOW_INSTRUCTIONS_REVERSE.get(instr));
-                outputFile.writeByte((byte)Short.parseShort(param1, 16));
-                outputFile.writeByte((byte)Short.parseShort(param2.substring(2), 16));
+                outputFile.writeByte((byte) Short.parseShort(param1, 16));
+                outputFile.writeByte((byte) Short.parseShort(param2.substring(2), 16));
+            } else if (instr.compareTo(Library.FlowInstruction.doctor_fee.name()) == 0) {
+                String fee = paramSplit[0];
+                String label = paramSplit[1];
+
+                //write first 4 bytes
+                writeIntInstruction(outputFile, instr, (short)0);
+
+                // write the fee
+                FileReadWriteUtils.writeInt(outputFile, valOrder, Integer.parseInt(fee));
+
+                // register a required address
+                int currAddr = (int) outputFile.getFilePointer();
+                addLabelRef(outputFile, label, currAddr);
             } else if (instr.compareTo(Library.FlowInstruction.player_option.name()) == 0) {
                 String param = paramSplit[0];
                 String label = paramSplit[1];
