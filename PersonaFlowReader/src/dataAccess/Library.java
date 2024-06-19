@@ -549,6 +549,85 @@ public class Library {
 
     };
 
+    public static String getShopDescription(short val) {
+        switch (val) {
+            case 0x1:
+                return "Yin & Yang, Maki's world v1";
+            case 0x2:
+                return "Weapon shop, Aki's side v1";
+            case 0x3:
+                return "Weapon shop, Aki's side v2";
+            case 0x4:
+                return "Yin & Yang, Maki's world v2";
+            case 0x6:
+                return "Rosa, Mai's side v1";
+            case 0x7:
+                return "Armor shop, Aki's side v1";
+            case 0x8:
+                return "Armor shop, Aki's side v2";
+            case 0x9:
+                return "Rosa, Mai's side v2";
+            case 0xA:
+                return "Tadashi, Mai's side v1";
+            case 0xB:
+                return "Tadashi, Aki's side v1";
+            case 0xC:
+                return "Turunkhamen, Mai's side v1";
+            case 0xD:
+                return "Turunkhamen, Aki's side v1";
+            case 0xe:
+                return "Casino, money to coin";
+            case 0xf:
+                return "Casino, coin to item, Mai's side v1";
+            case 0x10:
+                return "Yin & Yang real world";
+            case 0x11:
+                return "Sennen";
+            case 0x12:
+                return "Tadashi";
+            case 0x14:
+                return "Casino, coin to item, Sun Mall v1?";
+            case 0x16:
+                return "Casino, coin to item, unknown";
+            case 0x18:
+                return "Casino, coin to item, Sun Mall v2?";
+            case 0x1a:
+                return "Casino, coin to item, Joy Street";
+            case 0x1c:
+                return "Casino, coin to item, Mai's side v2";
+            case 0x1e:
+                return "Casino, coin to item, Aki's side v1";
+            case 0x1f:
+                return "Khamenturun, Mai's side v1";
+            case 0x20:
+                return "Velvet Room, talk menu";
+            case 0x21:
+                return "Velvet Room, manual fusion menu";
+            case 0x22:
+                return "Velvet Room, guided fusion menu";
+            case 0x23:
+                return "Velvet Room, view cards menu";
+            case 0x24:
+                return "Velvet Room, leave?!??!!";
+            case 0x25:
+                return "Casino, poker help menu";
+            case 0x26:
+                return "Casino, blackjack help menu";
+            case 0x27:
+                return "Casino, slot machine help menu";
+            case 0x28:
+                return "Casino, code breaker help menu";
+            case 0x29:
+                return "Casino, dice game help menu";
+            case 0x31:
+                return "Tadashi, Mai's side v2";
+            case 0x32:
+                return "Turunkhamen, Mai's side v2";
+            default:
+                return "unknown";
+        }
+    }
+
     public static String getSFXDescription(short val) {
         switch (val) {
             case 0x0:

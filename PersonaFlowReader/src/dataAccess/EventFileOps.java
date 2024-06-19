@@ -776,8 +776,8 @@ public class EventFileOps {
                 addressStr = getIntString(inputFile);
                 return "\t" + name + "\t" + param + "," + addressStr + "\t"+ Library.COMMENT_SYMBOL + " loads a world map\n";
             case open_shop_menu:
-                param = getShortString(inputFile); // shop type ?
-                return "\t" + name + "\t" + param + "\t" + Library.COMMENT_SYMBOL + " opens a shop menu, specified by the parameter\n";
+                check = getShortVal(inputFile);
+                return "\t" + name + "\t" + getShortString(check) + "\t" + Library.COMMENT_SYMBOL + " opens shop menu: " + Library.getShopDescription(check) +"\n";
 
             case ld_file:
                 param = getShortString(inputFile);
