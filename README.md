@@ -167,6 +167,11 @@ This is the main section of the file. It stores the event script itself. The kno
     ```
     TODO 
     ```
+* **open_shop_menu** - Opens a shop menu depending on the parameters.
+    ```
+    open_shop_menu  <SHOP_ID>
+    ```
+
 * **ld_file** - Loads another event file, numbered in the first parameter (specifics are unknown). For instance, when the first parameter is 0x0016, it loads the file E0_022.BIN (0x16 = 22), but unsure how other files in other EX.BIN files are referenced.
      ```
     ld_file  <FILE_NUM>,<UNKNOWN>
@@ -174,12 +179,22 @@ This is the main section of the file. It stores the event script itself. The kno
 
 * **ld_3d_map** - This loads the player into a 3D map (those first person maze sections of the game). The first parameter is the map's ID. The second is unknown. The third and fourth are the X and Y coordinates the player will be loaded into within that map. Parameter 5 holds the direction, which is represented by a value from 0 to 3, representing E, W, S and N respectively. The sixth parameter is unknown.
     ```
-    ld_file  <MAP_ID>,<UNKNOWN><X>,<Y>,<DIRECTION>,<UNKNOWN>
+    ld_file  <MAP_ID>,<UNKNOWN>,<X>,<Y>,<DIRECTION>,<UNKNOWN>
+    ```
+
+* **give_item** - Puts an item into the player's inventory. These include normal items, equipment and key items, depending on the first parameter. QUANITY is in decimal base.
+    ```
+    give_item  <ITEM_ID>,<QUANTITY>
     ```
 
 * **play_MV** - plays a video file. The first parameter is the name of the file (TODO: change this. Just realized that there are movies that don't have a MVXX.pmf type name). The second parameter is unknown.
     ```
     play_MV  <MVXX.pmf>,<UNKNOWN>
+    ```
+
+* **heal_fee** - Removes money from the player's "wallet" or jumps to the LABEL if the player lacks the money. This MIGHT not be specifically related to healing, but it is found in these situations. The FEE is in decimal case.
+    ```
+    heal_fee  <FEE>,<LABEL>
     ```
 
 * **wait** - stops the execution of the event script for a certain amount of ticks. The number of ticks is in the first and only parameter.
