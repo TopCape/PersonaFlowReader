@@ -172,6 +172,47 @@ This is the main section of the file. It stores the event script itself. The kno
     open_shop_menu  <SHOP_ID>
     ```
 
+    The SHOP_ID can have the following values:
+
+    | SHOP_ID | Shop |
+    | ---------- | ----- |
+    | 0x01 | Yin & Yang, Maki's world v1 |
+    | 0x02 | Weapon shop, Aki's side v1 |
+    | 0x03 | Weapon shop, Aki's side v2 |
+    | 0x04 | Yin & Yang, Maki's world v2 |
+    | 0x06 | Rosa, Mai's side v1 |
+    | 0x07 | Armor shop, Aki's side v1 |
+    | 0x08 | Armor shop, Aki's side v2 |
+    | 0x09 | Rosa, Mai's side v2 |
+    | 0x0A | Tadashi, Mai's side v1 |
+    | 0x0B | Tadashi, Aki's side v1 |
+    | 0x0C | Turunkhamen, Mai's side v1 |
+    | 0x0D | Turunkhamen, Aki's side v1 |
+    | 0x0E | Casino, money to coin |
+    | 0x0F | Casino, coin to item, Mai's side v1 |
+    | 0x10 | Yin & Yang real world |
+    | 0x11 | Sennen |
+    | 0x12 | Tadashi |
+    | 0x14 | Casino, coin to item, Sun Mall v1? |
+    | 0x16 | Casino, coin to item, unknown |
+    | 0x18 | Casino, coin to item, Sun Mall v2? |
+    | 0x1A | Casino, coin to item, Joy Street |
+    | 0x1C | Casino, coin to item, Mai's side v2 |
+    | 0x1E | Casino, coin to item, Aki's side v1 |
+    | 0x1F | Khamenturun, Mai's side v1 |
+    | 0x20 |Velvet Room, talk menu|
+    | 0x21 |Velvet Room, manual fusion menu|
+    | 0x22 |Velvet Room, guided fusion menu|
+    | 0x23 |Velvet Room, view cards menu|
+    | 0x24 |Velvet Room, leave?!??!!|
+    | 0x25 |Casino, poker help menu|
+    | 0x26 |Casino, blackjack help menu|
+    | 0x27 |Casino, slot machine help menu|
+    | 0x28 |Casino, code breaker help menu|
+    | 0x29 |Casino, dice game help menu|
+    | 0x31 |Tadashi, Mai's side v2|
+    | 0x32 |Turunkhamen, Mai's side v2|
+
 * **ld_file** - Loads another event file, numbered in the first parameter (specifics are unknown). For instance, when the first parameter is 0x0016, it loads the file E0_022.BIN (0x16 = 22), but unsure how other files in other EX.BIN files are referenced.
      ```
     ld_file  <FILE_NUM>,<UNKNOWN>
