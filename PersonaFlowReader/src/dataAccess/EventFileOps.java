@@ -727,7 +727,7 @@ public class EventFileOps {
 
         String name, label, param, param2, addressStr;
         short check;
-        int address;
+        int address, fee;
         byte smolParam;
         // UNCOMMENT FOR DEBUG HERE
         //System.out.printf("yep: 0x%02x\n", instr);
@@ -802,13 +802,19 @@ public class EventFileOps {
                 param = String.format("MV%02x.pmf", inputFile.readByte());
                 param2 = getByteString(inputFile);
                 return "\t" + name + "\t" + param + "," + param2 + "\t"+ Library.COMMENT_SYMBOL + " second parameter is some kind of flag?\n";
-            case heal_fee:
-                getShortString(inputFile); // skipping zeroes
-                int fee = getInt(inputFile);
+            case money_check:
+                check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
+                name = simpleInstructionCheck(check, name, instr);
+                fee = getInt(inputFile);
                 address = getInt(inputFile);
                 label = getLabel(address);
 
-                return "\t" + name + "\t" + fee + "," + label + "\t" + Library.COMMENT_SYMBOL + " heal_fee <fee, label when not enough money>\n";
+                return "\t" + name + "\t" + fee + "," + label + "\t" + Library.COMMENT_SYMBOL + " money_check <fee, label when not enough money>\n";
+            case money_transfer:
+                check = getShortVal(inputFile); // actually the direction of the transaction
+                fee = getInt(inputFile);
+
+                return "\t" + name + "\t" + Library.MONEY_DIRECTION.values()[check] + "," + fee + "\t" + Library.COMMENT_SYMBOL + " money_transfer <ADD or REMOVE>,<quantity>\n";
             case open_save_menu:
                 return "\t" + name + "\n";
             case wait:
@@ -1075,12 +1081,12 @@ public class EventFileOps {
                 outputFile.writeByte(Library.getInstance().FLOW_INSTRUCTIONS_REVERSE.get(instr));
                 outputFile.writeByte((byte) Short.parseShort(param1, 16));
                 outputFile.writeByte((byte) Short.parseShort(param2.substring(2), 16));
-            } else if (instr.compareTo(Library.FlowInstruction.heal_fee.name()) == 0) {
+            } else if (instr.compareTo(Library.FlowInstruction.money_check.name()) == 0) {
                 String fee = paramSplit[0];
                 String label = paramSplit[1];
 
                 //write first 4 bytes
-                writeIntInstruction(outputFile, instr, (short)0);
+                writeIntInstruction(outputFile, instr, (short) 0);
 
                 // write the fee
                 FileReadWriteUtils.writeInt(outputFile, valOrder, Integer.parseInt(fee));
@@ -1088,6 +1094,15 @@ public class EventFileOps {
                 // register a required address
                 int currAddr = (int) outputFile.getFilePointer();
                 addLabelRef(outputFile, label, currAddr);
+            } else if (instr.compareTo(Library.FlowInstruction.money_transfer.name()) == 0) {
+                String direction = paramSplit[0];
+                String quantity = paramSplit[1];
+
+                //write first 4 bytes
+                writeIntInstruction(outputFile, instr, (short) Library.MONEY_DIRECTION.valueOf(direction).ordinal());
+
+                // write the quantity
+                FileReadWriteUtils.writeInt(outputFile, valOrder, Integer.parseInt(quantity));
             } else if (instr.compareTo(Library.FlowInstruction.player_option.name()) == 0) {
                 String param = paramSplit[0];
                 String label = paramSplit[1];

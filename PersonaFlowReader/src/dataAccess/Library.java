@@ -109,8 +109,8 @@ public class Library {
         unk_cmd_3B,
         give_item,
         UNKNOWN_COMMAND_3D,
-        heal_fee,
-        UNKNOWN_COMMAND_3F,
+        money_check,
+        money_transfer,
         unk_cmd_44,
         unk_cmd_45,
         unk_cmd_47,
@@ -246,8 +246,8 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x3B, FlowInstruction.unk_cmd_3B);
         FLOW_INSTRUCTIONS.put((byte) 0x3C, FlowInstruction.give_item);
         FLOW_INSTRUCTIONS.put((byte) 0x3D, FlowInstruction.UNKNOWN_COMMAND_3D);
-        FLOW_INSTRUCTIONS.put((byte) 0x3E, FlowInstruction.heal_fee);
-        FLOW_INSTRUCTIONS.put((byte) 0x3F, FlowInstruction.UNKNOWN_COMMAND_3F);
+        FLOW_INSTRUCTIONS.put((byte) 0x3E, FlowInstruction.money_check);
+        FLOW_INSTRUCTIONS.put((byte) 0x3F, FlowInstruction.money_transfer);
         FLOW_INSTRUCTIONS.put((byte) 0x44, FlowInstruction.unk_cmd_44);
         FLOW_INSTRUCTIONS.put((byte) 0x45, FlowInstruction.unk_cmd_45);
         FLOW_INSTRUCTIONS.put((byte) 0x47, FlowInstruction.unk_cmd_47);
@@ -314,8 +314,8 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.unk_cmd_3B, (byte)1);
         PARAM_NUM.put(FlowInstruction.give_item, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3D, (byte)1);
-        PARAM_NUM.put(FlowInstruction.heal_fee, (byte)2);
-        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3F, (byte)1);
+        PARAM_NUM.put(FlowInstruction.money_check, (byte)2);
+        PARAM_NUM.put(FlowInstruction.money_transfer, (byte)1);
         PARAM_NUM.put(FlowInstruction.unk_cmd_44, (byte)1);
         PARAM_NUM.put(FlowInstruction.unk_cmd_45, (byte)1);
         PARAM_NUM.put(FlowInstruction.unk_cmd_47, (byte)1);
@@ -444,6 +444,10 @@ public class Library {
         Yuko_smug, Toro, MC_alt3, Tadashi, Tamaki, Katsue_rich, Katsue_poor, Kandori, Kandori_mask, Takeda, MC_alt4, Nicholai, Tomomi, Tomomi_corrupt, MC_alt5, Kumi,
         Michiko, Yuriko, MC_alt6, MC_alt7, Night_Queen, Yin_Yang_clerk, Rosa_clerk, Weapon_clerk, Armor_clerk, Pharma_clerk, MC_alt8, Sweets_clerk, Turunkhamen, Club_coin_clerk, Diner_clerk, Doctor,
         Igor, Trish, Khamenturun, MC_alt9, Master, Club_yen_clurk, glitch
+    }
+
+    public enum MONEY_DIRECTION {
+        ADD, REMOVE
     }
 
     public static final String[] SCREEN_EFFECTS = {
