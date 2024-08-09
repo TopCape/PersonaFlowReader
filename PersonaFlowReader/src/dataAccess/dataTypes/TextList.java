@@ -246,11 +246,8 @@ public class TextList {
                 i += longCharFile.numOfBytes-1;
             }
             if (!Library.getInstance().TEXT_CODES_REVERSE.containsKey(currChar)) {
-                if (currChar.compareTo("'") == 0) currChar = "’"; // this char is used for Apostrophe instead of the standard '
-                else if (currChar.compareTo("\"") == 0) currChar = "”"; // this char can be used for quotes instead of the standard "
-                else if (currChar.compareTo("~") == 0) currChar = "～"; // this char can be used for tilde instead of the standard ~
-                else if (currChar.compareTo("*") == 0) currChar = "＊"; // this char can be used for asterisk instead of the standard *
-                else throw new OperationNotSupportedException("Character " + currChar + " is not usable.");
+                currChar = convertCharToUsable(currChar);
+
             }
             data = Library.getInstance().TEXT_CODES_REVERSE.get(currChar);
             FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
@@ -258,6 +255,134 @@ public class TextList {
         }
         FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, Library.getInstance().TEXT_INSTRUCTIONS_REVERSE.get("END"));
         inputFile.seek(pointerBK);
+    }
+
+    private static String convertCharToUsable(String currChar) throws OperationNotSupportedException {
+        switch (currChar) {
+            case "'":
+                return "’"; // this char is used for Apostrophe instead of the standard '
+            case "\"":
+                return "”"; // this char can be used for quotes instead of the standard "
+            case "~":
+                return "～"; // this char can be used for tilde instead of the standard ~
+            case "〜": // full width version of ~
+                return "～";
+            case "*":
+                return "＊"; // this char can be used for asterisk instead of the standard *
+            case "！": // full width version of !
+                return "!";
+            case "？": // full width version of ?
+                return "?";
+            case "＞":
+                return ">";
+            case "ａ":
+                return "a";
+            case "ｂ":
+                return "b";
+            case "ｃ":
+                return "c";
+            case "ｄ":
+                return "d";
+            case "ｅ":
+                return "e";
+            case "ｆ":
+                return "f";
+            case "ｇ":
+                return "g";
+            case "ｈ":
+                return "h";
+            case "ｉ":
+                return "i";
+            case "ｊ":
+                return "j";
+            case "ｋ":
+                return "k";
+            case "ｌ":
+                return "l";
+            case "ｍ":
+                return "m";
+            case "ｎ":
+                return "n";
+            case "ｏ":
+                return "o";
+            case "ｐ":
+                return "p";
+            case "ｑ":
+                return "q";
+            case "ｒ":
+                return "r";
+            case "ｓ":
+                return "s";
+            case "ｔ":
+                return "t";
+            case "ｕ":
+                return "u";
+            case "ｖ":
+                return "v";
+            case "ｗ":
+                return "w";
+            case "ｘ":
+                return "x";
+            case "ｙ":
+                return "y";
+            case "ｚ":
+                return "z";
+
+            case "Ａ":
+                return "A";
+            case "Ｂ":
+                return "B";
+            case "Ｃ":
+                return "C";
+            case "Ｄ":
+                return "D";
+            case "Ｅ":
+                return "E";
+            case "Ｆ":
+                return "F";
+            case "Ｇ":
+                return "G";
+            case "Ｈ":
+                return "H";
+            case "Ｉ":
+                return "I";
+            case "Ｊ":
+                return "J";
+            case "Ｋ":
+                return "K";
+            case "Ｌ":
+                return "L";
+            case "Ｍ":
+                return "M";
+            case "Ｎ":
+                return "N";
+            case "Ｏ":
+                return "O";
+            case "Ｐ":
+                return "P";
+            case "Ｑ":
+                return "Q";
+            case "Ｒ":
+                return "R";
+            case "Ｓ":
+                return "S";
+            case "Ｔ":
+                return "T";
+            case "Ｕ":
+                return "U";
+            case "Ｖ":
+                return "V";
+            case "Ｗ":
+                return "W";
+            case "Ｘ":
+                return "X";
+            case "Ｙ":
+                return "Y";
+            case "Ｚ":
+                return "Z";
+            default:
+                throw new OperationNotSupportedException("Character " + currChar + " is not usable.");
+        }
     }
 
     @Override
