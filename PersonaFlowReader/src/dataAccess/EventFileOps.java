@@ -1592,6 +1592,9 @@ public class EventFileOps {
     public static String removeCommentAndSpaces(String line) {
         if (line.isEmpty()) return line;
 
+        if (line.length() < Library.COMMENT_SYMBOL.length())
+            return Library.COMMENT_INDICATOR;
+
         // checking if the whole line is a comment by first checking if it starts with the comment symbol
         if(line.substring(0, Library.COMMENT_SYMBOL.length()).compareTo(Library.COMMENT_SYMBOL) == 0) {
             return Library.COMMENT_INDICATOR;
