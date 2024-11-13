@@ -18,6 +18,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static dataAccess.FileReadWriteUtils.roundToLBA;
+
 public class EventFileOps {
 
     private static final String READ_MODE = "r";
@@ -126,7 +128,6 @@ public class EventFileOps {
         //File dir = new File(dirPath);
         //File[] directoryListing = dir.listFiles();
 
-        int startAddr = 0x800;
         LinkedList<InnerFileAddress> fileAddrList = new LinkedList<>();
 
         try (Stream<Path> pathStream = Files.list(Paths.get(dirPath))){
@@ -137,10 +138,12 @@ public class EventFileOps {
                     //.sorted()
                     .forEach(pathList::add);
             //LinkedList<Path> pathList = pathStream.collect(Collectors.toCollection(LinkedList::new));
+            int headerSize = pathList.size() * 4 * 2; // x 4 bytes per int x 2 ints (start and end)
+            int startAddr = roundToLBA(headerSize);
 
             for(Path child : pathList) {
                 int endAddr = (int) ((child.toFile().length() + startAddr));
-                InnerFileAddress fileAddr = new InnerFileAddress(startAddr, endAddr);
+                InnerFileAddress fileAddr = new InnerFileAddress(startAddr, endAddr, 0); // currAddr only used for reading
                 fileAddrList.add(fileAddr);
                 startAddr = endAddr;
             }

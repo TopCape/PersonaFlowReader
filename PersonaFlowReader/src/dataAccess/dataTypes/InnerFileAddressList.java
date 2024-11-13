@@ -18,7 +18,8 @@ public class InnerFileAddressList {
     public static InnerFileAddressList makeList(RandomAccessFile file, ByteOrder endianness) throws IOException {
         InnerFileAddress fileAddr = InnerFileAddress.getFileAddress(file, endianness);
         LinkedList<InnerFileAddress> list = new LinkedList<>();
-        while((fileAddr.startAddr != 0 && fileAddr.endAddr != 0)) {
+        int limit = fileAddr.startAddr;
+        while(fileAddr.currAddr < limit && fileAddr.startAddr != 0 && fileAddr.endAddr != 0) {
             list.add(fileAddr);
             fileAddr = InnerFileAddress.getFileAddress(file, endianness);
         }
