@@ -247,9 +247,18 @@ public class TextList {
             }
             if (!Library.getInstance().TEXT_CODES_REVERSE.containsKey(currChar)) {
                 currChar = convertCharToUsable(currChar);
-
             }
             data = Library.getInstance().TEXT_CODES_REVERSE.get(currChar);
+
+            // TODO: remove this if when accents are figured out
+            if (data > 0x006C && data <0x0078 ||
+            data > 0x007E && data < 0x0088 ||
+            data > 0x08E && data < 0x009A ||
+            data > 0x00A8 && data < 0x00B0 ||
+            data > 0x00BC && data < 0x00CF) {
+                currChar = convertCharToUsable(currChar);
+                data = Library.getInstance().TEXT_CODES_REVERSE.get(currChar);
+            }
             FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
 
         }
@@ -380,6 +389,101 @@ public class TextList {
                 return "Y";
             case "Ｚ":
                 return "Z";
+
+                // TODO: Delete all cases below when accents are figured out
+            case "Á":
+                return "A";
+            case "À":
+                return "A";
+            case "Ã":
+                return "A";
+            case "Â":
+                return "A";
+            case "Ä":
+                return "A";
+            case "É":
+                return "E";
+            case "È":
+                return "E";
+            case "Ê":
+                return "E";
+            case "Ë":
+                return "E";
+            case "Í":
+                return "I";
+            case "Ì":
+                return "I";
+            case "Î":
+                return "I";
+            case "Ï":
+                return "I";
+            case "Ó":
+                return "O";
+            case "Ò":
+                return "O";
+            case "Õ":
+                return "O";
+            case "Ô":
+                return "O";
+            case "Ö":
+                return "O";
+            case "Ú":
+                return "U";
+            case "Ù":
+                return "U";
+            case "Û":
+                return "U";
+            case "Ü":
+                return "U";
+            case "Ç":
+                return "C";
+            case "á":
+                return "a";
+            case "à":
+                return "a";
+            case "ã":
+                return "a";
+            case "â":
+                return "a";
+            case "ä":
+                return "a";
+            case "é":
+                return "e";
+            case "è":
+                return "e";
+            case "ê":
+                return "e";
+            case "ë":
+                return "e";
+            case "ç":
+                return "c";
+            case "í":
+                return "i";
+            case "ì":
+                return "i";
+            case "î":
+                return "i";
+            case "ï":
+                return "i";
+            case "ó":
+                return "o";
+            case "ò":
+                return "o";
+            case "õ":
+                return "o";
+            case "ô":
+                return "o";
+            case "ö":
+                return "o";
+            case "ú":
+                return "u";
+            case "ù":
+                return "u";
+            case "û":
+                return "u";
+            case "ü":
+                return "u";
+
             default:
                 throw new OperationNotSupportedException("Character " + currChar + " is not usable.");
         }
