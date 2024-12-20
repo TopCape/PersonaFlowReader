@@ -251,7 +251,7 @@ public class TextList {
             data = Library.getInstance().TEXT_CODES_REVERSE.get(currChar);
 
             // TODO: remove this if when accents are figured out
-            if (data > 0x006C && data <0x0078 ||
+            /*if (data > 0x006C && data <0x0078 ||
             data > 0x007E && data < 0x0088 ||
             data > 0x08E && data < 0x009A ||
             data > 0x00A8 && data < 0x00B0 ||
@@ -259,7 +259,12 @@ public class TextList {
                 currChar = convertCharToUsable(currChar);
                 data = Library.getInstance().TEXT_CODES_REVERSE.get(currChar);
             }
+
+
+             */
+
             FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
+
 
         }
         FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, Library.getInstance().TEXT_INSTRUCTIONS_REVERSE.get("END"));
@@ -391,7 +396,7 @@ public class TextList {
                 return "Z";
 
                 // TODO: Delete all cases below when accents are figured out
-            case "Á":
+            /*case "Á":
                 return "A";
             case "À":
                 return "A";
@@ -483,7 +488,7 @@ public class TextList {
                 return "u";
             case "ü":
                 return "u";
-
+            */
             default:
                 throw new OperationNotSupportedException("Character " + currChar + " is not usable.");
         }

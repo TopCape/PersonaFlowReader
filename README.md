@@ -10,6 +10,7 @@ This tool allows the "decompilation" and "compilation" of Persona 1 event files.
 
 Most of the file is still unknown (to me), so it is copied from the base file and edited to fit new code that a user may have written.
 
+If you want to make translations that involve letters with accents (áãâä), you must follow the instructions of the README inside the textures folder.
 
 ## How to use
 
