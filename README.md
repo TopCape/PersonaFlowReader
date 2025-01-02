@@ -10,7 +10,6 @@ This tool allows the "decompilation" and "compilation" of Persona 1 event files.
 
 Most of the file is still unknown (to me), so it is copied from the base file and edited to fit new code that a user may have written.
 
-If you want to make translations that involve letters with accents (áãâä), you must follow the instructions of the README inside the textures folder.
 
 ## How to use
 
@@ -214,14 +213,14 @@ This is the main section of the file. It stores the event script itself. The kno
     | 0x31 |Tadashi, Mai's side v2|
     | 0x32 |Turunkhamen, Mai's side v2|
 
-* **ld_file** - Loads another event file, numbered in the first parameter (specifics are unknown). For instance, when the first parameter is 0x0016, it loads the file E0_022.BIN (0x16 = 22), but unsure how other files in other EX.BIN files are referenced.
+* **ld_file** - Loads another event file, numbered in the first parameter (specifics are unknown). For instance, when the first parameter is 0x0016, it loads the file E0_022.BIN (0x16 = 22), but unsure how other files in other EX.BIN files are referenced. 0x0316 loads E3_022.BIN.
      ```
     ld_file  <FILE_NUM>,<UNKNOWN>
     ```
 
 * **ld_3d_map** - This loads the player into a 3D map (those first person maze sections of the game). The first parameter is the map's ID. The second is unknown. The third and fourth are the X and Y coordinates the player will be loaded into within that map. Parameter 5 holds the direction, which is represented by a value from 0 to 3, representing E, W, S and N respectively. The sixth parameter is unknown.
     ```
-    ld_file  <MAP_ID>,<UNKNOWN>,<X>,<Y>,<DIRECTION>,<UNKNOWN>
+    ld_3d_map  <MAP_ID>,<UNKNOWN>,<X>,<Y>,<DIRECTION>,<UNKNOWN>
     ```
 
 * **give_item** - Puts an item into the player's inventory. These include normal items, equipment and key items, depending on the first parameter. QUANITY is in decimal base.
@@ -305,7 +304,7 @@ This is the main section of the file. It stores the event script itself. The kno
     fx <UNKNOWN>,<UNKNOWN>,<UNKNOWN>,<UNKNOWN>
     ```
 
-* **clr_char** - clears the character whose ID is in the parameter
+* **clr_char** - clears the character OR EFFECT whose ID is in the parameter
     ```
     clr_char <CHARACTER_ID>
     ```
