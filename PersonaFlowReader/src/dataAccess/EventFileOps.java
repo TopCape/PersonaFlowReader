@@ -135,7 +135,7 @@ public class EventFileOps {
             LinkedList<Path> pathList = new LinkedList<>();
             pathStream
                     .filter(s -> s.toString().toUpperCase().endsWith(EVENT_SCRIPT_EXTENSION_1))
-                    //.sorted()
+                    .sorted()
                     .forEach(pathList::add);
             //LinkedList<Path> pathList = pathStream.collect(Collectors.toCollection(LinkedList::new));
             int headerSize = pathList.size() * 4 * 2; // x 4 bytes per int x 2 ints (start and end)
