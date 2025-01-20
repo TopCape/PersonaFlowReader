@@ -18,6 +18,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static dataAccess.FileReadWriteUtils.nameWoExtension;
 import static dataAccess.FileReadWriteUtils.roundToLBA;
 
 public class EventFileOps {
@@ -30,6 +31,9 @@ public class EventFileOps {
     public static final String EVENT_SCRIPT_EXTENSION_2 = ".evs";
     public static final String DEC_SCRIPT_EXTENSION_1 = ".DEC";
     public static final String DEC_SCRIPT_EXTENSION_2 = ".dec";
+    public static final String TXT_EXTENSION_1 = ".TXT";
+    public static final String TXT_EXTENSION_2 = ".txt";
+
     public static final String EXTRACTED_DIR_NAME = "extracted";
     public static final String OUTPUT_DIR_NAME = "output";
     public static final int BASE_EVS_FILENAME_SIZE = 6;
@@ -69,7 +73,7 @@ public class EventFileOps {
 
             String[] pathArray = path.split("/");
             String baseNameWExt = pathArray[pathArray.length-1];
-            String baseName = baseNameWExt.substring(0, baseNameWExt.length()-4);
+            String baseName = nameWoExtension(baseNameWExt);
             //basePath = path.substring(0, path.length()-baseNameWExt.length()) + baseName;
             String initialPath = pathArray[0] + "/" + EXTRACTED_DIR_NAME + "/";
 
@@ -232,7 +236,7 @@ public class EventFileOps {
         labels.clear();
 
         try (RandomAccessFile inputFile = new RandomAccessFile(path, READ_MODE)) {
-            String outputPath = path.substring(0, path.length()-3) + "DEC";
+            String outputPath = nameWoExtension(path) + DEC_SCRIPT_EXTENSION_1;
 
             // delete file if it already exists
             File file = new File(outputPath);
@@ -368,9 +372,17 @@ public class EventFileOps {
                 }
 
 
-                outputFile.writeBytes("\n");
-                textList.writeText(outputFile);
+                //outputFile.writeBytes("\n");
 
+            } catch (Exception e) {
+                //System.out.println("ERR opening file to write decoded to: " + e.getMessage());
+                throw e;
+            }
+
+            // WRITING SEPERATE TEXT FILE
+            outputPath = nameWoExtension(path) + TXT_EXTENSION_1;
+            try (RandomAccessFile outputFile = new RandomAccessFile(outputPath, WRITE_MODE)) {
+                textList.writeText(outputFile);
             } catch (Exception e) {
                 //System.out.println("ERR opening file to write decoded to: " + e.getMessage());
                 throw e;
@@ -396,10 +408,10 @@ public class EventFileOps {
         labelReferenceLocations.clear();
         labelReferenceRealVals.clear();
         int textListSize;
-        String outputPath = inputPath.substring(0, inputPath.length()-4) + Library.TEMP_STRING + EVENT_SCRIPT_EXTENSION_1;
+        String inputName = nameWoExtension(inputPath);
+        String outputPath = inputName + Library.TEMP_STRING + EVENT_SCRIPT_EXTENSION_1;
+        String inputTextPath = inputName + TXT_EXTENSION_1;
         try (RandomAccessFile inputFile = new RandomAccessFile(inputPath, READ_MODE)) {
-            //String outputPath = inputPath.substring(0, inputPath.length()-4) + EVENT_SCRIPT_EXTENSION_1;
-
             // checking if the file is empty
             String line = inputFile.readLine();
             line = removeCommentAndSpaces(line);
@@ -525,6 +537,9 @@ public class EventFileOps {
                     } else {
                         //... check if new section OR label
                         line = inputFile.readLine();
+                        if (line == null) {
+                            break;
+                        }
                         line = removeCommentAndSpaces(line);
                         String[] sectionSplit = line.split(Library.SPACE_TAB_REGEX);
                         String[] labelSplit = sectionSplit[0].split(Library.LABEL_SEPARATOR);
@@ -553,56 +568,68 @@ public class EventFileOps {
                             }
 
                             // skipping to the next value on that line: the number of text strings
-                            i = skipSpacesNTabs(sectionSplit, i+1);
-                            textListSize = Integer.parseInt(sectionSplit[i].substring(2), 16);
+                            //i = skipSpacesNTabs(sectionSplit, i+1);
+                            //textListSize = Integer.parseInt(sectionSplit[i].substring(2), 16);
                             break;
                         }
                     }
                 }
 
-                // text section handling
-                int textInputPointer = (int) inputFile.getFilePointer();
-                line = inputFile.readLine();
-                int[] textPointers = new int[textListSize];
-                for (i = 0; i < textListSize; i++) {
-                    line = EventFileOps.removeCommentAndSpaces(line);
-                    int indexOfColon = line.indexOf(":");
-                    String text = line.substring(indexOfColon + 1);
-                    textInputPointer += indexOfColon + 1; // to skip everything before colon
+                int[] textPointers;
+                try(RandomAccessFile inputTxtFile = new RandomAccessFile(inputTextPath, READ_MODE)) {
+                    // Count number of non-empty lines (https://stackoverflow.com/questions/48485223/how-to-get-the-number-of-lines-from-a-text-file-in-java-ignoring-blank-lines)
+                    textListSize = (int) Files.lines(Paths.get(inputTextPath)).filter(l -> !l.isEmpty()).count();
 
-                    // making sure the text is between quotes
-                    if (text.charAt(0) != '\"' || text.charAt(text.length()-1) != '\"') {
-                        throw new OperationNotSupportedException("TEXT FORMATTED INCORRECTLY: " + text);
+                    // text section handling
+                    int textInputPointer = (int) inputTxtFile.getFilePointer();
+                    line = inputTxtFile.readLine();
+                    textPointers = new int[textListSize];
+                    short textId = 0;
+                    for (i = 0; i < textListSize; i++) {
+                        line = EventFileOps.removeCommentAndSpaces(line);
+                        //int indexOfColon = line.indexOf(":");
+                        //String text = line.substring(indexOfColon + 1);
+                        //textInputPointer += indexOfColon + 1; // to skip everything before colon
+                        String text = line;
+
+                        // making sure the text is between quotes
+                        if (text.charAt(0) != '\"' || text.charAt(text.length()-1) != '\"') {
+                            throw new OperationNotSupportedException("TEXT FORMATTED INCORRECTLY: " + text);
+                        }
+                        // removing quotes
+                        text = text.substring(1, text.length() - 1);
+                        textInputPointer ++; // to skip the quote
+
+                        // splitting spaces and tabs
+                        String[] textSplit = line.split(Library.SPACE_TAB_REGEX);
+
+                        // skip spaces and tabs at beginning
+                        int textEntryIdx = skipSpacesNTabs(textSplit, 0);
+
+                        // getting text index
+                        //short textId = Short.parseShort(textSplit[textEntryIdx].substring(0, 3));
+
+                        // text has to be aligned to multiples of 8
+                        while (outputFile.getFilePointer() % 8 != 0) outputFile.writeByte(0);
+
+                        // filling in a text address location we didn't know yet
+                        // RIGHT NOW in the output file is where the text starts
+                        fillInRef(outputFile, "", textId++);
+
+                        textPointers[i] = (int) outputFile.getFilePointer();
+                        //TextList.encodeText(outputFile, text.getBytes(Charset.forName("windows-1252")));
+                        //TextList.encodeText(outputFile, new String(text.getBytes(Charset.forName("Cp1252")), Charset.forName("Cp1252")));
+                        //TextList.encodeText(outputFile, text.getBytes(StandardCharsets.UTF_8));
+                        TextList.encodeText(outputFile, new String(text.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8), inputTxtFile, textInputPointer);
+
+                        textInputPointer = (int) inputTxtFile.getFilePointer();
+                        line = inputTxtFile.readLine();
                     }
-                    // removing quotes
-                    text = text.substring(1, text.length() - 1);
-                    textInputPointer ++; // to skip the quote
-
-                    // splitting spaces and tabs
-                    String[] textSplit = line.split(Library.SPACE_TAB_REGEX);
-
-                    // skip spaces and tabs at beginning
-                    int textEntryIdx = skipSpacesNTabs(textSplit, 0);
-
-                    // getting text index
-                    short textId = Short.parseShort(textSplit[textEntryIdx].substring(0, 3));
-
-                    // text has to be aligned to multiples of 8
-                    while (outputFile.getFilePointer() % 8 != 0) outputFile.writeByte(0);
-
-                    // filling in a text address location we didn't know yet
-                    // RIGHT NOW in the output file is where the text starts
-                    fillInRef(outputFile, "", textId);
-
-                    textPointers[i] = (int) outputFile.getFilePointer();
-                    //TextList.encodeText(outputFile, text.getBytes(Charset.forName("windows-1252")));
-                    //TextList.encodeText(outputFile, new String(text.getBytes(Charset.forName("Cp1252")), Charset.forName("Cp1252")));
-                    //TextList.encodeText(outputFile, text.getBytes(StandardCharsets.UTF_8));
-                    TextList.encodeText(outputFile, new String(text.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8), inputFile, textInputPointer);
-
-                    textInputPointer = (int) inputFile.getFilePointer();
-                    line = inputFile.readLine();
+                } catch (Exception e) {
+                    //System.out.println(e.getMessage());
+                    throw e;
                 }
+
 
                 // gotta go update the reference to the text table
                 if (!isJ) { // in the japanese version, there is no text table
@@ -634,7 +661,7 @@ public class EventFileOps {
             throw e;
         }
 
-        String ogPath = inputPath.substring(0, inputPath.length()-4) + EVENT_SCRIPT_EXTENSION_1;
+        String ogPath = nameWoExtension(inputPath) + EVENT_SCRIPT_EXTENSION_1;
         File ogFile = new File(ogPath);
         File tempFile = new File(outputPath);
 
@@ -655,7 +682,7 @@ public class EventFileOps {
      * @param isJ {@code true} if the event file was extracted from the japanese version of the game
      */
     private static void fillFileBeginning(String path, RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isJ) throws IOException, OperationNotSupportedException {
-        String ogPath = path.substring(0, path.length()-4) + EVENT_SCRIPT_EXTENSION_1;
+        String ogPath = nameWoExtension(path) + EVENT_SCRIPT_EXTENSION_1;
         try (RandomAccessFile ogFile = new RandomAccessFile(ogPath, READ_MODE)) {
             ogFile.seek(Library.ADDRESS_WITH_FLOW_SCRIPT_POINTER - (isJ ? 4 : 0));
             int startAddr = FileReadWriteUtils.readInt(ogFile, valOrder);
@@ -940,6 +967,10 @@ public class EventFileOps {
     }
     private static void encodeInstruction(RandomAccessFile inputFile, RandomAccessFile outputFile) throws IOException, OperationNotSupportedException {
         String line = inputFile.readLine();
+        if (line == null) {
+            emptyLineHappened = true;
+            return;
+        }
         line = EventFileOps.removeCommentAndSpaces(line);
 
         if (line.compareTo(Library.COMMENT_INDICATOR) == 0) {

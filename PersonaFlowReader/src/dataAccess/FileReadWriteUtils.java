@@ -96,6 +96,10 @@ public class FileReadWriteUtils {
         return pathSplit[pathSplit.length-1];
     }
 
+    public static String nameWoExtension(String name) {
+        return name.substring(0, name.length()-4);
+    }
+
     public static int roundToLBA(int number) {
         int rest = number % LBA;
         if (rest < 0) {

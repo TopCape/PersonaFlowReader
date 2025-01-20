@@ -508,11 +508,9 @@ public class TextList {
     }
 
     public void writeText(RandomAccessFile outputFile) throws IOException {
-        //toRet.append("section\t.text\n");
-        outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TEXT_AREA_KEYWORD + "\t" + String.format("0x%08x", this.size) + "\n");
+        //outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TEXT_AREA_KEYWORD + "\t" + String.format("0x%08x", this.size) + "\n");
         for (int i = 0; i < this.size; i++) {
-            //toRet.append("\t").append(String.format("%03d", i)).append("\"").append((this.textList[i])).append("\"\n");
-            outputFile.writeBytes(String.format("\t%03d:", i));
+            //outputFile.writeBytes(String.format("\t%03d:", i));
             outputFile.write(textList.get(i).getBytes());
             outputFile.writeBytes("\n");
         }
