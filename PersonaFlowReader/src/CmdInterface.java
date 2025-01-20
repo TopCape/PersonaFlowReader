@@ -1,5 +1,4 @@
 import dataAccess.EventFileOps;
-import dataAccess.FileReadWriteUtils;
 import dataAccess.Library;
 
 import javax.naming.OperationNotSupportedException;
@@ -7,6 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Scanner;
+
+import static dataAccess.FileReadWriteUtilsKt.getExtension;
 
 public class CmdInterface {
 
@@ -343,7 +344,7 @@ public class CmdInterface {
                 throw new OperationNotSupportedException("The directory is empty.");
             }
             for (File child : directoryListing) {
-                if (FileReadWriteUtils.getExtension(child.getPath()).compareToIgnoreCase("evs") == 0) {
+                if (getExtension(child.getPath()).compareToIgnoreCase("evs") == 0) {
                     System.out.printf("%s\r",child.getName());
                     EventFileOps.decodeFlowScript(child.getPath(), isJ);
                 }
@@ -369,7 +370,7 @@ public class CmdInterface {
                 throw new OperationNotSupportedException("The directory is empty.");
             }
             for (File child : directoryListing) {
-                if (FileReadWriteUtils.getExtension(child.getPath()).compareToIgnoreCase("dec") == 0) {
+                if (getExtension(child.getPath()).compareToIgnoreCase("dec") == 0) {
                     System.out.printf("%s\r",child.getName());
                     EventFileOps.encodeFlowScript(child.getPath(), isJ);
                 }

@@ -1,6 +1,5 @@
 package dataAccess.dataTypes;
 
-import dataAccess.FileReadWriteUtils;
 import dataAccess.Library;
 import dataAccess.LongCharRandomAccessFile;
 
@@ -8,8 +7,9 @@ import javax.naming.OperationNotSupportedException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
+
+import static dataAccess.FileReadWriteUtilsKt.*;
 
 public class TextList {
 
@@ -41,12 +41,12 @@ public class TextList {
         int pointerBK = (int) file.getFilePointer();
         file.seek(addr);
 
-        int size = FileReadWriteUtils.readInt(file, ByteOrder.LITTLE_ENDIAN);
+        int size = readInt(file, ByteOrder.LITTLE_ENDIAN);
 
         LinkedList<Integer> refList = new LinkedList<>();
         LinkedList<String> textList = new LinkedList<>();
         for (int i = 0; i < size; i++) {
-            int textRef = FileReadWriteUtils.readInt(file, ByteOrder.LITTLE_ENDIAN);
+            int textRef = readInt(file, ByteOrder.LITTLE_ENDIAN);
             refList.add(textRef);
             textList.add(getText(file, textRef, oneLine));
         }
@@ -61,7 +61,7 @@ public class TextList {
 
         StringBuilder optionsComment = null;
 
-        short data = FileReadWriteUtils.readShort(file, ByteOrder.BIG_ENDIAN);
+        short data = readShort(file, ByteOrder.BIG_ENDIAN);
         boolean name_color_set = false;
         while (data != (short)0xff01) {
             // it's an instruction
@@ -90,12 +90,12 @@ public class TextList {
                     case WAIT:
                     case PRINT_VALUE:
                         toRet.append(START_SPECIAL).append(instr.name()).append(PARAM_SEPARATOR);
-                        data = FileReadWriteUtils.readShort(file, ByteOrder.LITTLE_ENDIAN);
+                        data = readShort(file, ByteOrder.LITTLE_ENDIAN);
                         toRet.append(data).append(END_SPECIAL);
                         break;
                     case SHOW_OPTIONS:
                         toRet.append(START_SPECIAL).append(instr.name()).append(PARAM_SEPARATOR);
-                        data = FileReadWriteUtils.readShort(file, ByteOrder.LITTLE_ENDIAN);
+                        data = readShort(file, ByteOrder.LITTLE_ENDIAN);
                         toRet.append(data).append(END_SPECIAL);
 
                         if (optionsComment == null) {
@@ -111,7 +111,7 @@ public class TextList {
                         break;
                     case SET_COLOR: // sets a color
                     case LEGACY_SET_COLOR:
-                        data = FileReadWriteUtils.readShort(file, ByteOrder.LITTLE_ENDIAN);
+                        data = readShort(file, ByteOrder.LITTLE_ENDIAN);
                         if (!oneLine) {
                             toRet.append(Library.getInstance().TEXT_COLORS_ANSI.get(data));
                         }
@@ -122,7 +122,7 @@ public class TextList {
                         }
                         break;
                     case PRINT_ICON:
-                        data = FileReadWriteUtils.readShort(file, ByteOrder.LITTLE_ENDIAN);
+                        data = readShort(file, ByteOrder.LITTLE_ENDIAN);
                         if (!oneLine) {
                             switch(data) {
                                 case 0:
@@ -155,7 +155,7 @@ public class TextList {
                     toRet.append(String.format("{%04X}", data));
                 }
             }
-            data = FileReadWriteUtils.readShort(file, ByteOrder.BIG_ENDIAN);
+            data = readShort(file, ByteOrder.BIG_ENDIAN);
         }
 
         toRet.append("\"");
@@ -194,7 +194,7 @@ public class TextList {
             } else if (canBeSpecial && !isSpecial) {
                 // write the old chars
                 data = Library.getInstance().TEXT_CODES_REVERSE.get("" + text.charAt(i-1));
-                FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
+                writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
 
                 // decrement i to force the loop to read the current char
                 i--;
@@ -208,22 +208,22 @@ public class TextList {
                     // if a normal instruction
                     if (Library.getInstance().TEXT_INSTRUCTIONS_REVERSE.containsKey(special.toString())) {
                         data = Library.getInstance().TEXT_INSTRUCTIONS_REVERSE.get(special.toString());
-                        FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
+                        writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
                     } else {
                         // it is either the WAIT or SHOW_OPTIONS or SET_COLOR or PRINT_ICON.... instructions, which has a parameter
                         String[] split = special.toString().split(PARAM_SEPARATOR);
                         data = Library.getInstance().TEXT_INSTRUCTIONS_REVERSE.get(split[0]);
-                        FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
+                        writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
                         if (split[0].compareTo(Library.TextInstruction.WAIT.name()) == 0 ||
                                 split[0].compareTo(Library.TextInstruction.SHOW_OPTIONS.name()) == 0 ||
                                 split[0].compareTo(Library.TextInstruction.PRINT_VALUE.name()) == 0 ||
                                 split[0].compareTo(Library.TextInstruction.PRINT_ICON.name()) == 0) {
                             data = Short.parseShort(split[1]); // the value
-                            FileReadWriteUtils.writeShort(outputFile, ByteOrder.LITTLE_ENDIAN, data);
+                            writeShort(outputFile, ByteOrder.LITTLE_ENDIAN, data);
                         } else if (split[0].compareTo(Library.TextInstruction.SET_COLOR.name()) == 0 ||
                                 split[0].compareTo(Library.TextInstruction.LEGACY_SET_COLOR.name()) == 0) {
                             data = Library.getInstance().TEXT_COLORS_REVERSE.get(split[1].charAt(0)); // the color
-                            FileReadWriteUtils.writeShort(outputFile, ByteOrder.LITTLE_ENDIAN, data);
+                            writeShort(outputFile, ByteOrder.LITTLE_ENDIAN, data);
                         } else {
                             System.out.println("EERRROOOOORRRR in special text code\n");
                         }
@@ -263,11 +263,11 @@ public class TextList {
 
              */
 
-            FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
+            writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
 
 
         }
-        FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, Library.getInstance().TEXT_INSTRUCTIONS_REVERSE.get("END"));
+        writeShort(outputFile, ByteOrder.BIG_ENDIAN, Library.getInstance().TEXT_INSTRUCTIONS_REVERSE.get("END"));
         inputFile.seek(pointerBK);
     }
 

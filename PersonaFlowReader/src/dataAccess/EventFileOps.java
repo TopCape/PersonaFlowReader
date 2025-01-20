@@ -18,8 +18,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static dataAccess.FileReadWriteUtils.nameWoExtension;
-import static dataAccess.FileReadWriteUtils.roundToLBA;
+import static dataAccess.FileReadWriteUtilsKt.*;
+import static dataAccess.dataTypes.InnerFileAddressListKt.makeList;
+
 
 public class EventFileOps {
 
@@ -69,7 +70,7 @@ public class EventFileOps {
         InnerFileAddressList addressList;
         String basePath;
         try (RandomAccessFile baseFile = new RandomAccessFile(path, READ_MODE)) {
-            addressList = InnerFileAddressList.makeList(baseFile, valOrder);
+            addressList = makeList(baseFile, valOrder);
 
             String[] pathArray = path.split("/");
             String baseNameWExt = pathArray[pathArray.length-1];
@@ -250,8 +251,8 @@ public class EventFileOps {
                 preCodePrint.append(Library.SECTION_KEYWORD + "\t" + Library.BGM_SECTION_KEYWORD + "\n");
                 //outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.BGM_SECTION_KEYWORD + "\n");
                 inputFile.seek(Library.STARTING_SONG_ADDRESS);
-                short firstSong = FileReadWriteUtils.readShort(inputFile, valOrder);
-                short secondSong = FileReadWriteUtils.readShort(inputFile, valOrder);
+                short firstSong = readShort(inputFile, valOrder);
+                short secondSong = readShort(inputFile, valOrder);
                 preCodePrint.append(String.format("\t0x%02x\n\t0x%02x\n\n", firstSong, secondSong));
                 //outputFile.writeBytes(String.format("\t0x%02x\n\t0x%02x\n\n", firstSong, secondSong));
 
@@ -259,7 +260,7 @@ public class EventFileOps {
                 // in the japanese version, there is no text list at the end of the file :(
                 if (!isJ) {
                     inputFile.seek(Library.ADDRESS_WITH_TEXT_TABLE_POINTER);
-                    int textTableAddr = FileReadWriteUtils.readInt(inputFile, valOrder);
+                    int textTableAddr = readInt(inputFile, valOrder);
                     textList = TextList.readEncodedTextList(inputFile, textTableAddr, true);
                 } else {
                     textList = new TextList();
@@ -292,7 +293,7 @@ public class EventFileOps {
 
                 // address value zone
                 inputFile.seek(Library.ADDRESS_WITH_FLOW_SCRIPT_POINTER - (isJ ? 4 : 0));
-                int flowStartAddr = FileReadWriteUtils.readInt(inputFile, valOrder);
+                int flowStartAddr = readInt(inputFile, valOrder);
 
                 if (flowStartAddr == -1) {
                 // if the flow start addr was -1, use the earliest LABEL's address as the start address
@@ -451,7 +452,7 @@ public class EventFileOps {
                 while ((line = inputFile.readLine()).compareTo("") != 0) {
                     String[] songEntrySplit = line.split(Library.SPACE_TAB_REGEX);
                     i = skipSpacesNTabs(songEntrySplit, 1);
-                    FileReadWriteUtils.writeShort(outputFile, valOrder, extractShortFromString(songEntrySplit[i]));
+                    writeShort(outputFile, valOrder, extractShortFromString(songEntrySplit[i]));
                 }
                 outputFile.seek(pointerBK);
 
@@ -635,14 +636,14 @@ public class EventFileOps {
                 if (!isJ) { // in the japanese version, there is no text table
                     int textTablePointer = (int) outputFile.getFilePointer();
                     outputFile.seek(Library.ADDRESS_WITH_TEXT_TABLE_POINTER);
-                    FileReadWriteUtils.writeInt(outputFile, valOrder, textTablePointer);
+                    writeInt(outputFile, valOrder, textTablePointer);
                     outputFile.seek(textTablePointer);
 
                     // writing the text table at the end
-                    FileReadWriteUtils.writeInt(outputFile, valOrder, textListSize);
+                    writeInt(outputFile, valOrder, textListSize);
 
                     for (i = 0; i < textListSize; i++) {
-                        FileReadWriteUtils.writeInt(outputFile, valOrder, textPointers[i]);
+                        writeInt(outputFile, valOrder, textPointers[i]);
                     }
                 }
 
@@ -685,7 +686,7 @@ public class EventFileOps {
         String ogPath = nameWoExtension(path) + EVENT_SCRIPT_EXTENSION_1;
         try (RandomAccessFile ogFile = new RandomAccessFile(ogPath, READ_MODE)) {
             ogFile.seek(Library.ADDRESS_WITH_FLOW_SCRIPT_POINTER - (isJ ? 4 : 0));
-            int startAddr = FileReadWriteUtils.readInt(ogFile, valOrder);
+            int startAddr = readInt(ogFile, valOrder);
 
             String addrLine = inputFile.readLine();
             // if the og file doesn't have a valid address, gotta get one from the input file's .addr zone
@@ -770,18 +771,18 @@ public class EventFileOps {
                 if (isPastText) isLastInstruction = true; // this is used for situations where the labels have to be used to know about more code
                 return "\t" + name + "\n";
             case jump:
-                check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
+                check = readShort(inputFile, instructionOrder);
                 name = simpleInstructionCheck(check, name, instr);
 
                 // get followup int, which corresponds to the address to jump to
-                address = FileReadWriteUtils.readInt(inputFile, valOrder);
+                address = readInt(inputFile, valOrder);
 
                 label = getLabel(address);
 
                 return "\t" + name + "\t" + label + "\n";
             case jump_if:
                 String condition = getShortString(inputFile);
-                address = FileReadWriteUtils.readInt(inputFile, valOrder);
+                address = readInt(inputFile, valOrder);
                 label = getLabel(address);
 
                 return "\t" + name + "\t" + condition + "," + label + "\t" + Library.COMMENT_SYMBOL + " the parameter's exact meaning is unknown, but it might be related to game flags\n";
@@ -833,7 +834,7 @@ public class EventFileOps {
                 param2 = getByteString(inputFile);
                 return "\t" + name + "\t" + param + "," + param2 + "\t"+ Library.COMMENT_SYMBOL + " second parameter is some kind of flag?\n";
             case money_check:
-                check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
+                check = readShort(inputFile, instructionOrder);
                 name = simpleInstructionCheck(check, name, instr);
                 fee = getInt(inputFile);
                 address = getInt(inputFile);
@@ -857,7 +858,7 @@ public class EventFileOps {
 
                 return "\t" + name + "\t" + param + "," + label + "\t"+ Library.COMMENT_SYMBOL + " " + name + " <option num?>,<label>\n";
             case ld_text:
-                check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
+                check = readShort(inputFile, instructionOrder);
                 name = simpleInstructionCheck(check, name, instr);
                 address = getInt(inputFile);
                 int textIdx = textList.indexOfText(address);
@@ -883,16 +884,16 @@ public class EventFileOps {
             case unk_cmd_59:
             case unk_cmd_5A:
             case unk_cmd_87:
-                check = FileReadWriteUtils.readShort(inputFile, valOrder);
+                check = readShort(inputFile, valOrder);
                 address = getInt(inputFile);
                 label = getLabel(address);
                 return "\t" + name + "\t" + getShortString(check) + "," +  label + "\t" + Library.COMMENT_SYMBOL + " unknown, but uses a label\n";
             case open_dialog:
-                check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
+                check = readShort(inputFile, instructionOrder);
                 name = simpleInstructionCheck(check, name, instr);
                 return "\t" + name + "\t"+ Library.COMMENT_SYMBOL + " opens dialog box graphic\n";
             case close_dialog:
-                check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
+                check = readShort(inputFile, instructionOrder);
                 name = simpleInstructionCheck(check, name, instr);
                 return "\t" + name + "\t"+ Library.COMMENT_SYMBOL + " closes dialog box graphic\n";
             case pose:
@@ -917,7 +918,7 @@ public class EventFileOps {
                 return "\t" + name + "\t" + Library.PORTRAIT_CHARS.values()[smolParam] + "," + Library.PORTRAIT_ORIENTATION.values()[inputFile.readByte()] +
                         "\n";
             case close_portrait:
-                check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
+                check = readShort(inputFile, instructionOrder);
                 name = simpleInstructionCheck(check, name, instr);
                 return "\t" + name + "\t"+ Library.COMMENT_SYMBOL + " closes portrait graphic\n";
             case emote:
@@ -941,7 +942,7 @@ public class EventFileOps {
                 check = getShortVal(inputFile);
                 return "\t" + name + "\t" + check + "\t"+ Library.COMMENT_SYMBOL + " clears the emote of the character in the parameter\n";
             case do_planned_moves:
-                check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
+                check = readShort(inputFile, instructionOrder);
                 name = simpleInstructionCheck(check, name, instr); // HERE
                 return "\t" + name + "\t"+ Library.COMMENT_SYMBOL + " executes the previously planned character movements\n";
 
@@ -960,7 +961,7 @@ public class EventFileOps {
                         .append(String.format("%02x", inputFile.readByte())).append(String.format("%02x", inputFile.readByte()));
                 int params = Library.getInstance().PARAM_NUM.get(flowInstr);
                 for (int i = 0; i < params; i++) {
-                    toRet.append(",").append(String.format("%08x", FileReadWriteUtils.readInt(inputFile, instructionOrder)));
+                    toRet.append(",").append(String.format("%08x", readInt(inputFile, instructionOrder)));
                 }
                 return toRet.append("\n").toString();
         }
@@ -1076,7 +1077,7 @@ public class EventFileOps {
                 writeIntInstruction(outputFile, instr, extractShortFromString(shortParam));
 
                 // write int in hexadecimal
-                FileReadWriteUtils.writeInt(outputFile, valOrder, extractIntFromString(intParam));
+                writeInt(outputFile, valOrder, extractIntFromString(intParam));
 
             } else if (instr.compareTo(Library.FlowInstruction.ld_3d_map.name()) == 0) {
                 String mapID = paramSplit[0];
@@ -1105,7 +1106,7 @@ public class EventFileOps {
                 writeIntInstruction(outputFile, instr, extractShortFromString(itemId));
 
                 // write quantity
-                FileReadWriteUtils.writeInt(outputFile, valOrder, Integer.parseInt(quantity));
+                writeInt(outputFile, valOrder, Integer.parseInt(quantity));
             } else if (instr.compareTo(Library.FlowInstruction.play_MV.name()) == 0) {
                 String movieFileName = paramSplit[0]; // format: MVXX.pmf, where XX is the number
                 String param1 = movieFileName.substring(2, 4); // byte (hex without 0x)
@@ -1123,7 +1124,7 @@ public class EventFileOps {
                 writeIntInstruction(outputFile, instr, (short) 0);
 
                 // write the fee
-                FileReadWriteUtils.writeInt(outputFile, valOrder, Integer.parseInt(fee));
+                writeInt(outputFile, valOrder, Integer.parseInt(fee));
 
                 // register a required address
                 int currAddr = (int) outputFile.getFilePointer();
@@ -1136,7 +1137,7 @@ public class EventFileOps {
                 writeIntInstruction(outputFile, instr, (short) Library.MONEY_DIRECTION.valueOf(direction).ordinal());
 
                 // write the quantity
-                FileReadWriteUtils.writeInt(outputFile, valOrder, Integer.parseInt(quantity));
+                writeInt(outputFile, valOrder, Integer.parseInt(quantity));
             } else if (instr.compareTo(Library.FlowInstruction.player_option.name()) == 0) {
                 String param = paramSplit[0];
                 String label = paramSplit[1];
@@ -1156,7 +1157,7 @@ public class EventFileOps {
                 // register a required text address
                 int currAddr = (int) outputFile.getFilePointer();
                 addTextRef((short) Integer.parseInt(textID), currAddr);
-                FileReadWriteUtils.writeInt(outputFile, valOrder, 0); // padding while no address
+                writeInt(outputFile, valOrder, 0); // padding while no address
 
             } else if (instr.compareTo(Library.FlowInstruction.fx.name()) == 0) {
                 String param1 = paramSplit[0]; // byte (hex)
@@ -1171,8 +1172,8 @@ public class EventFileOps {
                 outputFile.writeByte(extractByteFromString(param2));
 
                 // write 2 ints
-                FileReadWriteUtils.writeInt(outputFile, valOrder, extractIntFromString(param3));
-                FileReadWriteUtils.writeInt(outputFile, valOrder, extractIntFromString(param4));
+                writeInt(outputFile, valOrder, extractIntFromString(param3));
+                writeInt(outputFile, valOrder, extractIntFromString(param4));
 
             } else if (instr.compareTo(Library.FlowInstruction.pose.name()) == 0) {
                 String charID = paramSplit[0]; // byte (hex)
@@ -1202,7 +1203,7 @@ public class EventFileOps {
                 outputFile.writeByte(extractByteFromString(unknown1));
 
                 // write final int
-                FileReadWriteUtils.writeInt(outputFile, valOrder, extractIntFromString(unknown2));
+                writeInt(outputFile, valOrder, extractIntFromString(unknown2));
             } else if (instr.compareTo(Library.FlowInstruction.ld_portrait.name()) == 0) {
                 String param1 = paramSplit[0]; // text of the character
                 String param2 = paramSplit[1]; // text of the position
@@ -1279,10 +1280,10 @@ public class EventFileOps {
             //    continue;
             //}
             inputFile.seek(inputFile.getFilePointer() + Library.CHARACTER_DATA_EVENT_ADDRESS_1_OFFSET);
-            int address1 = FileReadWriteUtils.readInt(inputFile, valOrder);
+            int address1 = readInt(inputFile, valOrder);
 
             inputFile.seek(inputFile.getFilePointer() + secondAddrOffset);
-            int address2 = FileReadWriteUtils.readInt(inputFile, valOrder);
+            int address2 = readInt(inputFile, valOrder);
 
             // If both addresses are -1, then there is nothing to write
             if ((address1 == Library.MINUS_1_INT || address1 == 0) && (address2 == Library.MINUS_1_INT || address2 == 0)) {
@@ -1377,11 +1378,11 @@ public class EventFileOps {
 
         // fetch the pointer to the list's size
         inputFile.seek(effectivePointer);
-        int sizePointer = FileReadWriteUtils.readInt(inputFile, valOrder);
+        int sizePointer = readInt(inputFile, valOrder);
 
         // go to where the size value is
         inputFile.seek(sizePointer);
-        int size = FileReadWriteUtils.readInt(inputFile, valOrder);
+        int size = readInt(inputFile, valOrder);
 
         // if the size is 0, there are no positions
         if (size == 0) {
@@ -1392,14 +1393,14 @@ public class EventFileOps {
 
         // go to the beginning of the list of positions
         inputFile.seek(effectivePointer + 4);
-        int positionsPointer = FileReadWriteUtils.readInt(inputFile, valOrder);
+        int positionsPointer = readInt(inputFile, valOrder);
         inputFile.seek(positionsPointer);
 
         for (int i = 0; i < size; i ++) {
             byte x = inputFile.readByte();
             byte y = inputFile.readByte();
-            short unknown = FileReadWriteUtils.readShort(inputFile, valOrder);
-            int address = FileReadWriteUtils.readInt(inputFile, valOrder);
+            short unknown = readShort(inputFile, valOrder);
+            int address = readInt(inputFile, valOrder);
 
             String label = getLabel(address);
 
@@ -1458,12 +1459,12 @@ public class EventFileOps {
 
         // getting the size of the positions list
         outputFile.seek(effectivePointer);
-        outputFile.seek(FileReadWriteUtils.readInt(outputFile, valOrder));
-        int positionsSize = FileReadWriteUtils.readInt(outputFile, valOrder);
+        outputFile.seek(readInt(outputFile, valOrder));
+        int positionsSize = readInt(outputFile, valOrder);
 
         // getting pointer to the first position data
         outputFile.seek(effectivePointer + 4);
-        outputFile.seek(FileReadWriteUtils.readInt(outputFile, valOrder));
+        outputFile.seek(readInt(outputFile, valOrder));
 
         // interpreting the positions section
         for (int positionEntryIdx = 0; positionEntryIdx < positionsSize; positionEntryIdx++) {
@@ -1509,12 +1510,12 @@ public class EventFileOps {
         boolean short2 = (inputFile.readShort() == (short) 0);
         boolean address = (inputFile.readInt() == 0xFFFFFFFF);
         boolean int1 = (inputFile.readInt() == 0);
-        boolean int2 = (FileReadWriteUtils.readInt(inputFile, ByteOrder.LITTLE_ENDIAN) == 0xFF);
+        boolean int2 = (readInt(inputFile, ByteOrder.LITTLE_ENDIAN) == 0xFF);
         boolean int3 = (inputFile.readInt() == 0);
 
         boolean int4 = (inputFile.readInt() == 0xFFFFFFFF);
         boolean int5 = (inputFile.readInt() == 0);
-        boolean int6 = (FileReadWriteUtils.readInt(inputFile, ByteOrder.LITTLE_ENDIAN) == 0xFF);
+        boolean int6 = (readInt(inputFile, ByteOrder.LITTLE_ENDIAN) == 0xFF);
         boolean int7 = (inputFile.readInt() == 0);
 
         inputFile.seek(pointerBk);
@@ -1542,14 +1543,14 @@ public class EventFileOps {
     private static void addLabelRef(RandomAccessFile outputFile, String labelName, int currAddr) throws IOException {
         if (labelReferenceLocations.containsKey(labelName)) {
             labelReferenceLocations.get(labelName).add(currAddr);
-            if (outputFile != null) FileReadWriteUtils.writeInt(outputFile, valOrder, 0); // padding while no address
+            if (outputFile != null) writeInt(outputFile, valOrder, 0); // padding while no address
         } else if (labelReferenceRealVals.containsKey(labelName)) {
-            FileReadWriteUtils.writeInt(outputFile, valOrder, labelReferenceRealVals.get(labelName));
+            writeInt(outputFile, valOrder, labelReferenceRealVals.get(labelName));
         } else {
             LinkedList<Integer> toAdd = new LinkedList<>();
             toAdd.add(currAddr);
             labelReferenceLocations.put(labelName, toAdd);
-            if (outputFile != null) FileReadWriteUtils.writeInt(outputFile, valOrder, 0); // padding while no address
+            if (outputFile != null) writeInt(outputFile, valOrder, 0); // padding while no address
         }
     }
 
@@ -1566,7 +1567,7 @@ public class EventFileOps {
     private static void writeIntInstruction(RandomAccessFile outputFile, String instr, short val) throws IOException {
         outputFile.writeByte(Library.CMD_START);
         outputFile.writeByte(Library.getInstance().FLOW_INSTRUCTIONS_REVERSE.get(instr));
-        FileReadWriteUtils.writeShort(outputFile, valOrder, val);
+        writeShort(outputFile, valOrder, val);
     }
 
     private static void encodeUnknownInstruction(RandomAccessFile outFile, String instr) throws OperationNotSupportedException, IOException {
@@ -1576,7 +1577,7 @@ public class EventFileOps {
         }
         String[] splitCommas = splitDeeper[1].split(",");
         for (String intValue : splitCommas) {
-            FileReadWriteUtils.writeInt(outFile, instructionOrder, (int)Long.parseLong(intValue, 16));
+            writeInt(outFile, instructionOrder, (int)Long.parseLong(intValue, 16));
         }
     }
 
@@ -1611,7 +1612,7 @@ public class EventFileOps {
         }
         for (Integer addr : addrs) {
             outFile.seek(addr);
-            FileReadWriteUtils.writeInt(outFile, valOrder, currAddr);
+            writeInt(outFile, valOrder, currAddr);
         }
         addrs.clear();
 
@@ -1706,7 +1707,7 @@ public class EventFileOps {
     }
 
     private static String getShortString(RandomAccessFile file) throws IOException {
-        return String.format(Library.HEX_PREFIX + "%04x", FileReadWriteUtils.readShort(file, valOrder));
+        return String.format(Library.HEX_PREFIX + "%04x", readShort(file, valOrder));
     }
 
     private static String getShortString(short val) throws IOException {
@@ -1714,15 +1715,15 @@ public class EventFileOps {
     }
 
     private static short getShortVal(RandomAccessFile file) throws IOException {
-        return FileReadWriteUtils.readShort(file, valOrder);
+        return readShort(file, valOrder);
     }
 
     private static String getIntString(RandomAccessFile file) throws IOException {
-        return String.format(Library.HEX_PREFIX + "%08x", FileReadWriteUtils.readInt(file, valOrder));
+        return String.format(Library.HEX_PREFIX + "%08x", readInt(file, valOrder));
     }
 
     private static int getInt(RandomAccessFile file) throws IOException {
-        return FileReadWriteUtils.readInt(file, valOrder);
+        return readInt(file, valOrder);
     }
 
     public static int readHexIntString(String number) throws OperationNotSupportedException {
@@ -1738,7 +1739,7 @@ public class EventFileOps {
             return;
         }
         file.seek(Library.ADDRESS_WITH_TEXT_TABLE_POINTER);
-        int address = FileReadWriteUtils.readInt(file, valOrder);
+        int address = readInt(file, valOrder);
         TextList textList = TextList.readEncodedTextList(file, address, false);// TO CHANGE TO FUNCTIONAL, CHANGE THIS TO TRUE
         System.out.println(textList);
         //System.out.println(textList.writeText());
