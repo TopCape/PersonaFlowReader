@@ -21,6 +21,7 @@ public class Library {
     public static final String INTER_SECTION_KEYWORD = ".interactables";
     public static final String CODE_AREA_KEYWORD = ".code";
     public static final String TEXT_AREA_KEYWORD = ".text";
+    public static final String ADDR_KEYWORD = "addr";
     public static final String SPACE_TAB_REGEX = "[ \t]";
     public static final String NOT_FORMATTED_ERR_TXT = "File is not formatted correctly";
     public static final String LABEL_TXT = "LABEL";
@@ -50,6 +51,8 @@ public class Library {
     public static final byte SECONDARY_CHARACTER_DATA_EVENT_ADDRESS_2_OFFSET = 0x8; // offset starting from the end of the previous event address
     public static final byte SECONDARY_CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET = 0x10;
 
+    public static final byte CHARACTER_NAME_BYTE = 0x1B;
+    public static final String EMPTY_FILE_STRING = "EMPTY";
 
     public static final int MINUS_1_INT = 0xFFFFFFFF;
 
@@ -70,6 +73,7 @@ public class Library {
         ld_file,
         ld_3d_map,
         play_MV,
+        unk_cmd_2F,
         UNKNOWN_COMMAND_30,
         UNKNOWN_COMMAND_31,
         UNKNOWN_COMMAND_32,
@@ -118,6 +122,7 @@ public class Library {
         play_song,
         play_sfx,
         UNKNOWN_COMMAND_88,
+        UNKNOWN_COMMAND_89,
         UNKNOWN_COMMAND_8A
     }
 
@@ -158,6 +163,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x2B, FlowInstruction.ld_file);
         FLOW_INSTRUCTIONS.put((byte) 0x2C, FlowInstruction.ld_3d_map);
         FLOW_INSTRUCTIONS.put((byte) 0x2D, FlowInstruction.play_MV);
+        FLOW_INSTRUCTIONS.put((byte) 0x2F, FlowInstruction.unk_cmd_2F);
         FLOW_INSTRUCTIONS.put((byte) 0x30, FlowInstruction.UNKNOWN_COMMAND_30);
         FLOW_INSTRUCTIONS.put((byte) 0x31, FlowInstruction.UNKNOWN_COMMAND_31);
         FLOW_INSTRUCTIONS.put((byte) 0x32, FlowInstruction.UNKNOWN_COMMAND_32);
@@ -206,6 +212,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x80, FlowInstruction.play_song);
         FLOW_INSTRUCTIONS.put((byte) 0x81, FlowInstruction.play_sfx);
         FLOW_INSTRUCTIONS.put((byte) 0x88, FlowInstruction.UNKNOWN_COMMAND_88);
+        FLOW_INSTRUCTIONS.put((byte) 0x89, FlowInstruction.UNKNOWN_COMMAND_89);
         FLOW_INSTRUCTIONS.put((byte) 0x8A, FlowInstruction.UNKNOWN_COMMAND_8A);
 
         PARAM_NUM = new HashMap<>();
@@ -222,6 +229,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.ld_file, (byte)1);
         PARAM_NUM.put(FlowInstruction.ld_3d_map, (byte)1);
         PARAM_NUM.put(FlowInstruction.play_MV, (byte)0);
+        PARAM_NUM.put(FlowInstruction.unk_cmd_2F, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_30, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_31, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_32, (byte)0);
@@ -270,6 +278,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.play_song, (byte)0);
         PARAM_NUM.put(FlowInstruction.play_sfx, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_88, (byte)0);
+        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_89, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_8A, (byte)0);
 
         TEXT_INSTRUCTIONS = new HashMap<>();
@@ -287,7 +296,7 @@ public class Library {
         TEXT_INSTRUCTIONS.put((short)0xff18, TextInstruction.SET_COLOR);
         TEXT_INSTRUCTIONS.put((short)0xff19, TextInstruction.PRINT_ICON);
         TEXT_INSTRUCTIONS.put((short)0xff1a, TextInstruction.PRINT_VALUE);
-        TEXT_INSTRUCTIONS.put((short)0xff1B, TextInstruction.CHARACTER_NAME);
+        TEXT_INSTRUCTIONS.put((short)(0xff00 | CHARACTER_NAME_BYTE), TextInstruction.CHARACTER_NAME);
 
         TEXT_CODES = new HashMap<>();
         TEXT_CODES.put((short)0x0000, " ");

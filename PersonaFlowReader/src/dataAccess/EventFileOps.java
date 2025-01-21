@@ -11,10 +11,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 public class EventFileOps {
 
@@ -34,7 +31,7 @@ public class EventFileOps {
 
     // stores address values with their associated label name. Used when decoding an event file
     // the boolean indicates if the label has been used yet or not
-    private static final HashMap<Integer, Pair<String, Boolean>> labels = new HashMap<>();
+    private static final LinkedHashMap<Integer, Pair<String, Boolean>> labels = new LinkedHashMap<>();
 
     // stores text IDs together with a list of addresses that need to be filled with the real address of the text position
     private static final HashMap<Short, LinkedList<Integer>> textReferenceLocations = new HashMap<>();
@@ -155,57 +152,73 @@ public class EventFileOps {
             file.delete();
 
             try (RandomAccessFile outputFile = new RandomAccessFile(outputPath, WRITE_MODE)) {
+                // Adding text to a string instead of printing directly so .addr part can be the first one in the file
+                StringBuilder preCodePrint = new StringBuilder();
 
                 // section .bgm
-                outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.BGM_SECTION_KEYWORD + "\n");
+                preCodePrint.append(Library.SECTION_KEYWORD + "\t" + Library.BGM_SECTION_KEYWORD + "\n");
+                //outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.BGM_SECTION_KEYWORD + "\n");
                 inputFile.seek(Library.STARTING_SONG_ADDRESS);
                 short firstSong = FileReadWriteUtils.readShort(inputFile, valOrder);
                 short secondSong = FileReadWriteUtils.readShort(inputFile, valOrder);
-                outputFile.writeBytes(String.format("\t0x%02x\n\t0x%02x\n\n", firstSong, secondSong));
+                preCodePrint.append(String.format("\t0x%02x\n\t0x%02x\n\n", firstSong, secondSong));
+                //outputFile.writeBytes(String.format("\t0x%02x\n\t0x%02x\n\n", firstSong, secondSong));
 
                 inputFile.seek(Library.ADDRESS_WITH_TEXT_TABLE_POINTER);
                 int textTableAddr = FileReadWriteUtils.readInt(inputFile, valOrder);
                 textList = TextList.readEncodedTextList(inputFile, textTableAddr, true);
 
-                inputFile.seek(Library.ADDRESS_WITH_FLOW_SCRIPT_POINTER);
-                int flowStartAddr = FileReadWriteUtils.readInt(inputFile, valOrder);
-                if (flowStartAddr == -1) {
-                    System.out.println("EMPTY FLOW FILE");
-                    outputFile.writeBytes("EMPTY FLOW FILE");
-                    return;
-                }
-                inputFile.seek(flowStartAddr);
-
                 // section .talk
-                outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TALK_SECTION_KEYWORD + "\n");
-                decodeTalkAddresses(inputFile, outputFile, true);
+                preCodePrint.append(Library.SECTION_KEYWORD + "\t" + Library.TALK_SECTION_KEYWORD + "\n");
+                //outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TALK_SECTION_KEYWORD + "\n");
+                //decodeTalkAddresses(inputFile, outputFile, true);
+                decodeTalkAddresses(inputFile, preCodePrint, true);
 
                 // section .talk2
-                outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TALK2_SECTION_KEYWORD + "\n");
-                decodeTalkAddresses(inputFile, outputFile, false);
+                preCodePrint.append(Library.SECTION_KEYWORD + "\t" + Library.TALK2_SECTION_KEYWORD + "\n");
+                //outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TALK2_SECTION_KEYWORD + "\n");
+                //decodeTalkAddresses(inputFile, outputFile, false);
+                decodeTalkAddresses(inputFile, preCodePrint, false);
 
                 // section .positions
-                outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.POS_SECTION_KEYWORD + "\n");
-                decodePositionsOrInteractables(inputFile, outputFile, false);
+                preCodePrint.append(Library.SECTION_KEYWORD + "\t" + Library.POS_SECTION_KEYWORD + "\n");
+                //outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.POS_SECTION_KEYWORD + "\n");
+                //decodePositionsOrInteractables(inputFile, outputFile, false);
+                decodePositionsOrInteractables(inputFile, preCodePrint, false);
 
                 // section .interactables
-                outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.INTER_SECTION_KEYWORD + "\n");
-                decodePositionsOrInteractables(inputFile, outputFile, true);
+                preCodePrint.append(Library.SECTION_KEYWORD + "\t" + Library.INTER_SECTION_KEYWORD + "\n");
+                //outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.INTER_SECTION_KEYWORD + "\n");
+                //decodePositionsOrInteractables(inputFile, outputFile, true);
+                decodePositionsOrInteractables(inputFile, preCodePrint, true);
 
-                outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.CODE_AREA_KEYWORD + "\n");
-                // TODO redefine last instruction check
-                // File E2_040 has MORE event script after the first "wave" of text
-                // so... check the labels for unused ones or ones that are higher than the first text address?
-                // if they exist, jump there and write them before writing the text
+                // address value zone
+                inputFile.seek(Library.ADDRESS_WITH_FLOW_SCRIPT_POINTER);
+                int flowStartAddr = FileReadWriteUtils.readInt(inputFile, valOrder);
 
-                // THOUGHT: Labels are always AFTER the jump instructions to them
-                // SOOOO: when a label is finally written, delete it from the map
-                // any labels that haven't been deleted can be "explored" until the end (FF21)
-                // therefore, all code is reached
+                if (flowStartAddr == -1) {
+                // if the flow start addr was -1, use the earliest LABEL's address as the start address
+                    // get the smallest known address
+                    ArrayList<Integer> pointers = new ArrayList<>(labels.keySet());
+                    if (pointers.isEmpty()) {
+                        outputFile.writeBytes(Library.EMPTY_FILE_STRING);
+                        System.out.println(Library.EMPTY_FILE_STRING);
+                        return;
+                    }
+                    flowStartAddr = pointers.stream().min(Comparator.comparing(Integer::valueOf)).get();
+                }
+
+                // go to start of code
+                inputFile.seek(flowStartAddr);
+
+                // an address is known. Print it!
+                outputFile.writeBytes(String.format("%s\t0x%08x\n\n", Library.ADDR_KEYWORD, flowStartAddr));
+
+                // print all that was just formed, so the code can be printed right after
+                outputFile.writeBytes(preCodePrint.toString());
+                outputFile.writeBytes(String.format("%s\t%s\n", Library.SECTION_KEYWORD, Library.CODE_AREA_KEYWORD));
+
                 while (!isLastInstruction) {
-                    String textInst = decodeInstruction(inputFile, false);
-                    outputFile.writeBytes(textInst);
-
                     int currPointer = (int) inputFile.getFilePointer();
                     // DEBUG
                     //System.out.println("ADDRESS:" + String.format("0x%08x", currPointer));
@@ -214,6 +227,12 @@ public class EventFileOps {
                         outputFile.writeBytes("\n" + labels.get(currPointer).first + ":\n");
                         labels.get(currPointer).second = true; // setting the label as having been printed
                     }
+
+                    String textInst = decodeInstruction(inputFile, false);
+                    outputFile.writeBytes(textInst);
+
+
+
 
                 }
 
@@ -225,6 +244,7 @@ public class EventFileOps {
                     int secondNum = 1;
                     for (Map.Entry<Integer, Pair<String, Boolean>> entry: auxMap.entrySet()) {
                         int pointer = entry.getKey();
+
                         Pair<String, Boolean> pair = entry.getValue();
                         if (pair.second) {
                             //labels.remove(pointer);
@@ -271,7 +291,6 @@ public class EventFileOps {
         labelReferenceLocations.clear();
         int textListSize;
         try (RandomAccessFile inputFile = new RandomAccessFile(inputPath, READ_MODE)) {
-
             String outputPath = inputPath.substring(0, inputPath.length()-4) + "_ENCODED.BIN";
 
             // delete file if it already exists
@@ -280,10 +299,14 @@ public class EventFileOps {
 
             try (RandomAccessFile outputFile = new RandomAccessFile(outputPath, WRITE_MODE)) {
                 // first gonna get the data from the og file up until the event flow script
-                fillFileBeginning(inputPath, outputFile);
+                fillFileBeginning(inputPath, inputFile, outputFile);
 
-                String line = inputFile.readLine();
+                String line;// = inputFile.readLine();
+
+                // skip empty lines
+                while ((line = inputFile.readLine()).compareTo("") == 0);
                 line = removeCommentAndSpaces(line);
+
 
                 // skip spaces and tabs after "section"
                 String[] bgmSplit = line.split(Library.SPACE_TAB_REGEX);
@@ -317,7 +340,6 @@ public class EventFileOps {
                 }
                 // Primary talk section handling
                 registerTalkAddresses(inputFile, true);
-
 
                 // skip empty lines
                 while ((line = inputFile.readLine()).compareTo("") == 0);
@@ -497,13 +519,26 @@ public class EventFileOps {
     /**
      * Fills start of output file based on original file
      * @param path input file's path
+     * @param inputFile object used to read from input file
      * @param outputFile object used to write to output file
      */
-    private static void fillFileBeginning(String path, RandomAccessFile outputFile) throws IOException {
+    private static void fillFileBeginning(String path, RandomAccessFile inputFile, RandomAccessFile outputFile) throws IOException, OperationNotSupportedException {
         String ogPath = path.substring(0, path.length()-3) + "BIN";
         try (RandomAccessFile ogFile = new RandomAccessFile(ogPath, READ_MODE)) {
             ogFile.seek(Library.ADDRESS_WITH_FLOW_SCRIPT_POINTER);
             int startAddr = FileReadWriteUtils.readInt(ogFile, valOrder);
+
+            String addrLine = inputFile.readLine();
+            // if the og file doesn't have a valid address, gotta get one from the input file's .addr zone
+            if (startAddr == -1) {
+                addrLine = removeCommentAndSpaces(addrLine);
+                String[] addrSplit = addrLine.split(Library.SPACE_TAB_REGEX);
+                if (addrSplit[0].compareTo(Library.ADDR_KEYWORD) != 0) {
+                    throw new OperationNotSupportedException(".addr not there?");
+                }
+                int i = skipSpacesNTabs(addrSplit, 1);
+                startAddr = extractIntFromString(addrSplit[i]);
+            }
 
             // back to the beginning of the file
             ogFile.seek(0);
@@ -534,21 +569,31 @@ public class EventFileOps {
 
         if (instr != Library.CMD_START) {
             // advance through padding
-            while (instr == (byte)0) {
-                instr = inputFile.readByte();
+            while ((instr = inputFile.readByte()) == (byte)0);
+
+            // if, after the padding, the next byte still isn't an instruction, it must be text
+            if (instr != Library.CMD_START) {
+                isLastInstruction = true;
             }
+
             inputFile.seek(inputFile.getFilePointer()-1);
             return "";
         }
 
         instr = inputFile.readByte();
 
+        // if the next instruction was actually a text instruction (text normally starts with FF1B)
+        if (instr == Library.CHARACTER_NAME_BYTE) {
+            isLastInstruction = true;
+            return "";
+        }
+
         String name, label, param, param2, addressStr;
         short check;
         int address;
         byte smolParam;
         // UNCOMMENT FOR DEBUG HERE
-        //System.out.printf("yep: 0x%02x\n", instr);
+        System.out.printf("yep: 0x%02x\n", instr);
         Library.FlowInstruction flowInstr = Library.FLOW_INSTRUCTIONS.get(instr);
         switch(flowInstr) {
             case ret:
@@ -646,6 +691,7 @@ public class EventFileOps {
                 return "\t" + name + "\t" + textIdx + "\t"+ Library.COMMENT_SYMBOL + " idx of text in .text section\n";
 
                 // the three below are related to healing the party?
+            case unk_cmd_2F:
             case unk_cmd_44:
             case unk_cmd_45:
             case unk_cmd_47:
@@ -804,6 +850,7 @@ public class EventFileOps {
 
                 // jump if instruction
             } else if (instr.compareTo(Library.FlowInstruction.jump_if.name()) == 0 ||
+                    instr.compareTo(Library.FlowInstruction.unk_cmd_2F.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_3B.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_44.name()) == 0 ||
                     instr.compareTo(Library.FlowInstruction.unk_cmd_45.name()) == 0 ||
@@ -1006,7 +1053,7 @@ public class EventFileOps {
      * @param outputFile object used to write to output file
      * @throws IOException file stuff
      */
-    private static void decodeTalkAddresses(RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isPrimaryTalk) throws IOException {
+    private static void decodeTalkAddresses(RandomAccessFile inputFile, StringBuilder outputFile, boolean isPrimaryTalk) throws IOException {
         long pointerBk = inputFile.getFilePointer();
 
         int startAddress = isPrimaryTalk ? Library.ADDRESS_OF_CHARACTER_DATA : Library.ADDRESS_OF_SECONDARY_CHARACTER_DATA;
@@ -1030,32 +1077,32 @@ public class EventFileOps {
             if ((address1 == Library.MINUS_1_INT || address1 == 0) && (address2 == Library.MINUS_1_INT || address2 == 0)) {
                 continue;
             }
-            outputFile.writeBytes(String.format("\t%02d\t\t", i));
+            outputFile.append(String.format("\t%02d\t\t", i));
 
             // checking first address position
             if (address1 != Library.MINUS_1_INT && address1 != 0) {
                 String label = getLabel(address1);
                 //outputFile.writeBytes(String.format("%02d\t\t%s\t\t%s <Character in scene>:  <Label to code that executes when spoken to>\n", i, label, Library.COMMENT_SYMBOL));
-                outputFile.writeBytes(String.format("%s", label));
+                outputFile.append(String.format("%s", label));
             } else {
-                outputFile.writeBytes(Library.LABEL_SEPARATOR);
+                outputFile.append(Library.LABEL_SEPARATOR);
             }
 
-            outputFile.writeBytes(",");
+            outputFile.append(",");
 
             // checking second address position
             if (address2 != Library.MINUS_1_INT  && address2 != 0) {
                 String label = getLabel(address2);
 
-                outputFile.writeBytes(String.format("%s", label));
+                outputFile.append(String.format("%s", label));
             } else {
-                outputFile.writeBytes(Library.LABEL_SEPARATOR);
+                outputFile.append(Library.LABEL_SEPARATOR);
             }
 
-            outputFile.writeBytes("\n");
+            outputFile.append("\n");
         }
 
-        outputFile.writeBytes("\n");
+        outputFile.append("\n");
         inputFile.seek(pointerBk);
     }
 
@@ -1092,7 +1139,7 @@ public class EventFileOps {
         }
     }
 
-    private static void decodePositionsOrInteractables(RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isInteractable) throws IOException {
+    private static void decodePositionsOrInteractables(RandomAccessFile inputFile, StringBuilder outputFile, boolean isInteractable) throws IOException {
         long pointerBk = inputFile.getFilePointer();
 
         long effectivePointer = isInteractable ? Library.ADDRESS_WITH_INTERACTABLE_DATA_SIZE_POINTER : Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER;
@@ -1107,7 +1154,7 @@ public class EventFileOps {
 
         // if the size is 0, there are no positions
         if (size == 0) {
-            outputFile.writeBytes("\n");
+            outputFile.append("\n");
             inputFile.seek(pointerBk);
             return;
         }
@@ -1125,10 +1172,10 @@ public class EventFileOps {
 
             String label = getLabel(address);
 
-            outputFile.writeBytes(String.format("\t%03d\t%03d\t%s\n", x, y, label));
+            outputFile.append(String.format("\t%03d\t%03d\t%s\n", x, y, label));
         }
 
-        outputFile.writeBytes("\n");
+        outputFile.append("\n");
         inputFile.seek(pointerBk);
     }
 
