@@ -80,4 +80,18 @@ public class FileReadWriteUtils {
             file.writeInt(0);
         }
     }
+
+    /**
+     * Returns the extension of the file in path
+     * @param path file path
+     * @return the extension of the file
+     */
+    public static String getExtension(String path) {
+        if (path.charAt(path.length()-1) == '/') {
+            System.out.println("This is a directory, no extension...");
+            return null;
+        }
+        String[] pathSplit = path.split("[.]");
+        return pathSplit[pathSplit.length-1];
+    }
 }
