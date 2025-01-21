@@ -193,11 +193,10 @@ public class TextList {
             } else if (canBeSpecial && !isSpecial) {
                 // write the old chars
                 data = Library.getInstance().TEXT_CODES_REVERSE.get("" + text.charAt(i-1));
-                //data = Library.TEXT_CODES_REVERSE.get(new String(new byte[]{text[i-1]}, StandardCharsets.UTF_8));
                 FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
-                //data = Library.TEXT_CODES_REVERSE.get(new String(new byte[]{currChar}, StandardCharsets.UTF_8));
-                data = Library.getInstance().TEXT_CODES_REVERSE.get(currChar);
-                FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
+
+                // decrement i to force the loop to read the current char
+                i--;
                 canBeSpecial = false;
                 continue;
             } else if (isSpecial) {
