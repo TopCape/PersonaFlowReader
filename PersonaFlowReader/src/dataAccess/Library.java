@@ -115,7 +115,7 @@ public class Library {
     }
 
     public enum TextInstruction {
-        SHOW_OPTIONS, END, AWAITING_INPUT, LINE_BREAK, CONTINUE, WAIT, UNKNOWN06, PLAYER_FIRST_NAME, PLAYER_NICKNAME, SET_COLOR, PRINT_ICON, CHARACTER_NAME
+        SHOW_OPTIONS, PLAYER_LAST_NAME, END, AWAITING_INPUT, LINE_BREAK, CONTINUE, WAIT, UNKNOWN06, PLAYER_FIRST_NAME, PLAYER_NICKNAME, SET_COLOR, PRINT_ICON, CHARACTER_NAME
     }
 
     public static final HashMap<Byte, FlowInstruction> FLOW_INSTRUCTIONS;
@@ -261,6 +261,7 @@ public class Library {
         TEXT_INSTRUCTIONS.put((short)0xff07, TextInstruction.PLAYER_FIRST_NAME);
         TEXT_INSTRUCTIONS.put((short)0xff08, TextInstruction.PLAYER_NICKNAME);
         TEXT_INSTRUCTIONS.put((short)0xff0E, TextInstruction.SHOW_OPTIONS);
+        TEXT_INSTRUCTIONS.put((short)0xff0F, TextInstruction.PLAYER_LAST_NAME);
         TEXT_INSTRUCTIONS.put((short)0xff18, TextInstruction.SET_COLOR);
         TEXT_INSTRUCTIONS.put((short)0xff19, TextInstruction.PRINT_ICON);
         TEXT_INSTRUCTIONS.put((short)0xff1B, TextInstruction.CHARACTER_NAME);
