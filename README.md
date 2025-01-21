@@ -33,15 +33,18 @@ When this option is used, the internal event files are all extracted to a folder
 
 ### 1: Decode Event File
 
-This option outputs a .DEC file with the same name as the input file (ex. E0_000.EVS -> E0_000.DEC). The outputed file is in a text format that is readable by any text editor software. The operation requests the name of the file to decode (including the extension) or a folder path (ending in "/") with the files to decode inside.
+This option outputs a .DEC file and a .TXT file with the same name as the input file (ex. E0_000.EVS -> E0_000.DEC and E0_000.TXT). The outputed files are in a text format that are readable by any text editor software. The operation requests the name of the file to decode (including the extension, so E0_000.EVS for example) or a folder path (ending in "/") with the files to decode inside.
+
+If you are only interested in editing dialog and text in events, the .TXT file is all you need to edit. It contains the lines of text used in the decoded event. Each line must be between quotes.
+
+If you want to edit actual event file code or add more dialog lines (which implies adding at least more `ld_text` instructions), you must edit the .DEC file. This file contains the code inside of the event in an assembly-like format. Not every instruction is known, so those are written as "unknown", followed by the bytes it is comprised of. Some instructions have parameters that are also unknown.
 
 I recommend using Notepad++ as I created a language style file for it. This has custom colors for different instructions and situations, which make the files easier to read. The file is present in the "Notepadpp_style" folder. In Notepad++, go to the "Language" tab > "User Defined Language" > "Define your language..." and in here, click "Import". Navigate to the "Notepaddpp_style" folder and import the .xml inside. Now, this style should automatically be selected for every .DEC file you open.
 
-The text file itself contains the code inside of the event file in an assembly language-like format. Not every instruction is known, so those are written as "unknown", followed by the bytes it is comprised of. Some instructions have parameters that are also unknown.
 
 ### 2: Encode Event File
 
-This option encodes a .DEC file specified by the user (extension included), replacing the original .EVS of the same name. Similarly to the decode instruction, this one can also receive a directory path, provided it ends in "/".
+This option encodes a .DEC (and .TXT file) specified by the user (the user must specify only the DEC file, so E0_000.DEC for example), replacing the original .EVS of the same name. Similarly to the decode instruction, this one can also receive a directory path, provided it ends in "/".
 
 ### 3: Archive Event Files
 
