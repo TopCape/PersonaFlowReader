@@ -72,6 +72,7 @@ public class Library {
         UNKNOWN_COMMAND_30,
         UNKNOWN_COMMAND_31,
         UNKNOWN_COMMAND_32,
+        UNKNOWN_COMMAND_39,
         UNKNOWN_COMMAND_3C,
         UNKNOWN_COMMAND_3D,
         UNKNOWN_COMMAND_3E,
@@ -149,6 +150,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x30, FlowInstruction.UNKNOWN_COMMAND_30);
         FLOW_INSTRUCTIONS.put((byte) 0x31, FlowInstruction.UNKNOWN_COMMAND_31);
         FLOW_INSTRUCTIONS.put((byte) 0x32, FlowInstruction.UNKNOWN_COMMAND_32);
+        FLOW_INSTRUCTIONS.put((byte) 0x39, FlowInstruction.UNKNOWN_COMMAND_39);
         FLOW_INSTRUCTIONS.put((byte) 0x3C, FlowInstruction.UNKNOWN_COMMAND_3C);
         FLOW_INSTRUCTIONS.put((byte) 0x3D, FlowInstruction.UNKNOWN_COMMAND_3D);
         FLOW_INSTRUCTIONS.put((byte) 0x3E, FlowInstruction.UNKNOWN_COMMAND_3E);
@@ -202,6 +204,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_30, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_31, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_32, (byte)0);
+        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_39, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3C, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3D, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3E, (byte)2);
