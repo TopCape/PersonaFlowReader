@@ -35,7 +35,7 @@ When this option is used, the internal event files are all extracted to a folder
 
 This option outputs a .DEC file with the same name as the input file (ex. E0_000.EVS -> E0_000.DEC). The outputed file is in a text format that is readable by any text editor software. The operation requests the name of the file to decode (including the extension) or a folder path (ending in "/") with the files to decode inside.
 
-I recommend using Notepad++ as I created a language style file for it. This has custom colors for different instructions and situations, which make the files easier to read. The file is present in the "Notepaddpp_style" folder. In Notepad++, go to the "Language" tab > "User Defined Language" > "Define your language..." and in here, click "Import". Navigate to the "Notepaddpp_style" folder and import the .xml inside. Now, this style should automatically be selected for every .DEC file you open.
+I recommend using Notepad++ as I created a language style file for it. This has custom colors for different instructions and situations, which make the files easier to read. The file is present in the "Notepadpp_style" folder. In Notepad++, go to the "Language" tab > "User Defined Language" > "Define your language..." and in here, click "Import". Navigate to the "Notepaddpp_style" folder and import the .xml inside. Now, this style should automatically be selected for every .DEC file you open.
 
 The text file itself contains the code inside of the event file in an assembly language-like format. Not every instruction is known, so those are written as "unknown", followed by the bytes it is comprised of. Some instructions have parameters that are also unknown.
 
