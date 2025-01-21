@@ -154,12 +154,17 @@ public class EventFileOps {
                 int flowStartAddr = FileReadWriteUtils.readInt(inputFile, valOrder);
                 inputFile.seek(flowStartAddr);
 
-
+                // section .talk
                 outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TALK_SECTION_KEYWORD + "\n");
-                populateTalkAddresses(inputFile, outputFile);
+                decodeTalkAddresses(inputFile, outputFile);
 
+                // section .positions
                 outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.POS_SECTION_KEYWORD + "\n");
-                populatePositions(inputFile, outputFile); // HERE
+                decodePositionsOrInteractables(inputFile, outputFile, false);
+
+                // section .interactables
+                outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.INTER_SECTION_KEYWORD + "\n");
+                decodePositionsOrInteractables(inputFile, outputFile, true);
 
                 outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.CODE_AREA_KEYWORD + "\n");
                 // TODO redefine last instruction check
@@ -306,7 +311,23 @@ public class EventFileOps {
                     throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
                 }
 
-                encodePositionSection(inputFile, outputFile);
+                encodePositionOrInteractableSection(inputFile, outputFile, false);
+
+
+                // skip empty lines
+                while ((line = inputFile.readLine()).compareTo("") == 0);
+                line = removeCommentAndSpaces(line);
+
+                // skip spaces and tabs after "section"
+                String[] interSplit = line.split(Library.SPACE_TAB_REGEX);
+                i = skipSpacesNTabs(interSplit, 1);
+
+                // interactables section check
+                if (interSplit[0].compareTo(Library.SECTION_KEYWORD) != 0 || interSplit[i].compareTo(Library.INTER_SECTION_KEYWORD) != 0) {
+                    throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
+                }
+
+                encodePositionOrInteractableSection(inputFile, outputFile, true);
 
                 // skip empty lines
                 while ((line = inputFile.readLine()).compareTo("") == 0);
@@ -940,7 +961,7 @@ public class EventFileOps {
      * @param outputFile object used to write to output file
      * @throws IOException file stuff
      */
-    private static void populateTalkAddresses(RandomAccessFile inputFile, RandomAccessFile outputFile) throws IOException {
+    private static void decodeTalkAddresses(RandomAccessFile inputFile, RandomAccessFile outputFile) throws IOException {
         long pointerBk = inputFile.getFilePointer();
 
         for (int i = 0; i < 64; i++) {
@@ -993,11 +1014,13 @@ public class EventFileOps {
         inputFile.seek(pointerBk);
     }
 
-    private static void populatePositions(RandomAccessFile inputFile, RandomAccessFile outputFile) throws IOException {
+    private static void decodePositionsOrInteractables(RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isInteractable) throws IOException {
         long pointerBk = inputFile.getFilePointer();
 
+        long effectivePointer = isInteractable ? Library.ADDRESS_WITH_INTERACTABLE_DATA_SIZE_POINTER : Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER;
+
         // fetch the pointer to the list's size
-        inputFile.seek(Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER);
+        inputFile.seek(effectivePointer);
         int sizePointer = FileReadWriteUtils.readInt(inputFile, valOrder);
 
         // go to where the size value is
@@ -1012,7 +1035,7 @@ public class EventFileOps {
         }
 
         // go to the beginning of the list of positions
-        inputFile.seek(Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER + 4);
+        inputFile.seek(effectivePointer + 4);
         int positionsPointer = FileReadWriteUtils.readInt(inputFile, valOrder);
         inputFile.seek(positionsPointer);
 
@@ -1041,19 +1064,22 @@ public class EventFileOps {
      * Encodes the position trigger entries into the output file and saves addresses to pointers that must be filled in later
      * @param inputFile object used to read from input file
      * @param outputFile object used to write to the output file
+     * @param isInteractable if true, treats the data like it is an interactable, otherwise treats it like positions
      * @throws IOException I/O file stuff
      */
-    private static void encodePositionSection(RandomAccessFile inputFile, RandomAccessFile outputFile) throws IOException {
+    private static void encodePositionOrInteractableSection(RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isInteractable) throws IOException {
         // backing up the pointer to restore it after the positions
         long pointerBK = outputFile.getFilePointer();
 
+        long effectivePointer = isInteractable ? Library.ADDRESS_WITH_INTERACTABLE_DATA_SIZE_POINTER : Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER;
+
         // getting the size of the positions list
-        outputFile.seek(Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER);
+        outputFile.seek(effectivePointer);
         outputFile.seek(FileReadWriteUtils.readInt(outputFile, valOrder));
         int positionsSize = FileReadWriteUtils.readInt(outputFile, valOrder);
 
         // getting pointer to the first position data
-        outputFile.seek(Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER + 4);
+        outputFile.seek(effectivePointer + 4);
         outputFile.seek(FileReadWriteUtils.readInt(outputFile, valOrder));
 
         // interpreting the positions section

@@ -83,6 +83,9 @@ This section contains a table of position triggers. They include coordinates and
     
 This example displays 2 different positions that trigger different event script bits. The first entry says that when the player is in X=1 and Y=2, LABEL_0 is jumped to. The second entry says that when the player is in X=2 and Y=10, LABEL_1 is jumped to.
     
+### .interactables
+
+This section contains a table of interactables found around that map. Example: The box with the Snow Queen mask in the gym closet. These are saved in the same format as the positions in the section described above. The difference is that the coordinates specify the position in which the character should be facing. For instance, if the character is at X=1 and Y=1, but is looking towards the direction where the Y coordinate goes up (SE), and the interactable is in front of them, then the interactable's coordinates are X=1 and Y=2.
 
 ### .code
 
