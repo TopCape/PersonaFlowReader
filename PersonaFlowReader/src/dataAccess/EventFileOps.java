@@ -202,7 +202,7 @@ public class EventFileOps {
                     outputFile.writeBytes(textInst);
 
                     int currPointer = (int) inputFile.getFilePointer();
-                    // UNCOMMENT FOR DEBUG HERE
+                    // DEBUG
                     //System.out.println("ADDRESS:" + String.format("0x%08x", currPointer));
                     if (labels.containsKey(currPointer)) {
                         //System.out.println(labels.get(currPointer) + ":");
@@ -529,7 +529,8 @@ public class EventFileOps {
         short check;
         int address;
         byte smolParam;
-        //System.out.printf("yep: 0x%02x\n", instr); // DEBUG
+        // UNCOMMENT FOR DEBUG HERE
+        //System.out.printf("yep: 0x%02x\n", instr);
         Library.FlowInstruction flowInstr = Library.FLOW_INSTRUCTIONS.get(instr);
         switch(flowInstr) {
             case ret:
