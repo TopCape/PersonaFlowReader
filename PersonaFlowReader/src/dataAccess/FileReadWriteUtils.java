@@ -6,8 +6,9 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-
 public class FileReadWriteUtils {
+
+    public static int LBA = 0x800;
 
     /**
      * Reads a short from the file object and applies the correct endianness to it.
@@ -72,11 +73,11 @@ public class FileReadWriteUtils {
     }
 
     /**
-     * Writes 0s until the next multiple of 0x800
+     * Writes 0s until the next multiple of LBA
      * @param file object used to write to file
      */
     public static void writePadding(RandomAccessFile file) throws IOException {
-        while(file.getFilePointer() % 0x800 != 0) {
+        while(file.getFilePointer() % LBA != 0) {
             file.writeInt(0);
         }
     }
@@ -94,4 +95,17 @@ public class FileReadWriteUtils {
         String[] pathSplit = path.split("[.]");
         return pathSplit[pathSplit.length-1];
     }
+
+    public static int roundToLBA(int number) {
+        int rest = number % LBA;
+        if (rest < 0) {
+            rest = LBA + rest;
+        }
+        if (rest == 0) {
+            return rest;
+        }
+        return number + LBA - rest;
+    }
 }
+// number = 0x700
+// 0x700 % 0x800 -> 1792
