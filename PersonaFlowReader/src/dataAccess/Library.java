@@ -14,6 +14,7 @@ public class Library {
     private static final String RED_COLOR = "\u001B[31m";
 
     public static final String SECTION_KEYWORD = "section";
+    public static final String BGM_SECTION_KEYWORD = ".bgm";
     public static final String TALK_SECTION_KEYWORD = ".talk";
     public static final String TALK2_SECTION_KEYWORD = ".talk2";
     public static final String POS_SECTION_KEYWORD = ".positions";
@@ -27,6 +28,8 @@ public class Library {
     public static final String UNKNOWN_INSTR_TEXT = "unknown";
     public static final byte CMD_START = (byte)0xFF;
     public static final String HEX_PREFIX = "0x";
+
+    public static final long STARTING_SONG_ADDRESS = 0x02;
 
     public static final long ADDRESS_WITH_FLOW_SCRIPT_POINTER = 0x64;
     public static final long ADDRESS_WITH_TEXT_TABLE_POINTER = 0x34;

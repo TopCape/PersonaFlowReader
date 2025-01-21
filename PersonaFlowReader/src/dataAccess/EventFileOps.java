@@ -146,6 +146,13 @@ public class EventFileOps {
 
             try (RandomAccessFile outputFile = new RandomAccessFile(outputPath, WRITE_MODE)) {
 
+                // section .bgm
+                outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.BGM_SECTION_KEYWORD + "\n");
+                inputFile.seek(Library.STARTING_SONG_ADDRESS);
+                short firstSong = FileReadWriteUtils.readShort(inputFile, valOrder);
+                short secondSong = FileReadWriteUtils.readShort(inputFile, valOrder);
+                outputFile.writeBytes(String.format("\t0x%02x\n\t0x%02x\n\n", firstSong, secondSong));
+
                 inputFile.seek(Library.ADDRESS_WITH_TEXT_TABLE_POINTER);
                 int textTableAddr = FileReadWriteUtils.readInt(inputFile, valOrder);
                 textList = TextList.readEncodedTextList(inputFile, textTableAddr, true);
@@ -248,13 +255,34 @@ public class EventFileOps {
                 // first gonna get the data from the og file up until the event flow script
                 fillFileBeginning(inputPath, outputFile);
 
-
                 String line = inputFile.readLine();
                 line = removeCommentAndSpaces(line);
 
                 // skip spaces and tabs after "section"
+                String[] bgmSplit = line.split(Library.SPACE_TAB_REGEX);
+                int i = skipSpacesNTabs(bgmSplit, 1);
+
+                // BGM section check
+                if (bgmSplit[0].compareTo(Library.SECTION_KEYWORD) != 0 || bgmSplit[i].compareTo(Library.BGM_SECTION_KEYWORD) != 0) {
+                    throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
+                }
+
+                long pointerBK = outputFile.getFilePointer();
+                outputFile.seek(Library.STARTING_SONG_ADDRESS);
+                while ((line = inputFile.readLine()).compareTo("") != 0) {
+                    String[] songEntrySplit = line.split(Library.SPACE_TAB_REGEX);
+                    i = skipSpacesNTabs(songEntrySplit, 1);
+                    FileReadWriteUtils.writeShort(outputFile, valOrder, extractShortFromString(songEntrySplit[i]));
+                }
+                outputFile.seek(pointerBK);
+
+                // skip empty lines
+                while ((line = inputFile.readLine()).compareTo("") == 0);
+                line = removeCommentAndSpaces(line);
+
+                // skip spaces and tabs after "section"
                 String[] talkSplit = line.split(Library.SPACE_TAB_REGEX);
-                int i = skipSpacesNTabs(talkSplit, 1);
+                i = skipSpacesNTabs(talkSplit, 1);
 
                 // Primary talk section check
                 if (talkSplit[0].compareTo(Library.SECTION_KEYWORD) != 0 || talkSplit[i].compareTo(Library.TALK_SECTION_KEYWORD) != 0) {

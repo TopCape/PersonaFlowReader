@@ -57,6 +57,10 @@ The following sections detail each part of these files.
 
 The file posesses different type of sections in it. They are expected to be in the order they are generated in (the order that they will be explained in below).
 
+### .bgm
+
+This section contains 2 values related to the first song that plays when you enter the scene the event file describes. The value 0xFFFF (-1) typically means no song change. There are 2 song values because some rooms use the song in the second slot under certian circumstances. These values are in hexadecimal and represent the song IDs.
+
 ### .talk
 
 This section contains a table of character IDs (scene dependant) along with LABELs that are jumped to when they are talked with in the scene. There can be up to 2 different LABELS per character, but it is unknown in which situation each is used. A situation has been observed where a character doesn't appear the first time you go to a room but later in the story they appear and can be talked to. In that case, the character has no first label, but has a second one.
