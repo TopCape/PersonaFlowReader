@@ -184,6 +184,11 @@ This is the main section of the file. It stores the event script itself. The kno
     ld_text  <TEXT_IDX (in decimal)>
     ```
 
+* **unk_cmd_58** - it is unknown what the command does, but it probably has something to do with jumping to other parts of the event flow script, seeing as one of its parameters is an address or, in the case of this program, a label. It also has a short as the first parameter.
+    ```
+    unk_cmd_58  <UNKNOWN>,<LABEL_NAME>
+    ```
+
 * **open_dialog** - displays the dialog box at the bottom part of the screen. It has no parameters.
     ```
     open_dialog

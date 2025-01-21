@@ -48,8 +48,6 @@ public class Library {
     public static final byte SECONDARY_CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET = 0x10;
 
 
-
-
     public static final int MINUS_1_INT = 0xFFFFFFFF;
 
     public static final String COMMENT_SYMBOL = "//";
@@ -86,7 +84,7 @@ public class Library {
         player_option,
         ld_text,
         UNKNOWN_COMMAND_56,
-        UNKNOWN_COMMAND_58,
+        unk_cmd_58,
         open_dialog,
         close_dialog,
         pose,
@@ -163,7 +161,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x54, FlowInstruction.player_option);
         FLOW_INSTRUCTIONS.put((byte) 0x55, FlowInstruction.ld_text);
         FLOW_INSTRUCTIONS.put((byte) 0x56, FlowInstruction.UNKNOWN_COMMAND_56);
-        FLOW_INSTRUCTIONS.put((byte) 0x58, FlowInstruction.UNKNOWN_COMMAND_58);
+        FLOW_INSTRUCTIONS.put((byte) 0x58, FlowInstruction.unk_cmd_58);
         FLOW_INSTRUCTIONS.put((byte) 0x60, FlowInstruction.open_dialog);
         FLOW_INSTRUCTIONS.put((byte) 0x61, FlowInstruction.close_dialog);
         FLOW_INSTRUCTIONS.put((byte) 0x64, FlowInstruction.pose);
@@ -216,7 +214,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.player_option, (byte)1);
         PARAM_NUM.put(FlowInstruction.ld_text, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_56, (byte)0);
-        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_58, (byte)1);
+        PARAM_NUM.put(FlowInstruction.unk_cmd_58, (byte)1);
         PARAM_NUM.put(FlowInstruction.open_dialog, (byte)0);
         PARAM_NUM.put(FlowInstruction.close_dialog, (byte)0);
         PARAM_NUM.put(FlowInstruction.pose, (byte)2);
