@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="PersonaFlowReader:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/PersonaFlowReader_jar</output-path>
-    <root id="archive" name="PersonaFlowReader.jar">
-      <element id="module-output" name="PersonaFlowReader" />
-    </root>
-  </artifact>
-</component>
