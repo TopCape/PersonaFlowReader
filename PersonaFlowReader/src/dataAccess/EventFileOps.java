@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 public class EventFileOps {
 
@@ -156,9 +155,9 @@ public class EventFileOps {
                 inputFile.seek(flowStartAddr);
 
                 //outputFile.writeBytes(Library.ADDR_KEYWORD + "\t" + String.format(Library.HEX_PREFIX + "%04x", flowStartAddr) + Library.BIG_LINE_BREAK);
-                outputFile.writeBytes(String.format("%s\t%s%04x%s", Library.ADDR_KEYWORD, Library.HEX_PREFIX, flowStartAddr, Library.BIG_LINE_BREAK));
+                //outputFile.writeBytes(String.format("%s\t%s%04x%s", Library.ADDR_KEYWORD, Library.HEX_PREFIX, flowStartAddr, Library.BIG_LINE_BREAK));
 
-                outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TALK_AREA_KEYWORD + "\n");
+                outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TALK_SECTION_KEYWORD + "\n");
                 populateTalkAddresses(inputFile, outputFile);
 
 
@@ -236,29 +235,34 @@ public class EventFileOps {
         labelReferenceLocations.clear();
         int textListSize = 0;
         try (RandomAccessFile inputFile = new RandomAccessFile(inputPath, READ_MODE)) {
-            String line = inputFile.readLine();
-            String[] split = line.split(Library.SPACE_TAB_REGEX);
+            //String line = inputFile.readLine();
+            //String[] split = line.split(Library.SPACE_TAB_REGEX);
 
-            if (split[0].compareTo(Library.ADDR_KEYWORD) != 0) {
-                throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
-            }
+            //if (split[0].compareTo(Library.ADDR_KEYWORD) != 0) {
+            //    throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
+            //}
 
-            int startAddr = readHexIntString(split[1]);
+           // int startAddr = readHexIntString(split[1]);
 
             String outputPath = inputPath.substring(0, inputPath.length()-4) + "_ENCODED.BIN";
             try (RandomAccessFile outputFile = new RandomAccessFile(outputPath, WRITE_MODE)) {
-                // first gonna get the data from the og file up until the event flow script
-                fillFileBeginning(inputPath, outputFile, startAddr);
 
-                // MAKE SURE THIS WORK
-                while ((line = inputFile.readLine()).compareTo("") == 0);
+                // first gonna get the data from the og file up until the event flow script
+                fillFileBeginning(inputPath, outputFile);
+
+
+                //while ((line = inputFile.readLine()).compareTo("") == 0);
+                //line = removeCommentAndSpaces(line);
+
+                String line = inputFile.readLine();
                 line = removeCommentAndSpaces(line);
 
                 // skip spaces and tabs after "section"
                 String[] talkSplit = line.split(Library.SPACE_TAB_REGEX);
                 int i = skipSpacesNTabs(talkSplit, 1);
 
-                if (talkSplit[0].compareTo(Library.SECTION_KEYWORD) != 0 || talkSplit[i].compareTo(Library.TALK_AREA_KEYWORD) != 0) {
+                // Talk section
+                if (talkSplit[0].compareTo(Library.SECTION_KEYWORD) != 0 || talkSplit[i].compareTo(Library.TALK_SECTION_KEYWORD) != 0) {
                     throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
                 }
 
@@ -268,18 +272,36 @@ public class EventFileOps {
                     int characterId = Integer.parseInt(talkLineSplit[0]);
                     i = skipSpacesNTabs(talkLineSplit, 1);
 
-                    String label = talkLineSplit[i];
-                    short labelNum = (short) Integer.parseInt(label.split(Library.LABEL_SEPARATOR)[1]);
-                    int address = Library.ADDRESS_OF_CHARACTER_DATA + (characterId * Library.CHARACTER_DATA_SIZE) + Library.CHARACTER_DATA_EVENT_ADDRESS_OFFSET;
+                    String labels = talkLineSplit[i];
+                    String[] labelSplit = labels.split(",");
 
-                    if (labelReferenceLocations.containsKey(labelNum)) {
-                        labelReferenceLocations.get(labelNum).add(address);
-                    } else {
-                        LinkedList<Integer> toAdd = new LinkedList<>();
-                        toAdd.add(address);
-                        labelReferenceLocations.put(labelNum, toAdd);
+                    // If the first LABEL space isn't empty
+                    if (labelSplit[0].compareTo(Library.LABEL_SEPARATOR) != 0) {
+                        short labelNum = (short) Integer.parseInt(labelSplit[0].split(Library.LABEL_SEPARATOR)[1]);
+                        int address = Library.ADDRESS_OF_CHARACTER_DATA + (characterId * Library.CHARACTER_DATA_SIZE) + Library.CHARACTER_DATA_EVENT_ADDRESS_1_OFFSET;
+
+                        if (labelReferenceLocations.containsKey(labelNum)) {
+                            labelReferenceLocations.get(labelNum).add(address);
+                        } else {
+                            LinkedList<Integer> toAdd = new LinkedList<>();
+                            toAdd.add(address);
+                            labelReferenceLocations.put(labelNum, toAdd);
+                        }
                     }
 
+                    // If the second LABEL space isn't empty
+                    if (labelSplit[1].compareTo(Library.LABEL_SEPARATOR) != 0) {
+                        short labelNum = (short) Integer.parseInt(labelSplit[1].split(Library.LABEL_SEPARATOR)[1]);
+                        int address = Library.ADDRESS_OF_CHARACTER_DATA + (characterId * Library.CHARACTER_DATA_SIZE) + Library.CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET;
+
+                        if (labelReferenceLocations.containsKey(labelNum)) {
+                            labelReferenceLocations.get(labelNum).add(address);
+                        } else {
+                            LinkedList<Integer> toAdd = new LinkedList<>();
+                            toAdd.add(address);
+                            labelReferenceLocations.put(labelNum, toAdd);
+                        }
+                    }
                 }
 
 
@@ -427,11 +449,16 @@ public class EventFileOps {
      * Fills start of output file based on original file
      * @param path input file's path
      * @param outputFile object used to write to output file
-     * @param startAddr address where event flow script starts
      */
-    private static void fillFileBeginning(String path, RandomAccessFile outputFile, int startAddr) throws IOException {
+    private static void fillFileBeginning(String path, RandomAccessFile outputFile) throws IOException {
         String ogPath = path.substring(0, path.length()-3) + "BIN";
         try (RandomAccessFile ogFile = new RandomAccessFile(ogPath, READ_MODE)) {
+            ogFile.seek(Library.ADDRESS_WITH_FLOW_SCRIPT_POINTER);
+            int startAddr = FileReadWriteUtils.readInt(ogFile, valOrder);
+
+            // back to the beginning of the file
+            ogFile.seek(0);
+
             // moving the address while copying the data, until the event flow script place
             int currAddr = (int) outputFile.getFilePointer();
             while (currAddr < startAddr) {
@@ -919,16 +946,47 @@ public class EventFileOps {
             //if (isNextCharacterDataEmpty(inputFile)) {
             //    continue;
             //}
-            inputFile.seek(inputFile.getFilePointer() + Library.CHARACTER_DATA_EVENT_ADDRESS_OFFSET);
-            int address = FileReadWriteUtils.readInt(inputFile, valOrder);
-            if (address != 0xFFFFFFFF) {
+            inputFile.seek(inputFile.getFilePointer() + Library.CHARACTER_DATA_EVENT_ADDRESS_1_OFFSET);
+            int address1 = FileReadWriteUtils.readInt(inputFile, valOrder);
+
+            inputFile.seek(inputFile.getFilePointer() + Library.CHARACTER_DATA_EVENT_ADDRESS_2_OFFSET);
+            int address2 = FileReadWriteUtils.readInt(inputFile, valOrder);
+
+            // If both addresses are -1, then there is nothing to write
+            if (address1 == Library.MINUS_1_INT && address2 == Library.MINUS_1_INT) {
+                continue;
+            }
+            outputFile.writeBytes(String.format("%02d\t\t", i));
+
+            if (address1 != Library.MINUS_1_INT) {
                 // TODO also check address at offset 0x14, Elly in E0_023 has one for some reason....
                 // this means we gotta redefine how to write the .talk section...
                 // perhaps, for every FFFFFFF, we just put an _ so we know where the pointer goes later
                 String label = Library.LABEL_TXT + Library.LABEL_SEPARATOR + labelNum++;
-                labels.put(address, label);
-                outputFile.writeBytes(String.format("%02d\t\t%s\t\t%s <Character in scene>:  <Label to code that executes when spoken to>\n", i, label, Library.COMMENT_SYMBOL));
+                labels.put(address1, label);
+                //outputFile.writeBytes(String.format("%02d\t\t%s\t\t%s <Character in scene>:  <Label to code that executes when spoken to>\n", i, label, Library.COMMENT_SYMBOL));
+                outputFile.writeBytes(String.format("%s", label));
+            } else {
+                outputFile.writeBytes(Library.LABEL_SEPARATOR);
             }
+
+            outputFile.writeBytes(",");
+
+            if (address2 != Library.MINUS_1_INT) {
+                String label;
+                if (!labels.containsKey(address2)) {
+                    label = Library.LABEL_TXT + Library.LABEL_SEPARATOR + labelNum++;
+                    labels.put(address2, label);
+                } else {
+                    label = labels.get(address2);
+                }
+
+                outputFile.writeBytes(String.format("%s", label));
+            } else {
+                outputFile.writeBytes(Library.LABEL_SEPARATOR);
+            }
+
+            outputFile.writeBytes("\n");
         }
 
         outputFile.writeBytes("\n");
