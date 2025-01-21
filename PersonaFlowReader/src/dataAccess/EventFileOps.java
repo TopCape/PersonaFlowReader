@@ -374,6 +374,15 @@ public class EventFileOps {
         try (RandomAccessFile inputFile = new RandomAccessFile(inputPath, READ_MODE)) {
             //String outputPath = inputPath.substring(0, inputPath.length()-4) + EVENT_SCRIPT_EXTENSION_1;
 
+            // checking if the file is empty
+            String line = inputFile.readLine();
+            line = removeCommentAndSpaces(line);
+
+            if (line.compareTo(Library.EMPTY_FILE_STRING) == 0) {
+                System.out.println(Library.EMPTY_FILE_STRING);
+                return;
+            }
+
             // delete file if it already exists
             File file = new File(outputPath);
             file.delete();
@@ -382,7 +391,6 @@ public class EventFileOps {
                 // first gonna get the data from the og file up until the event flow script
                 fillFileBeginning(inputPath, inputFile, outputFile, isJ);
 
-                String line;// = inputFile.readLine();
 
                 // skip empty lines
                 while ((line = inputFile.readLine()).compareTo("") == 0);
