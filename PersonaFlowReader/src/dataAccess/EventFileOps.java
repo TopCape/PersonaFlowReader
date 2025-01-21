@@ -199,7 +199,7 @@ public class EventFileOps {
     /**
      * Decodes an event file's flow script
      * @param path the path to the file to decode
-     * @param isJ {@code:true} if the event file was extracted from the japanese version of the game
+     * @param isJ {@code true} if the event file was extracted from the japanese version of the game
      * @throws IOException file IO exceptions
      */
     public static void decodeFlowScript(String path, boolean isJ) throws IOException {
@@ -354,7 +354,7 @@ public class EventFileOps {
     /**
      * Encodes an event file's flow script back to the original format
      * @param inputPath the path for the file to encode back
-     * @param isJ {@code:true} if the event file was extracted from the japanese version of the game
+     * @param isJ {@code true} if the event file was extracted from the japanese version of the game
      * @throws IOException file IO exceptions
      * @throws OperationNotSupportedException thrown if some part of the file isn't formatted as expected
      */
@@ -610,7 +610,7 @@ public class EventFileOps {
      * @param path input file's path
      * @param inputFile object used to read from input file
      * @param outputFile object used to write to output file
-     * @param isJ {@code:true} if the event file was extracted from the japanese version of the game
+     * @param isJ {@code true} if the event file was extracted from the japanese version of the game
      */
     private static void fillFileBeginning(String path, RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isJ) throws IOException, OperationNotSupportedException {
         String ogPath = path.substring(0, path.length()-4) + EVENT_SCRIPT_EXTENSION_1;
@@ -1147,7 +1147,7 @@ public class EventFileOps {
      * Saves the addresses associated to characters in the scene (when player talks to them)
      * @param inputFile object used to read from input file
      * @param outputFile object used to write to output file
-     * @param isJ {@code:true} if the event file was extracted from the japanese version of the game
+     * @param isJ {@code true} if the event file was extracted from the japanese version of the game
      * @throws IOException file stuff
      */
     private static void decodeTalkAddresses(RandomAccessFile inputFile, StringBuilder outputFile, boolean isPrimaryTalk, boolean isJ) throws IOException {
@@ -1207,8 +1207,8 @@ public class EventFileOps {
     /**
      * Saves addresses where pointers are required, used for when the event script is being encoded
      * @param inputFile the object used to read the decrypted event file
-     * @param isPrimaryTalk {@code:true} if this method is saving the addresses of primary character interactions
-     * @param isJ {@code:true} if the event file was extracted from the japanese version of the game
+     * @param isPrimaryTalk {@code true} if this method is saving the addresses of primary character interactions
+     * @param isJ {@code true} if the event file was extracted from the japanese version of the game
      * @throws IOException file related IO exceptions
      */
     private static void registerTalkAddresses(RandomAccessFile inputFile, boolean isPrimaryTalk, boolean isJ) throws IOException {
@@ -1245,6 +1245,14 @@ public class EventFileOps {
         }
     }
 
+    /**
+     * Decodes position data or interactable data, based on {@code isInteractable} parameter
+     * @param inputFile the object used to read from the .EVS file
+     * @param outputFile the object used to write to the .DEC file
+     * @param isInteractable {@code true} to read interactable data, {@code false} to read position data
+     * @param isJ {@code true} if the file was extracted from a japanese version of the game
+     * @throws IOException file related exception
+     */
     private static void decodePositionsOrInteractables(RandomAccessFile inputFile, StringBuilder outputFile, boolean isInteractable, boolean isJ) throws IOException {
         long pointerBk = inputFile.getFilePointer();
 
@@ -1288,10 +1296,10 @@ public class EventFileOps {
 
     /**
      * Encodes the position trigger entries into the output file and saves addresses to pointers that must be filled in later
-     * @param inputFile object used to read from input file
-     * @param outputFile object used to write to the output file
+     * @param inputFile the object used to read from the .DEC file
+     * @param outputFile the object used to write to the .EVS file
      * @param isInteractable if true, treats the data like it is an interactable, otherwise treats it like positions
-     * @param isJ {@code:true} if the event file was extracted from the japanese version of the game
+     * @param isJ {@code true} if the event file was extracted from the japanese version of the game
      * @throws IOException I/O file stuff
      */
     private static void encodePositionOrInteractableSection(RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isInteractable, boolean isJ) throws IOException {
