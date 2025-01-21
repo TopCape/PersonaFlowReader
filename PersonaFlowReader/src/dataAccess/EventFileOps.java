@@ -15,8 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class EventFileOps {
@@ -687,7 +685,7 @@ public class EventFileOps {
         byte smolParam;
         // UNCOMMENT FOR DEBUG HERE
         //System.out.printf("yep: 0x%02x\n", instr);
-        Library.FlowInstruction flowInstr = Library.FLOW_INSTRUCTIONS.get(instr);
+        Library.FlowInstruction flowInstr = Library.getInstance().FLOW_INSTRUCTIONS.get(instr);
         switch(flowInstr) {
             case ret:
                 name = flowInstr.name();
@@ -884,7 +882,7 @@ public class EventFileOps {
                 StringBuilder toRet = new StringBuilder();
                 toRet.append("\t" + Library.UNKNOWN_INSTR_TEXT + "|FF").append(String.format("%02x", instr))
                         .append(String.format("%02x", inputFile.readByte())).append(String.format("%02x", inputFile.readByte()));
-                int params = Library.PARAM_NUM.get(flowInstr);
+                int params = Library.getInstance().PARAM_NUM.get(flowInstr);
                 for (int i = 0; i < params; i++) {
                     toRet.append(",").append(String.format("%08x", FileReadWriteUtils.readInt(inputFile, instructionOrder)));
                 }
@@ -1008,7 +1006,7 @@ public class EventFileOps {
 
                 // write first 4 bytes
                 outputFile.writeByte(Library.CMD_START);
-                outputFile.writeByte(Library.FLOW_INSTRUCTIONS_REVERSE.get(instr));
+                outputFile.writeByte(Library.getInstance().FLOW_INSTRUCTIONS_REVERSE.get(instr));
                 outputFile.writeByte(extractByteFromString(mapID));
                 outputFile.writeByte(extractByteFromString(unknown));
 
@@ -1023,7 +1021,7 @@ public class EventFileOps {
                 String param2 = paramSplit[1]; // byte (hex)
 
                 outputFile.writeByte(Library.CMD_START);
-                outputFile.writeByte(Library.FLOW_INSTRUCTIONS_REVERSE.get(instr));
+                outputFile.writeByte(Library.getInstance().FLOW_INSTRUCTIONS_REVERSE.get(instr));
                 outputFile.writeByte((byte)Short.parseShort(param1, 16));
                 outputFile.writeByte((byte)Short.parseShort(param2.substring(2), 16));
             } else if (instr.compareTo(Library.FlowInstruction.player_option.name()) == 0) {
@@ -1055,7 +1053,7 @@ public class EventFileOps {
 
                 // write first 4 bytes
                 outputFile.writeByte(Library.CMD_START);
-                outputFile.writeByte(Library.FLOW_INSTRUCTIONS_REVERSE.get(instr));
+                outputFile.writeByte(Library.getInstance().FLOW_INSTRUCTIONS_REVERSE.get(instr));
                 outputFile.writeByte(extractByteFromString(param1));
                 outputFile.writeByte(extractByteFromString(param2));
 
@@ -1074,7 +1072,7 @@ public class EventFileOps {
 
                 // write first 4 bytes
                 outputFile.writeByte(Library.CMD_START);
-                outputFile.writeByte(Library.FLOW_INSTRUCTIONS_REVERSE.get(instr));
+                outputFile.writeByte(Library.getInstance().FLOW_INSTRUCTIONS_REVERSE.get(instr));
                 outputFile.writeByte(extractByteFromString(charID));
 
                 // print pose or the byte if it isn't registered
@@ -1098,7 +1096,7 @@ public class EventFileOps {
 
                 // write first 4 bytes
                 outputFile.writeByte(Library.CMD_START);
-                outputFile.writeByte(Library.FLOW_INSTRUCTIONS_REVERSE.get(instr));
+                outputFile.writeByte(Library.getInstance().FLOW_INSTRUCTIONS_REVERSE.get(instr));
                 outputFile.writeByte(Library.PORTRAIT_CHARS.valueOf(param1).ordinal());
                 outputFile.writeByte(Library.PORTRAIT_ORIENTATION.valueOf(param2).ordinal());
 
@@ -1108,7 +1106,7 @@ public class EventFileOps {
 
                 // write first 4 bytes
                 outputFile.writeByte(Library.CMD_START);
-                outputFile.writeByte(Library.FLOW_INSTRUCTIONS_REVERSE.get(instr));
+                outputFile.writeByte(Library.getInstance().FLOW_INSTRUCTIONS_REVERSE.get(instr));
                 outputFile.writeByte((byte)Short.parseShort(param1));
                 outputFile.writeByte(Library.EMOTES.valueOf(param2).ordinal());
             } else if (instr.compareTo(Library.FlowInstruction.fade_char.name()) == 0) {
@@ -1117,7 +1115,7 @@ public class EventFileOps {
 
                 // write first 4 bytes
                 outputFile.writeByte(Library.CMD_START);
-                outputFile.writeByte(Library.FLOW_INSTRUCTIONS_REVERSE.get(instr));
+                outputFile.writeByte(Library.getInstance().FLOW_INSTRUCTIONS_REVERSE.get(instr));
                 outputFile.writeByte((byte)Short.parseShort(param1));
                 outputFile.writeByte((byte)Short.parseShort(param2));
             } else if (instr.compareTo(Library.FlowInstruction.plan_char_mov.name()) == 0) {
@@ -1130,7 +1128,7 @@ public class EventFileOps {
 
                 // write first 4 bytes
                 outputFile.writeByte(Library.CMD_START);
-                outputFile.writeByte(Library.FLOW_INSTRUCTIONS_REVERSE.get(instr));
+                outputFile.writeByte(Library.getInstance().FLOW_INSTRUCTIONS_REVERSE.get(instr));
                 outputFile.writeByte((byte)Short.parseShort(charID.substring(2), 16));
                 outputFile.writeByte((byte)Short.parseShort(dir.substring(2), 16));
 
@@ -1412,7 +1410,7 @@ public class EventFileOps {
 
     private static void writeIntInstruction(RandomAccessFile outputFile, String instr, short val) throws IOException {
         outputFile.writeByte(Library.CMD_START);
-        outputFile.writeByte(Library.FLOW_INSTRUCTIONS_REVERSE.get(instr));
+        outputFile.writeByte(Library.getInstance().FLOW_INSTRUCTIONS_REVERSE.get(instr));
         FileReadWriteUtils.writeShort(outputFile, valOrder, val);
     }
 
@@ -1471,7 +1469,7 @@ public class EventFileOps {
     }
 
     public static String removeCommentAndSpaces(String line) {
-        if (line.length() == 0) return line;
+        if (line.isEmpty()) return line;
 
         // checking if the whole line is a comment by first checking if it starts with the comment symbol
         if(line.substring(0, Library.COMMENT_SYMBOL.length()).compareTo(Library.COMMENT_SYMBOL) == 0) {
@@ -1485,7 +1483,7 @@ public class EventFileOps {
             if (line.substring(index, index + Library.COMMENT_SYMBOL.length()).compareTo(Library.COMMENT_SYMBOL) == 0) {
                 break;
             } else {
-                index += 2;
+                index += Library.COMMENT_SYMBOL.length();
             }
             index = line.indexOf(Library.COMMENT_SYMBOL.charAt(0), index);
         }

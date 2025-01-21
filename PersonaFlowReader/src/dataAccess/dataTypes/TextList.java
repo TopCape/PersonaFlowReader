@@ -64,8 +64,8 @@ public class TextList {
         boolean name_color_set = false;
         while (data != (short)0xff01) {
             // it's an instruction
-            if (Library.TEXT_INSTRUCTIONS.containsKey(data)) {
-                Library.TextInstruction instr = Library.TEXT_INSTRUCTIONS.get(data);
+            if (Library.getInstance().TEXT_INSTRUCTIONS.containsKey(data)) {
+                Library.TextInstruction instr = Library.getInstance().TEXT_INSTRUCTIONS.get(data);
                 switch(instr) {
                     case AWAITING_INPUT:
                     case PLAYER_FIRST_NAME:
@@ -112,11 +112,11 @@ public class TextList {
                     case LEGACY_SET_COLOR:
                         data = FileReadWriteUtils.readShort(file, ByteOrder.LITTLE_ENDIAN);
                         if (!oneLine) {
-                            toRet.append(Library.TEXT_COLORS_ANSI.get(data));
+                            toRet.append(Library.getInstance().TEXT_COLORS_ANSI.get(data));
                         }
                         else {
                             toRet.append(START_SPECIAL)
-                                    .append(instr.name()).append(PARAM_SEPARATOR).append(Library.TEXT_COLORS.get(data))
+                                    .append(instr.name()).append(PARAM_SEPARATOR).append(Library.getInstance().TEXT_COLORS.get(data))
                                     .append(END_SPECIAL);
                         }
                         break;
@@ -148,8 +148,8 @@ public class TextList {
                         break;
                 }
             } else { // it's text
-                if (Library.TEXT_CODES.containsKey(data)) {
-                    toRet.append(Library.TEXT_CODES.get(data));
+                if (Library.getInstance().TEXT_CODES.containsKey(data)) {
+                    toRet.append(Library.getInstance().TEXT_CODES.get(data));
                 } else {
                     toRet.append(String.format("{%04X}", data));
                 }
@@ -197,11 +197,11 @@ public class TextList {
                 // if it ended up not being a special char
             } else if (canBeSpecial && !isSpecial) {
                 // write the old chars
-                data = Library.TEXT_CODES_REVERSE.get("" + text.charAt(i-1));
+                data = Library.getInstance().TEXT_CODES_REVERSE.get("" + text.charAt(i-1));
                 //data = Library.TEXT_CODES_REVERSE.get(new String(new byte[]{text[i-1]}, StandardCharsets.UTF_8));
                 FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
                 //data = Library.TEXT_CODES_REVERSE.get(new String(new byte[]{currChar}, StandardCharsets.UTF_8));
-                data = Library.TEXT_CODES_REVERSE.get(currChar);
+                data = Library.getInstance().TEXT_CODES_REVERSE.get(currChar);
                 FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
                 canBeSpecial = false;
                 continue;
@@ -211,13 +211,13 @@ public class TextList {
                     continue;
                 } else if (canBeClosing && currChar.charAt(0) == END_SPECIAL.charAt(1)) {
                     // if a normal instruction
-                    if (Library.TEXT_INSTRUCTIONS_REVERSE.containsKey(special.toString())) {
-                        data = Library.TEXT_INSTRUCTIONS_REVERSE.get(special.toString());
+                    if (Library.getInstance().TEXT_INSTRUCTIONS_REVERSE.containsKey(special.toString())) {
+                        data = Library.getInstance().TEXT_INSTRUCTIONS_REVERSE.get(special.toString());
                         FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
                     } else {
                         // it is either the WAIT or SHOW_OPTIONS or SET_COLOR or PRINT_ICON.... instructions, which has a parameter
                         String[] split = special.toString().split(PARAM_SEPARATOR);
-                        data = Library.TEXT_INSTRUCTIONS_REVERSE.get(split[0]);
+                        data = Library.getInstance().TEXT_INSTRUCTIONS_REVERSE.get(split[0]);
                         FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
                         if (split[0].compareTo(Library.TextInstruction.WAIT.name()) == 0 ||
                                 split[0].compareTo(Library.TextInstruction.SHOW_OPTIONS.name()) == 0 ||
@@ -227,7 +227,7 @@ public class TextList {
                             FileReadWriteUtils.writeShort(outputFile, ByteOrder.LITTLE_ENDIAN, data);
                         } else if (split[0].compareTo(Library.TextInstruction.SET_COLOR.name()) == 0 ||
                                 split[0].compareTo(Library.TextInstruction.LEGACY_SET_COLOR.name()) == 0) {
-                            data = Library.TEXT_COLORS_REVERSE.get(split[1].charAt(0)); // the color
+                            data = Library.getInstance().TEXT_COLORS_REVERSE.get(split[1].charAt(0)); // the color
                             FileReadWriteUtils.writeShort(outputFile, ByteOrder.LITTLE_ENDIAN, data);
                         } else {
                             System.out.println("EERRROOOOORRRR in special text code\n");
@@ -250,11 +250,11 @@ public class TextList {
                 currChar = "" + longCharFile.nextChar();
                 i += longCharFile.numOfBytes-1;
             }
-            data = Library.TEXT_CODES_REVERSE.get(currChar);
+            data = Library.getInstance().TEXT_CODES_REVERSE.get(currChar);
             FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
 
         }
-        FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, Library.TEXT_INSTRUCTIONS_REVERSE.get("END"));
+        FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, Library.getInstance().TEXT_INSTRUCTIONS_REVERSE.get("END"));
         inputFile.seek(pointerBK);
     }
 
