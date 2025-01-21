@@ -109,7 +109,7 @@ public class Library {
         unk_cmd_3B,
         UNKNOWN_COMMAND_3C,
         UNKNOWN_COMMAND_3D,
-        UNKNOWN_COMMAND_3E,
+        doctor_fee,
         UNKNOWN_COMMAND_3F,
         unk_cmd_44,
         unk_cmd_45,
@@ -246,7 +246,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x3B, FlowInstruction.unk_cmd_3B);
         FLOW_INSTRUCTIONS.put((byte) 0x3C, FlowInstruction.UNKNOWN_COMMAND_3C);
         FLOW_INSTRUCTIONS.put((byte) 0x3D, FlowInstruction.UNKNOWN_COMMAND_3D);
-        FLOW_INSTRUCTIONS.put((byte) 0x3E, FlowInstruction.UNKNOWN_COMMAND_3E);
+        FLOW_INSTRUCTIONS.put((byte) 0x3E, FlowInstruction.doctor_fee);
         FLOW_INSTRUCTIONS.put((byte) 0x3F, FlowInstruction.UNKNOWN_COMMAND_3F);
         FLOW_INSTRUCTIONS.put((byte) 0x44, FlowInstruction.unk_cmd_44);
         FLOW_INSTRUCTIONS.put((byte) 0x45, FlowInstruction.unk_cmd_45);
@@ -314,7 +314,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.unk_cmd_3B, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3C, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3D, (byte)1);
-        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3E, (byte)2);
+        PARAM_NUM.put(FlowInstruction.doctor_fee, (byte)2);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3F, (byte)1);
         PARAM_NUM.put(FlowInstruction.unk_cmd_44, (byte)1);
         PARAM_NUM.put(FlowInstruction.unk_cmd_45, (byte)1);
