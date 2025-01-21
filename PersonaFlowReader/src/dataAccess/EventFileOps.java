@@ -274,13 +274,7 @@ public class EventFileOps {
                         short labelNum = (short) Integer.parseInt(labelSplit[0].split(Library.LABEL_SEPARATOR)[1]);
                         int address = Library.ADDRESS_OF_CHARACTER_DATA + (characterId * Library.CHARACTER_DATA_SIZE) + Library.CHARACTER_DATA_EVENT_ADDRESS_1_OFFSET;
 
-                        if (labelReferenceLocations.containsKey(labelNum)) {
-                            labelReferenceLocations.get(labelNum).add(address);
-                        } else {
-                            LinkedList<Integer> toAdd = new LinkedList<>();
-                            toAdd.add(address);
-                            labelReferenceLocations.put(labelNum, toAdd);
-                        }
+                        addLabelRef(labelNum, address);
                     }
 
                     // If the second LABEL space isn't empty
@@ -288,13 +282,7 @@ public class EventFileOps {
                         short labelNum = (short) Integer.parseInt(labelSplit[1].split(Library.LABEL_SEPARATOR)[1]);
                         int address = Library.ADDRESS_OF_CHARACTER_DATA + (characterId * Library.CHARACTER_DATA_SIZE) + Library.CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET;
 
-                        if (labelReferenceLocations.containsKey(labelNum)) {
-                            labelReferenceLocations.get(labelNum).add(address);
-                        } else {
-                            LinkedList<Integer> toAdd = new LinkedList<>();
-                            toAdd.add(address);
-                            labelReferenceLocations.put(labelNum, toAdd);
-                        }
+                        addLabelRef(labelNum, address);
                     }
                 }
 
@@ -1106,13 +1094,7 @@ public class EventFileOps {
             int address = (int) outputFile.getFilePointer() + 2;
 
             // add the address to the addresses that need to be filled
-            if (labelReferenceLocations.containsKey(labelNum)) {
-                labelReferenceLocations.get(labelNum).add(address);
-            } else {
-                LinkedList<Integer> toAdd = new LinkedList<>();
-                toAdd.add(address);
-                labelReferenceLocations.put(labelNum, toAdd);
-            }
+            addLabelRef(labelNum, address);
 
             // skip the short and the address to reach the next entry
             outputFile.seek(outputFile.getFilePointer() + 2 + 4);
