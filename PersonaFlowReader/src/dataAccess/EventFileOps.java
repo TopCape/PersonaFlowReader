@@ -306,56 +306,7 @@ public class EventFileOps {
                     throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
                 }
 
-
-                // backing up the pointer to restore it after the positions
-                long pointerBK = outputFile.getFilePointer();
-
-                // getting the size of the positions list
-                outputFile.seek(Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER);
-                outputFile.seek(FileReadWriteUtils.readInt(outputFile, valOrder));
-                int positionsSize = FileReadWriteUtils.readInt(outputFile, valOrder);
-
-                // getting pointer to the first position data
-                outputFile.seek(Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER + 4);
-                outputFile.seek(FileReadWriteUtils.readInt(outputFile, valOrder));
-
-                // interpreting the positions section
-                for (int positionEntryIdx = 0; positionEntryIdx < positionsSize; positionEntryIdx++) {
-                    line = inputFile.readLine();
-                    line = removeCommentAndSpaces(line);
-                    String[] positionData = line.split(Library.SPACE_TAB_REGEX);
-
-                    i = skipSpacesNTabs(positionData, 0);
-                    byte x = (byte) Short.parseShort(positionData[i]);
-                    i = skipSpacesNTabs(positionData, i + 1);
-                    byte y = (byte) Short.parseShort(positionData[i]);
-                    i = skipSpacesNTabs(positionData, i + 1);
-
-                    String label = positionData[i];
-                    String[] labelSplit = label.split(Library.LABEL_SEPARATOR);
-                    short labelNum = (short) Integer.parseInt(labelSplit[1]);
-
-                    // writing the coordinates
-                    outputFile.writeByte(x);
-                    outputFile.writeByte(y);
-
-                    // skipping the unknown short to get to where the address is
-                    int address = (int) outputFile.getFilePointer() + 2;
-
-                    // add the address to the addresses that need to be filled
-                    if (labelReferenceLocations.containsKey(labelNum)) {
-                        labelReferenceLocations.get(labelNum).add(address);
-                    } else {
-                        LinkedList<Integer> toAdd = new LinkedList<>();
-                        toAdd.add(address);
-                        labelReferenceLocations.put(labelNum, toAdd);
-                    }
-
-                    // skip the short and the address to reach the next entry
-                    outputFile.seek(outputFile.getFilePointer() + 2 + 4);
-                }
-
-                outputFile.seek(pointerBK);
+                encodePositionSection(inputFile, outputFile);
 
                 // skip empty lines
                 while ((line = inputFile.readLine()).compareTo("") == 0);
@@ -1084,6 +1035,64 @@ public class EventFileOps {
 
         outputFile.writeBytes("\n");
         inputFile.seek(pointerBk);
+    }
+
+    /**
+     * Encodes the position trigger entries into the output file and saves addresses to pointers that must be filled in later
+     * @param inputFile object used to read from input file
+     * @param outputFile object used to write to the output file
+     * @throws IOException I/O file stuff
+     */
+    private static void encodePositionSection(RandomAccessFile inputFile, RandomAccessFile outputFile) throws IOException {
+        // backing up the pointer to restore it after the positions
+        long pointerBK = outputFile.getFilePointer();
+
+        // getting the size of the positions list
+        outputFile.seek(Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER);
+        outputFile.seek(FileReadWriteUtils.readInt(outputFile, valOrder));
+        int positionsSize = FileReadWriteUtils.readInt(outputFile, valOrder);
+
+        // getting pointer to the first position data
+        outputFile.seek(Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER + 4);
+        outputFile.seek(FileReadWriteUtils.readInt(outputFile, valOrder));
+
+        // interpreting the positions section
+        for (int positionEntryIdx = 0; positionEntryIdx < positionsSize; positionEntryIdx++) {
+            String line = inputFile.readLine();
+            line = removeCommentAndSpaces(line);
+            String[] positionData = line.split(Library.SPACE_TAB_REGEX);
+
+            int i = skipSpacesNTabs(positionData, 0);
+            byte x = (byte) Short.parseShort(positionData[i]);
+            i = skipSpacesNTabs(positionData, i + 1);
+            byte y = (byte) Short.parseShort(positionData[i]);
+            i = skipSpacesNTabs(positionData, i + 1);
+
+            String label = positionData[i];
+            String[] labelSplit = label.split(Library.LABEL_SEPARATOR);
+            short labelNum = (short) Integer.parseInt(labelSplit[1]);
+
+            // writing the coordinates
+            outputFile.writeByte(x);
+            outputFile.writeByte(y);
+
+            // skipping the unknown short to get to where the address is
+            int address = (int) outputFile.getFilePointer() + 2;
+
+            // add the address to the addresses that need to be filled
+            if (labelReferenceLocations.containsKey(labelNum)) {
+                labelReferenceLocations.get(labelNum).add(address);
+            } else {
+                LinkedList<Integer> toAdd = new LinkedList<>();
+                toAdd.add(address);
+                labelReferenceLocations.put(labelNum, toAdd);
+            }
+
+            // skip the short and the address to reach the next entry
+            outputFile.seek(outputFile.getFilePointer() + 2 + 4);
+        }
+
+        outputFile.seek(pointerBK);
     }
 
     /**
