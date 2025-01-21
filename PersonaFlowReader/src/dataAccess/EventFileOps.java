@@ -424,24 +424,6 @@ public class EventFileOps {
                     outputFile.writeByte(0);
                 }
 
-                /*line = inputFile.readLine();
-                while(line != null) {
-                    String[] textSplit = line.split(Library.SPACE_TAB_REGEX);
-
-                    // skip spaces and tabs at beginning
-                    int i = skipSpacesNTabs(textSplit, 0);
-
-                    short textId = Short.parseShort(textSplit[i].substring(0, 3));
-                    fillInRef(outputFile, textId, true);
-
-                    String text = line.substring(line.indexOf(":") + 1);
-                    textList = TextList.readDecodedTextList(text);
-                    TextList.encodeTextAndList(outputFile, textList);
-
-                    line = inputFile.readLine();
-                }
-                */
-
 
             } catch (Exception e) {
                 System.out.println("ERR opening file to write encoded to: " + e.getMessage());
@@ -522,23 +504,15 @@ public class EventFileOps {
                 // get followup int, which corresponds to the address to jump to
                 address = FileReadWriteUtils.readInt(inputFile, valOrder);
 
-                if (!labels.containsKey(address)) {
-                    label = Library.LABEL_TXT + Library.LABEL_SEPARATOR + labelNum++;
-                    labels.put(address, label);
-                } else {
-                    label = labels.get(address);
-                }
+                label = addLabel(address);
+
                 return "\t" + name + "\t" + label + "\n";
             case jump_if:
                 name = flowInstr.name();
                 String condition = getShortString(inputFile);
                 address = FileReadWriteUtils.readInt(inputFile, valOrder);
-                if (!labels.containsKey(address)) {
-                    label = Library.LABEL_TXT + Library.LABEL_SEPARATOR + labelNum++;
-                    labels.put(address, label);
-                } else {
-                    label = labels.get(address);
-                }
+                label = addLabel(address);
+
                 return "\t" + name + "\t" + condition + "," + label + "\t" + Library.COMMENT_SYMBOL + " the parameter's exact meaning is unknown, but it might be related to game flags\n";
             //case UNKNOWN_COMMAND_27:
             //    name = flowInstr.name(); // TEST
@@ -585,12 +559,8 @@ public class EventFileOps {
                 name = flowInstr.name();
                 param = getShortString(inputFile);
                 address = getInt(inputFile);
-                if (!labels.containsKey(address)) {
-                    label = Library.LABEL_TXT + Library.LABEL_SEPARATOR + labelNum++;
-                    labels.put(address, label);
-                } else {
-                    label = labels.get(address);
-                }
+                label = addLabel(address);
+
                 return "\t" + name + "\t" + param + "," + label + "\t"+ Library.COMMENT_SYMBOL + " " + name + " <option num?>,<label>\n";
             case ld_text:
                 check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
@@ -971,8 +941,7 @@ public class EventFileOps {
 
             // checking first address position
             if (address1 != Library.MINUS_1_INT) {
-                String label = Library.LABEL_TXT + Library.LABEL_SEPARATOR + labelNum++;
-                labels.put(address1, label);
+                String label = addLabel(address1);
                 //outputFile.writeBytes(String.format("%02d\t\t%s\t\t%s <Character in scene>:  <Label to code that executes when spoken to>\n", i, label, Library.COMMENT_SYMBOL));
                 outputFile.writeBytes(String.format("%s", label));
             } else {
@@ -983,13 +952,7 @@ public class EventFileOps {
 
             // checking second address position
             if (address2 != Library.MINUS_1_INT) {
-                String label;
-                if (!labels.containsKey(address2)) {
-                    label = Library.LABEL_TXT + Library.LABEL_SEPARATOR + labelNum++;
-                    labels.put(address2, label);
-                } else {
-                    label = labels.get(address2);
-                }
+                String label = addLabel(address2);
 
                 outputFile.writeBytes(String.format("%s", label));
             } else {
@@ -1006,7 +969,6 @@ public class EventFileOps {
     private static void registerTalkAddresses(RandomAccessFile inputFile, boolean isPrimaryTalk) throws IOException {
 
         int startAddress = isPrimaryTalk ? Library.ADDRESS_OF_CHARACTER_DATA : Library.ADDRESS_OF_SECONDARY_CHARACTER_DATA;
-        int numOfStructs = isPrimaryTalk ? Library.CHARACTER_DATA_NUM : Library.SECONDARY_CHARACTER_DATA_NUM;
         int dataSize = isPrimaryTalk ? Library.CHARACTER_DATA_SIZE : Library.SECONDARY_CHARACTER_DATA_SIZE;
         int secondAddrOffset = isPrimaryTalk ? Library.CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET : Library.SECONDARY_CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET;
 
@@ -1072,13 +1034,7 @@ public class EventFileOps {
             short unknown = FileReadWriteUtils.readShort(inputFile, valOrder);
             int address = FileReadWriteUtils.readInt(inputFile, valOrder);
 
-            String label;
-            if (!labels.containsKey(address)) {
-                label = Library.LABEL_TXT + Library.LABEL_SEPARATOR + labelNum++;
-                labels.put(address, label);
-            } else {
-                label = labels.get(address);
-            }
+            String label = addLabel(address);
 
             outputFile.writeBytes(String.format("\t%03d\t%03d\t%s\n", x, y, label));
         }
@@ -1166,6 +1122,22 @@ public class EventFileOps {
         inputFile.seek(pointerBk);
 
         return short1 && short2 && address && int1 && int2 && int3 && int4 && int5 && int6 && int7;
+    }
+
+    /**
+     * Adds a label to the labels map. Used for decoding file
+     * @param address the address the label points to
+     * @return the label's name
+     */
+    private static String addLabel(int address) {
+        String label;
+        if (!labels.containsKey(address)) {
+            label = Library.LABEL_TXT + Library.LABEL_SEPARATOR + labelNum++;
+            labels.put(address, label);
+        } else {
+            label = labels.get(address);
+        }
+        return label;
     }
 
     private static void addLabelRef(short lNum, int currAddr) {
