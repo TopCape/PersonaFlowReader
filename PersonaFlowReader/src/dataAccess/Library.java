@@ -590,16 +590,17 @@ public class Library {
             "Brown's awakening",
             "Ayase's awakening",
             "Takeda battle",
-            "Reiji's awakening",
-            "unknown battle",
-            "Tesso battle",
-            "Yog Sothoth Jr battle",
-            "Harem Queen battle",
-            "Mr. Bear battle",
-            "Saurva battle",
-            "Pandora fase 1", // UNSURE
-            "Hariti battle",
-            "Kandori battle",
+            "Reiji's awakening", // 06
+            "Reiji's awakneing variation?", // 07
+            "Tesso battle", // 08
+            "Yog Sothoth Jr battle", // 09
+            "Harem Queen battle", // 0A
+            "Harem Queen variation battle ?", // 0B
+            "Mr. Bear battle", // 0C
+            "Saurva battle", // 0D
+            "Hariti battle", // 0E
+            "Kandori battle", // 0F
+            "Pandora fase 1", // 10
             "Akuma monster battle",
             "Akuma monster battle variation?",
             "Hypnos 1 battle",
