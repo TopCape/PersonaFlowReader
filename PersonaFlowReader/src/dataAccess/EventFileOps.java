@@ -383,6 +383,8 @@ public class EventFileOps {
                 return;
             }
 
+            inputFile.seek(0);
+
             // delete file if it already exists
             File file = new File(outputPath);
             file.delete();
@@ -638,7 +640,7 @@ public class EventFileOps {
                 addrLine = removeCommentAndSpaces(addrLine);
                 String[] addrSplit = addrLine.split(Library.SPACE_TAB_REGEX);
                 if (addrSplit[0].compareTo(Library.ADDR_KEYWORD) != 0) {
-                    throw new OperationNotSupportedException(".addr not there?");
+                    throw new OperationNotSupportedException("addr not there?");
                 }
                 int i = skipSpacesNTabs(addrSplit, 1);
                 startAddr = extractIntFromString(addrSplit[i]);
