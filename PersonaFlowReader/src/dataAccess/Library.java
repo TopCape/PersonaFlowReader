@@ -84,6 +84,7 @@ public class Library {
         UNKNOWN_COMMAND_4C,
         wait,
         UNKNOWN_COMMAND_4F,
+        UNKNOWN_COMMAND_52,
         UNKNOWN_COMMAND_53,
         player_option,
         ld_text,
@@ -163,6 +164,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x4C, FlowInstruction.UNKNOWN_COMMAND_4C);
         FLOW_INSTRUCTIONS.put((byte) 0x4d, FlowInstruction.wait);
         FLOW_INSTRUCTIONS.put((byte) 0x4f, FlowInstruction.UNKNOWN_COMMAND_4F);
+        FLOW_INSTRUCTIONS.put((byte) 0x52, FlowInstruction.UNKNOWN_COMMAND_52);
         FLOW_INSTRUCTIONS.put((byte) 0x53, FlowInstruction.UNKNOWN_COMMAND_53);
         FLOW_INSTRUCTIONS.put((byte) 0x54, FlowInstruction.player_option);
         FLOW_INSTRUCTIONS.put((byte) 0x55, FlowInstruction.ld_text);
@@ -218,6 +220,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_4C, (byte)0);
         PARAM_NUM.put(FlowInstruction.wait, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_4F, (byte)0);
+        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_52, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_53, (byte)0);
         PARAM_NUM.put(FlowInstruction.player_option, (byte)1);
         PARAM_NUM.put(FlowInstruction.ld_text, (byte)1);
