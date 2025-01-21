@@ -67,6 +67,7 @@ public class Library {
         UNKNOWN_COMMAND_4C,
         wait,
         UNKNOWN_COMMAND_4F,
+        UNKNOWN_COMMAND_53,
         player_option,
         ld_text,
         UNKNOWN_COMMAND_56,
@@ -94,7 +95,7 @@ public class Library {
     }
 
     public enum TextInstruction {
-        SHOW_OPTIONS, END, AWAITING_INPUT, LINE_BREAK, CONTINUE, WAIT, PLAYER_FIRST_NAME, PLAYER_NICKNAME, SET_COLOR, PRINT_ICON, CHARACTER_NAME
+        SHOW_OPTIONS, END, AWAITING_INPUT, LINE_BREAK, CONTINUE, WAIT, UNKNOWN06, PLAYER_FIRST_NAME, PLAYER_NICKNAME, SET_COLOR, PRINT_ICON, CHARACTER_NAME
     }
 
     public static final long FLOW_OFFSET = 0x64;
@@ -145,6 +146,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x4C, FlowInstruction.UNKNOWN_COMMAND_4C);
         FLOW_INSTRUCTIONS.put((byte) 0x4d, FlowInstruction.wait);
         FLOW_INSTRUCTIONS.put((byte) 0x4f, FlowInstruction.UNKNOWN_COMMAND_4F);
+        FLOW_INSTRUCTIONS.put((byte) 0x53, FlowInstruction.UNKNOWN_COMMAND_53);
         FLOW_INSTRUCTIONS.put((byte) 0x54, FlowInstruction.player_option);
         FLOW_INSTRUCTIONS.put((byte) 0x55, FlowInstruction.ld_text);
         FLOW_INSTRUCTIONS.put((byte) 0x56, FlowInstruction.UNKNOWN_COMMAND_56);
@@ -196,6 +198,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_4C, (byte)0);
         PARAM_NUM.put(FlowInstruction.wait, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_4F, (byte)0);
+        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_53, (byte)0);
         PARAM_NUM.put(FlowInstruction.player_option, (byte)1);
         PARAM_NUM.put(FlowInstruction.ld_text, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_56, (byte)0);
@@ -227,6 +230,7 @@ public class Library {
         TEXT_INSTRUCTIONS.put((short)0xff03, TextInstruction.LINE_BREAK);
         TEXT_INSTRUCTIONS.put((short)0xff04, TextInstruction.CONTINUE);
         TEXT_INSTRUCTIONS.put((short)0xff05, TextInstruction.WAIT);
+        TEXT_INSTRUCTIONS.put((short)0xff06, TextInstruction.UNKNOWN06);
         TEXT_INSTRUCTIONS.put((short)0xff07, TextInstruction.PLAYER_FIRST_NAME);
         TEXT_INSTRUCTIONS.put((short)0xff08, TextInstruction.PLAYER_NICKNAME);
         TEXT_INSTRUCTIONS.put((short)0xff0E, TextInstruction.SHOW_OPTIONS);
