@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -112,7 +113,16 @@ public class EventFileOps {
         }
     }
 
-    public static void archive(String dirPath, String destinationDir, String filename) throws OperationNotSupportedException, IOException {
+    /**
+     * Groups up all the files back into an EX.BIN file
+     * @param ebootPath the path where the original EBOOT.BIN is
+     * @param dirPath the path to where all the sub-files are
+     * @param destinationDir the path to save the new EX.BIN (and EBOOT.BIN) files
+     * @param filename the name of the EX.BIN file, without the extension
+     * @param isJ {@code true} if the event file was extracted from the japanese version of the game
+     * @throws IOException file IO exceptions
+     */
+    public static void archive(String ebootPath, String dirPath, String destinationDir, String filename, boolean isJ) throws IOException {
         //File dir = new File(dirPath);
         //File[] directoryListing = dir.listFiles();
 
@@ -136,11 +146,17 @@ public class EventFileOps {
             }
             InnerFileAddressList fileList = new InnerFileAddressList(fileAddrList);
 
-            /*if (dirPath.charAt(dirPath.length()-1) == '/') dirPath = dirPath.substring(0, dirPath.length()-1);
-            String[] seg = dirPath.split("/");
-            String fileName = seg[seg.length-1];
-            String destinationFile = dirPath + "/" + fileName + ".BIN";
-            */
+
+            // Update the EBOOT.BIN
+            int eventFileNum = Integer.parseInt("" + filename.charAt(1));
+            File ebootOut = new File(destinationDir, Library.EBOOT_NAME);
+            if (ebootOut.exists()) {
+                updateEbootFileList(ebootOut, ebootOut, eventFileNum, fileList, isJ);
+            } else {
+                File ebootIn = new File(ebootPath, Library.EBOOT_NAME);
+                updateEbootFileList(ebootIn, ebootOut, eventFileNum, fileList, isJ);
+            }
+
 
             String destinationFile = destinationDir + filename + EventFileOps.EXTENSION_1;
 
@@ -197,7 +213,7 @@ public class EventFileOps {
             }
 
         } catch (Exception e) {
-            throw new OperationNotSupportedException(e.getMessage());
+            throw e;
         }
     }
 
@@ -370,7 +386,7 @@ public class EventFileOps {
         labelReferenceLocations.clear();
         labelReferenceRealVals.clear();
         int textListSize;
-        String outputPath = inputPath.substring(0, inputPath.length()-4) + "_temp" + EVENT_SCRIPT_EXTENSION_1;
+        String outputPath = inputPath.substring(0, inputPath.length()-4) + Library.TEMP_STRING + EVENT_SCRIPT_EXTENSION_1;
         try (RandomAccessFile inputFile = new RandomAccessFile(inputPath, READ_MODE)) {
             //String outputPath = inputPath.substring(0, inputPath.length()-4) + EVENT_SCRIPT_EXTENSION_1;
 
@@ -1318,6 +1334,37 @@ public class EventFileOps {
 
         outputFile.append("\n");
         inputFile.seek(pointerBk);
+    }
+
+    /**
+     * Updates the file lists of the EX.BIN file that is being archived
+     * @param ebootIn the original EBOOT.BIN (or the one located in the output folder)
+     * @param ebootOut the edited EBOOT.BIN (the same file if an EBOOT.BIN exists in the output folder)
+     * @param eventFileNum the number of the EX.BIN file (the X, if you will)
+     * @param fileList the file list to write to the EBOOT.BIN
+     * @param isJ {@code true} if the event file was extracted from the japanese version of the game
+     * @throws IOException I/O file stuff
+     */
+    private static void updateEbootFileList(File ebootIn, File ebootOut, int eventFileNum, InnerFileAddressList fileList, boolean isJ) throws IOException {
+        Path outputFilePath = ebootOut.toPath();
+
+        // if the EBOOT.BIN doesn't exist in the output file, create a copy
+        if (ebootIn.compareTo(ebootOut) != 0) {
+            Files.copy(ebootIn.toPath(), outputFilePath, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        try (RandomAccessFile file = new RandomAccessFile(outputFilePath.toString(), WRITE_MODE)) {
+            // calculate the start address of the edit
+            int address = isJ ? Library.JP_EBOOT_E0_FILELIST_ADDR : Library.US_EBOOT_E0_FILELIST_ADDR;
+            address -= Library.EBOOT_FILELIST_OFFSET*eventFileNum;
+
+            file.seek(address);
+            fileList.writeFileAddresses(file, valOrder);
+
+        } catch (Exception e) {
+            //System.out.println("ERROR reading EBOOT file to write to (in output folder)");
+            throw e;
+        }
     }
 
     /**

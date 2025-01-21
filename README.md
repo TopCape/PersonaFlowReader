@@ -6,7 +6,7 @@ This tool allows the "decompilation" and "compilation" of Persona 1 event files.
    * Some of these are triggered by just standing in the saved coordinates
    * Some of these are triggered by interacting with the object in the saved coordinates
 * The flow script itself
-* The text it contains, obtained by using a "char**" array at the end of the file
+* The text it contains
 
 Most of the file is still unknown (to me), so it is copied from the base file and edited to fit new code that a user may have written.
 
@@ -14,7 +14,7 @@ Most of the file is still unknown (to me), so it is copied from the base file an
 ## How to use
 
 ### Setup
-Paste EX.BIN files into the OG folder, where X is a number from 0 to 4. These are event files that are present in PSP_GAME/USRDIR/pack/, in Persona 1's files.
+Paste EX.BIN files into the OG folder, where X is a number from 0 to 4. These are event files that are present in PSP_GAME/USRDIR/pack/, in Persona 1's files. Also paste the DECRYPTED EBOOT.BIN of the persona game into the same folder. The EBOOT.BIN contains data that must be updated if the EX.BIN file's size changes.
 
 To run the program, you must have Java installed. If you do, simply execute "run.bat" and it will start the program in a command line window.
 
@@ -45,7 +45,7 @@ This option encodes a .DEC file specified by the user (extension included), repl
 
 ### 3: Archive Event Files
 
-This option reads all the files in the specified folder and creats an EX.BIN type file from them. This EX.BIN file is the file that the user should paste back into the game to apply their changes.
+This option reads all the files in the specified folder and creats an EX.BIN type file from them. The resulting EX.BIN file is the file that the user should paste back into the game to apply their changes. The same output folder holds the edited EBOOT.BIN that should also be replaced in the game. If you want multiple EX.BIN files' changes to be reflected in the final EBOOT.BIN, don't remove the EBOOT.BIN in the output folder, as other archive operations will edit that file so the changes can stack.
 
 ## Known issues
 At least in the japanese version of the files, the program doesn't encode some back properly. Make sure you only encode the files you edited and not all of the other ones. If you edit a file that has one of those encoding problems, feel free to create an issue and say what file caused it so it can be researched.
