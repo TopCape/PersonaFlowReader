@@ -139,7 +139,13 @@ public class EventFileOps {
         }
     }
 
-    public static void decodeFlowScript(String path) throws IOException {
+    /**
+     * Decodes an event file's flow script
+     * @param path the path to the file to decode
+     * @param isJ {@code:true} if the event file was extracted from the japanese version of the game
+     * @throws IOException file IO exceptions
+     */
+    public static void decodeFlowScript(String path, boolean isJ) throws IOException {
         labelNum = 0;
         isLastInstruction = false;
         labels.clear();
@@ -164,36 +170,43 @@ public class EventFileOps {
                 preCodePrint.append(String.format("\t0x%02x\n\t0x%02x\n\n", firstSong, secondSong));
                 //outputFile.writeBytes(String.format("\t0x%02x\n\t0x%02x\n\n", firstSong, secondSong));
 
-                inputFile.seek(Library.ADDRESS_WITH_TEXT_TABLE_POINTER);
-                int textTableAddr = FileReadWriteUtils.readInt(inputFile, valOrder);
-                textList = TextList.readEncodedTextList(inputFile, textTableAddr, true);
+                // saving all text strings
+                // in the japanese version, there is no text list at the end of the file :(
+                if (!isJ) {
+                    inputFile.seek(Library.ADDRESS_WITH_TEXT_TABLE_POINTER);
+                    int textTableAddr = FileReadWriteUtils.readInt(inputFile, valOrder);
+                    textList = TextList.readEncodedTextList(inputFile, textTableAddr, true);
+                } else {
+                    textList = new TextList();
+                }
+
 
                 // section .talk
                 preCodePrint.append(Library.SECTION_KEYWORD + "\t" + Library.TALK_SECTION_KEYWORD + "\n");
                 //outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TALK_SECTION_KEYWORD + "\n");
                 //decodeTalkAddresses(inputFile, outputFile, true);
-                decodeTalkAddresses(inputFile, preCodePrint, true);
+                decodeTalkAddresses(inputFile, preCodePrint, true, isJ);
 
                 // section .talk2
                 preCodePrint.append(Library.SECTION_KEYWORD + "\t" + Library.TALK2_SECTION_KEYWORD + "\n");
                 //outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TALK2_SECTION_KEYWORD + "\n");
                 //decodeTalkAddresses(inputFile, outputFile, false);
-                decodeTalkAddresses(inputFile, preCodePrint, false);
+                decodeTalkAddresses(inputFile, preCodePrint, false, isJ);
 
                 // section .positions
                 preCodePrint.append(Library.SECTION_KEYWORD + "\t" + Library.POS_SECTION_KEYWORD + "\n");
                 //outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.POS_SECTION_KEYWORD + "\n");
                 //decodePositionsOrInteractables(inputFile, outputFile, false);
-                decodePositionsOrInteractables(inputFile, preCodePrint, false);
+                decodePositionsOrInteractables(inputFile, preCodePrint, false, isJ);
 
                 // section .interactables
                 preCodePrint.append(Library.SECTION_KEYWORD + "\t" + Library.INTER_SECTION_KEYWORD + "\n");
                 //outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.INTER_SECTION_KEYWORD + "\n");
                 //decodePositionsOrInteractables(inputFile, outputFile, true);
-                decodePositionsOrInteractables(inputFile, preCodePrint, true);
+                decodePositionsOrInteractables(inputFile, preCodePrint, true, isJ);
 
                 // address value zone
-                inputFile.seek(Library.ADDRESS_WITH_FLOW_SCRIPT_POINTER);
+                inputFile.seek(Library.ADDRESS_WITH_FLOW_SCRIPT_POINTER - (isJ ? 4 : 0));
                 int flowStartAddr = FileReadWriteUtils.readInt(inputFile, valOrder);
 
                 if (flowStartAddr == -1) {
@@ -228,11 +241,8 @@ public class EventFileOps {
                         labels.get(currPointer).second = true; // setting the label as having been printed
                     }
 
-                    String textInst = decodeInstruction(inputFile, false);
+                    String textInst = decodeInstruction(inputFile, false, isJ);
                     outputFile.writeBytes(textInst);
-
-
-
 
                 }
 
@@ -263,7 +273,7 @@ public class EventFileOps {
                         labels.get(pointer).second = true;
 
                         while(!isLastInstruction) {
-                            String textInst = decodeInstruction(inputFile, true);
+                            String textInst = decodeInstruction(inputFile, true, isJ);
                             outputFile.writeBytes(textInst);
                         }
                     }
@@ -284,7 +294,14 @@ public class EventFileOps {
         }
     }
 
-    public static void encodeFlowScript(String inputPath) throws IOException, OperationNotSupportedException {
+    /**
+     * Encodes an event file's flow script back to the original format
+     * @param inputPath the path for the file to encode back
+     * @param isJ {@code:true} if the event file was extracted from the japanese version of the game
+     * @throws IOException file IO exceptions
+     * @throws OperationNotSupportedException thrown if some part of the file isn't formatted as expected
+     */
+    public static void encodeFlowScript(String inputPath, boolean isJ) throws IOException, OperationNotSupportedException {
         isLastInstruction = false;
         emptyLineHappened = false;
         textReferenceLocations.clear();
@@ -299,7 +316,7 @@ public class EventFileOps {
 
             try (RandomAccessFile outputFile = new RandomAccessFile(outputPath, WRITE_MODE)) {
                 // first gonna get the data from the og file up until the event flow script
-                fillFileBeginning(inputPath, inputFile, outputFile);
+                fillFileBeginning(inputPath, inputFile, outputFile, isJ);
 
                 String line;// = inputFile.readLine();
 
@@ -339,7 +356,7 @@ public class EventFileOps {
                     throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
                 }
                 // Primary talk section handling
-                registerTalkAddresses(inputFile, true);
+                registerTalkAddresses(inputFile, true, isJ);
 
                 // skip empty lines
                 while ((line = inputFile.readLine()).compareTo("") == 0);
@@ -354,7 +371,7 @@ public class EventFileOps {
                     throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
                 }
                 // Secondary talk section handling
-                registerTalkAddresses(inputFile, false);
+                registerTalkAddresses(inputFile, false, isJ);
 
 
                 // skip empty lines
@@ -370,7 +387,7 @@ public class EventFileOps {
                     throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
                 }
 
-                encodePositionOrInteractableSection(inputFile, outputFile, false);
+                encodePositionOrInteractableSection(inputFile, outputFile, false, isJ);
 
 
                 // skip empty lines
@@ -386,7 +403,7 @@ public class EventFileOps {
                     throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
                 }
 
-                encodePositionOrInteractableSection(inputFile, outputFile, true);
+                encodePositionOrInteractableSection(inputFile, outputFile, true, isJ);
 
                 // skip empty lines
                 while ((line = inputFile.readLine()).compareTo("") == 0);
@@ -488,16 +505,18 @@ public class EventFileOps {
                 }
 
                 // gotta go update the reference to the text table
-                int textTablePointer = (int) outputFile.getFilePointer();
-                outputFile.seek(Library.ADDRESS_WITH_TEXT_TABLE_POINTER);
-                FileReadWriteUtils.writeInt(outputFile, valOrder, textTablePointer);
-                outputFile.seek(textTablePointer);
+                if (!isJ) { // in the japanese version, there is no text table
+                    int textTablePointer = (int) outputFile.getFilePointer();
+                    outputFile.seek(Library.ADDRESS_WITH_TEXT_TABLE_POINTER);
+                    FileReadWriteUtils.writeInt(outputFile, valOrder, textTablePointer);
+                    outputFile.seek(textTablePointer);
 
-                // writing the text table at the end
-                FileReadWriteUtils.writeInt(outputFile, valOrder, textListSize);
+                    // writing the text table at the end
+                    FileReadWriteUtils.writeInt(outputFile, valOrder, textListSize);
 
-                for (i = 0; i < textListSize; i++) {
-                    FileReadWriteUtils.writeInt(outputFile, valOrder, textPointers[i]);
+                    for (i = 0; i < textListSize; i++) {
+                        FileReadWriteUtils.writeInt(outputFile, valOrder, textPointers[i]);
+                    }
                 }
 
                 // final padding
@@ -521,11 +540,12 @@ public class EventFileOps {
      * @param path input file's path
      * @param inputFile object used to read from input file
      * @param outputFile object used to write to output file
+     * @param isJ {@code:true} if the event file was extracted from the japanese version of the game
      */
-    private static void fillFileBeginning(String path, RandomAccessFile inputFile, RandomAccessFile outputFile) throws IOException, OperationNotSupportedException {
+    private static void fillFileBeginning(String path, RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isJ) throws IOException, OperationNotSupportedException {
         String ogPath = path.substring(0, path.length()-3) + "BIN";
         try (RandomAccessFile ogFile = new RandomAccessFile(ogPath, READ_MODE)) {
-            ogFile.seek(Library.ADDRESS_WITH_FLOW_SCRIPT_POINTER);
+            ogFile.seek(Library.ADDRESS_WITH_FLOW_SCRIPT_POINTER - (isJ ? 4 : 0));
             int startAddr = FileReadWriteUtils.readInt(ogFile, valOrder);
 
             String addrLine = inputFile.readLine();
@@ -556,13 +576,14 @@ public class EventFileOps {
     }
 
 
-    private static String decodeInstruction(RandomAccessFile inputFile, boolean isPastText) throws IOException {
+    private static String decodeInstruction(RandomAccessFile inputFile, boolean isPastText, boolean isJ) throws IOException {
         int currPointer;
         byte instr = inputFile.readByte(); // the start of instructions is always FF
 
         // check if it is the last pointer
         currPointer = (int) inputFile.getFilePointer();
-        if (!isPastText && currPointer >= textList.getFirstAddr()) {
+
+        if (!isJ && !isPastText && currPointer >= textList.getFirstAddr()) {
             isLastInstruction = true;
             return "";
         }
@@ -684,7 +705,8 @@ public class EventFileOps {
 
                 // sometimes, text that ISN'T in the text table is used by the game (thanks developers)
                 // in these cases, the string has to be obtained based on the address, and then added to the text list
-                if (textIdx == -1 ) {
+                // this will always be used by the japanese version, since the text list doesn't exist
+                if (textIdx == -1) {
                     textList.addText(inputFile, address, true);
                     textIdx = textList.indexOfText(address);
                 }
@@ -1055,12 +1077,14 @@ public class EventFileOps {
      * Saves the addresses associated to characters in the scene (when player talks to them)
      * @param inputFile object used to read from input file
      * @param outputFile object used to write to output file
+     * @param isJ {@code:true} if the event file was extracted from the japanese version of the game
      * @throws IOException file stuff
      */
-    private static void decodeTalkAddresses(RandomAccessFile inputFile, StringBuilder outputFile, boolean isPrimaryTalk) throws IOException {
+    private static void decodeTalkAddresses(RandomAccessFile inputFile, StringBuilder outputFile, boolean isPrimaryTalk, boolean isJ) throws IOException {
         long pointerBk = inputFile.getFilePointer();
 
         int startAddress = isPrimaryTalk ? Library.ADDRESS_OF_CHARACTER_DATA : Library.ADDRESS_OF_SECONDARY_CHARACTER_DATA;
+        startAddress -= isJ ? 4 : 0; // adjust for japanese version
         int numOfStructs = isPrimaryTalk ? Library.CHARACTER_DATA_NUM : Library.SECONDARY_CHARACTER_DATA_NUM;
         int dataSize = isPrimaryTalk ? Library.CHARACTER_DATA_SIZE : Library.SECONDARY_CHARACTER_DATA_SIZE;
         int secondAddrOffset = isPrimaryTalk ? Library.CHARACTER_DATA_EVENT_ADDRESS_2_OFFSET : Library.SECONDARY_CHARACTER_DATA_EVENT_ADDRESS_2_OFFSET;
@@ -1110,9 +1134,17 @@ public class EventFileOps {
         inputFile.seek(pointerBk);
     }
 
-    private static void registerTalkAddresses(RandomAccessFile inputFile, boolean isPrimaryTalk) throws IOException {
+    /**
+     * Saves addresses where pointers are required, used for when the event script is being encoded
+     * @param inputFile the object used to read the decrypted event file
+     * @param isPrimaryTalk {@code:true} if this method is saving the addresses of primary character interactions
+     * @param isJ {@code:true} if the event file was extracted from the japanese version of the game
+     * @throws IOException file related IO exceptions
+     */
+    private static void registerTalkAddresses(RandomAccessFile inputFile, boolean isPrimaryTalk, boolean isJ) throws IOException {
 
         int startAddress = isPrimaryTalk ? Library.ADDRESS_OF_CHARACTER_DATA : Library.ADDRESS_OF_SECONDARY_CHARACTER_DATA;
+        startAddress -= isJ ? 4 : 0;
         int dataSize = isPrimaryTalk ? Library.CHARACTER_DATA_SIZE : Library.SECONDARY_CHARACTER_DATA_SIZE;
         int secondAddrOffset = isPrimaryTalk ? Library.CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET : Library.SECONDARY_CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET;
 
@@ -1143,10 +1175,11 @@ public class EventFileOps {
         }
     }
 
-    private static void decodePositionsOrInteractables(RandomAccessFile inputFile, StringBuilder outputFile, boolean isInteractable) throws IOException {
+    private static void decodePositionsOrInteractables(RandomAccessFile inputFile, StringBuilder outputFile, boolean isInteractable, boolean isJ) throws IOException {
         long pointerBk = inputFile.getFilePointer();
 
         long effectivePointer = isInteractable ? Library.ADDRESS_WITH_INTERACTABLE_DATA_SIZE_POINTER : Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER;
+        effectivePointer -= isJ ? 4 : 0; // adjust the pointer by 4 bytes, because JPN version has no text list
 
         // fetch the pointer to the list's size
         inputFile.seek(effectivePointer);
@@ -1188,13 +1221,15 @@ public class EventFileOps {
      * @param inputFile object used to read from input file
      * @param outputFile object used to write to the output file
      * @param isInteractable if true, treats the data like it is an interactable, otherwise treats it like positions
+     * @param isJ {@code:true} if the event file was extracted from the japanese version of the game
      * @throws IOException I/O file stuff
      */
-    private static void encodePositionOrInteractableSection(RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isInteractable) throws IOException {
+    private static void encodePositionOrInteractableSection(RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isInteractable, boolean isJ) throws IOException {
         // backing up the pointer to restore it after the positions
         long pointerBK = outputFile.getFilePointer();
 
         long effectivePointer = isInteractable ? Library.ADDRESS_WITH_INTERACTABLE_DATA_SIZE_POINTER : Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER;
+        effectivePointer -= isJ ? 4 : 0;
 
         // getting the size of the positions list
         outputFile.seek(effectivePointer);
@@ -1469,7 +1504,11 @@ public class EventFileOps {
         return Integer.parseInt(number.substring(2), 16);
     }
 
-    public static void testText(RandomAccessFile file) throws IOException {
+    public static void testText(RandomAccessFile file, boolean isJ) throws IOException {
+        if (isJ) {
+            System.out.println("can't do this in japanese version");
+            return;
+        }
         file.seek(Library.ADDRESS_WITH_TEXT_TABLE_POINTER);
         int address = FileReadWriteUtils.readInt(file, valOrder);
         TextList textList = TextList.readEncodedTextList(file, address, false);// TO CHANGE TO FUNCTIONAL, CHANGE THIS TO TRUE
