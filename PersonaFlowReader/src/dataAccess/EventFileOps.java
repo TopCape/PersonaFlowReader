@@ -218,26 +218,36 @@ public class EventFileOps {
                 }
 
                 // Code can exist AFTER the text, so gotta check if there are labels that weren't achieved
-                while (!labels.isEmpty()) {
-                    int pointer = new ArrayList<>(labels.keySet()).get(0);
-                    Pair<String, Boolean> pair = labels.get(pointer);
-                    if (pair.second) {
-                        labels.remove(pointer);
-                        continue;
+
+                boolean allDone = false;
+                while (!allDone) {
+                    HashMap<Integer, Pair<String, Boolean>> auxMap = (HashMap<Integer, Pair<String, Boolean>>) labels.clone();
+                    int labelsSize = labels.entrySet().size();
+                    int secondNum = 1;
+                    for (Map.Entry<Integer, Pair<String, Boolean>> entry: auxMap.entrySet()) {
+                        int pointer = entry.getKey();
+                        Pair<String, Boolean> pair = entry.getValue();
+                        if (pair.second) {
+                            //labels.remove(pointer);
+                            secondNum++;
+                            if (secondNum >= labelsSize) {
+                                allDone = true;
+                                break;
+                            }
+                            continue;
+                        }
+                        inputFile.seek(pointer);
+                        isLastInstruction = false;
+
+                        // write the label before the instructions
+                        outputFile.writeBytes("\n" + labels.get(pointer).first + ":\n");
+                        labels.get(pointer).second = true;
+
+                        while(!isLastInstruction) {
+                            String textInst = decodeInstruction(inputFile, true);
+                            outputFile.writeBytes(textInst);
+                        }
                     }
-
-                    inputFile.seek(pointer);
-                    isLastInstruction = false;
-
-                    // write the label before the instructions
-                    outputFile.writeBytes("\n" + labels.get(pointer).first + ":\n");
-                    labels.remove(pointer);
-
-                    while(!isLastInstruction) {
-                        String textInst = decodeInstruction(inputFile, true);
-                        outputFile.writeBytes(textInst);
-                    }
-                    labels.remove(pointer);
                 }
 
 
@@ -539,7 +549,7 @@ public class EventFileOps {
         int address;
         byte smolParam;
         // UNCOMMENT FOR DEBUG HERE
-        // System.out.printf("yep: 0x%02x\n", instr);
+        //System.out.printf("yep: 0x%02x\n", instr);
         Library.FlowInstruction flowInstr = Library.FLOW_INSTRUCTIONS.get(instr);
         switch(flowInstr) {
             case ret:

@@ -66,6 +66,7 @@ public class TextList {
                     case PLAYER_FIRST_NAME:
                     case PLAYER_NICKNAME:
                     case PLAYER_LAST_NAME:
+                    case COIN_NUMBER:
                         toRet.append(START_SPECIAL).append(instr.name()).append(END_SPECIAL);
                         break;
                     case LINE_BREAK:
@@ -81,6 +82,7 @@ public class TextList {
                         else toRet.append(START_SPECIAL).append(instr.name()).append(END_SPECIAL);
                         break;
                     case WAIT:
+                    case PRINT_VALUE:
                         toRet.append(START_SPECIAL).append(instr.name()).append(PARAM_SEPARATOR);
                         data = FileReadWriteUtils.readShort(file, ByteOrder.LITTLE_ENDIAN);
                         toRet.append(data).append(END_SPECIAL);
@@ -204,12 +206,13 @@ public class TextList {
                         data = Library.TEXT_INSTRUCTIONS_REVERSE.get(special.toString());
                         FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
                     } else {
-                        // it is either the WAIT or SHOW_OPTIONS or SET_COLOR or PRINT_ICON instructions, which has a parameter
+                        // it is either the WAIT or SHOW_OPTIONS or SET_COLOR or PRINT_ICON.... instructions, which has a parameter
                         String[] split = special.toString().split(PARAM_SEPARATOR);
                         data = Library.TEXT_INSTRUCTIONS_REVERSE.get(split[0]);
                         FileReadWriteUtils.writeShort(outputFile, ByteOrder.BIG_ENDIAN, data);
                         if (split[0].compareTo(Library.TextInstruction.WAIT.name()) == 0 ||
                                 split[0].compareTo(Library.TextInstruction.SHOW_OPTIONS.name()) == 0 ||
+                                split[0].compareTo(Library.TextInstruction.PRINT_VALUE.name()) == 0 ||
                                 split[0].compareTo(Library.TextInstruction.PRINT_ICON.name()) == 0) {
                             data = Short.parseShort(split[1]); // the value
                             FileReadWriteUtils.writeShort(outputFile, ByteOrder.LITTLE_ENDIAN, data);

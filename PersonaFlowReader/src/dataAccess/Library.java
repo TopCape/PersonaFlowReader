@@ -66,6 +66,7 @@ public class Library {
         UNKNOWN_COMMAND_27,
         battle,
         ld_world_map,
+        UNKNOWN_COMMAND_2A,
         ld_file,
         ld_3d_map,
         play_MV,
@@ -118,7 +119,7 @@ public class Library {
     }
 
     public enum TextInstruction {
-        SHOW_OPTIONS, PLAYER_LAST_NAME, END, AWAITING_INPUT, LINE_BREAK, CONTINUE, WAIT, LEGACY_SET_COLOR, PLAYER_FIRST_NAME, PLAYER_NICKNAME, SET_COLOR, PRINT_ICON, CHARACTER_NAME
+        SHOW_OPTIONS, PLAYER_LAST_NAME, COIN_NUMBER, END, AWAITING_INPUT, LINE_BREAK, CONTINUE, WAIT, LEGACY_SET_COLOR, PLAYER_FIRST_NAME, PLAYER_NICKNAME, SET_COLOR, PRINT_ICON, PRINT_VALUE, CHARACTER_NAME
     }
 
     public static final HashMap<Byte, FlowInstruction> FLOW_INSTRUCTIONS;
@@ -150,6 +151,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x27, FlowInstruction.UNKNOWN_COMMAND_27);
         FLOW_INSTRUCTIONS.put((byte) 0x28, FlowInstruction.battle);
         FLOW_INSTRUCTIONS.put((byte) 0x29, FlowInstruction.ld_world_map);
+        FLOW_INSTRUCTIONS.put((byte) 0x2A, FlowInstruction.UNKNOWN_COMMAND_2A);
         FLOW_INSTRUCTIONS.put((byte) 0x2B, FlowInstruction.ld_file);
         FLOW_INSTRUCTIONS.put((byte) 0x2C, FlowInstruction.ld_3d_map);
         FLOW_INSTRUCTIONS.put((byte) 0x2D, FlowInstruction.play_MV);
@@ -210,6 +212,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_27, (byte)0);
         PARAM_NUM.put(FlowInstruction.battle, (byte)0);
         PARAM_NUM.put(FlowInstruction.ld_world_map, (byte)1);
+        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_2A, (byte)0);
         PARAM_NUM.put(FlowInstruction.ld_file, (byte)1);
         PARAM_NUM.put(FlowInstruction.ld_3d_map, (byte)1);
         PARAM_NUM.put(FlowInstruction.play_MV, (byte)0);
@@ -271,8 +274,10 @@ public class Library {
         TEXT_INSTRUCTIONS.put((short)0xff08, TextInstruction.PLAYER_NICKNAME);
         TEXT_INSTRUCTIONS.put((short)0xff0E, TextInstruction.SHOW_OPTIONS);
         TEXT_INSTRUCTIONS.put((short)0xff0F, TextInstruction.PLAYER_LAST_NAME);
+        TEXT_INSTRUCTIONS.put((short)0xff11, TextInstruction.COIN_NUMBER);
         TEXT_INSTRUCTIONS.put((short)0xff18, TextInstruction.SET_COLOR);
         TEXT_INSTRUCTIONS.put((short)0xff19, TextInstruction.PRINT_ICON);
+        TEXT_INSTRUCTIONS.put((short)0xff1a, TextInstruction.PRINT_VALUE);
         TEXT_INSTRUCTIONS.put((short)0xff1B, TextInstruction.CHARACTER_NAME);
 
         TEXT_CODES = new HashMap<>();
@@ -487,6 +492,11 @@ public class Library {
         TEXT_CODES.put((short)0x0119, "y");
         TEXT_CODES.put((short)0x011A, "z");
         TEXT_CODES.put((short)0x011F, "あ");
+
+        TEXT_CODES.put((short)0x0204, "♥");
+        TEXT_CODES.put((short)0x0205, "♦");
+        TEXT_CODES.put((short)0x0206, "♠");
+        TEXT_CODES.put((short)0x0207, "♣");
         // following short values display a standard ? in-game
         // values not in this map display as mid-level dots in-game
 
