@@ -572,14 +572,15 @@ public class EventFileOps {
                 return "\t" + name + "\t" + param + "," + addressStr + "\t"+ Library.COMMENT_SYMBOL + " loads another event file\n";
             case ld_3d_map:
                 name = flowInstr.name();
-                param = getShortString(inputFile);
+                String mapID = getByteString(inputFile);
+                String unknown = getByteString(inputFile);
                 String x = getByteString(inputFile);
                 String y = getByteString(inputFile);
                 String direction = getByteString(inputFile);
                 String fourthParam = getByteString(inputFile);
 
-                return "\t" + name + "\t" + param + "," + x + "," + y + "," + direction + "," + fourthParam +
-                        "\t"+ Library.COMMENT_SYMBOL + " ld_3d_map <map ID>,<X>,<Y>,<direction (0|1|2|3 -> E|W|S|N)>, <unknown>\n";
+                return "\t" + name + "\t" + mapID + "," + unknown + "," + x + "," + y + "," + direction + "," + fourthParam +
+                        "\t"+ Library.COMMENT_SYMBOL + " ld_3d_map <map ID>,<unknown>,<X>,<Y>,<direction (0|1|2|3 -> E|W|S|N)>, <unknown>\n";
             case play_MV:
                 name = flowInstr.name();
                 param = String.format("MV%02x.pmf", inputFile.readByte());
@@ -811,13 +812,17 @@ public class EventFileOps {
 
             } else if (instr.compareTo(Library.FlowInstruction.ld_3d_map.name()) == 0) {
                 String mapID = paramSplit[0];
-                String x = paramSplit[1];
-                String y = paramSplit[2];
-                String dir = paramSplit[3];
-                String param5 = paramSplit[4];
+                String unknown = paramSplit[1];
+                String x = paramSplit[2];
+                String y = paramSplit[3];
+                String dir = paramSplit[4];
+                String param5 = paramSplit[5];
 
                 // write first 4 bytes
-                writeIntInstruction(outputFile, instr, extractShortFromString(mapID));
+                outputFile.writeByte(Library.CMD_START);
+                outputFile.writeByte(Library.FLOW_INSTRUCTIONS_REVERSE.get(instr));
+                outputFile.writeByte(extractByteFromString(mapID));
+                outputFile.writeByte(extractByteFromString(unknown));
 
                 // write next parameters
                 outputFile.writeByte(extractByteFromString(x));
