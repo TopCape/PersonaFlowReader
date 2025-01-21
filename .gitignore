@@ -2,6 +2,7 @@
 *.BIN
 *.EVS
 *.DEC
+*.BK
 Efiles*
 extracted
 OG
