@@ -158,8 +158,8 @@ public class EventFileOps {
                 outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TALK_SECTION_KEYWORD + "\n");
                 populateTalkAddresses(inputFile, outputFile);
 
-                //outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.POS_SECTION_KEYWORD + "\n");
-                //populatePositions(inputFile, outputFile); HERE
+                outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.POS_SECTION_KEYWORD + "\n");
+                populatePositions(inputFile, outputFile); // HERE
 
                 outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.CODE_AREA_KEYWORD + "\n");
                 // TODO redefine last instruction check
@@ -185,9 +185,6 @@ public class EventFileOps {
                     }
 
                 }
-
-                // HERE
-                //long pointerBk = inputFile.getFilePointer();
 
                 // Code can exist AFTER the text, so gotta check if there are labels that weren't achieved
                 while (!labels.isEmpty()) {
@@ -250,11 +247,12 @@ public class EventFileOps {
                 String[] talkSplit = line.split(Library.SPACE_TAB_REGEX);
                 int i = skipSpacesNTabs(talkSplit, 1);
 
-                // Talk section
+                // Talk section check
                 if (talkSplit[0].compareTo(Library.SECTION_KEYWORD) != 0 || talkSplit[i].compareTo(Library.TALK_SECTION_KEYWORD) != 0) {
                     throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
                 }
 
+                // Interpreting the talk section
                 while ((line = inputFile.readLine()).compareTo("") != 0) {
                     line = removeCommentAndSpaces(line);
                     String[] talkLineSplit = line.split(Library.SPACE_TAB_REGEX);
@@ -295,8 +293,71 @@ public class EventFileOps {
                     }
                 }
 
+                // skip empty lines
+                while ((line = inputFile.readLine()).compareTo("") == 0);
+                line = removeCommentAndSpaces(line);
 
-                // MAKE SURE THIS WORK
+                // skip spaces and tabs after "section"
+                String[] positionsSplit = line.split(Library.SPACE_TAB_REGEX);
+                i = skipSpacesNTabs(positionsSplit, 1);
+
+                // positions section check
+                if (positionsSplit[0].compareTo(Library.SECTION_KEYWORD) != 0 || positionsSplit[i].compareTo(Library.POS_SECTION_KEYWORD) != 0) {
+                    throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
+                }
+
+
+                // backing up the pointer to restore it after the positions
+                long pointerBK = outputFile.getFilePointer();
+
+                // getting the size of the positions list
+                outputFile.seek(Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER);
+                outputFile.seek(FileReadWriteUtils.readInt(outputFile, valOrder));
+                int positionsSize = FileReadWriteUtils.readInt(outputFile, valOrder);
+
+                // getting pointer to the first position data
+                outputFile.seek(Library.ADDRESS_WITH_POSITION_DATA_SIZE_POINTER + 4);
+                outputFile.seek(FileReadWriteUtils.readInt(outputFile, valOrder));
+
+                // interpreting the positions section
+                for (int positionEntryIdx = 0; positionEntryIdx < positionsSize; positionEntryIdx++) {
+                    line = inputFile.readLine();
+                    line = removeCommentAndSpaces(line);
+                    String[] positionData = line.split(Library.SPACE_TAB_REGEX);
+
+                    i = skipSpacesNTabs(positionData, 0);
+                    byte x = (byte) Short.parseShort(positionData[i]);
+                    i = skipSpacesNTabs(positionData, i + 1);
+                    byte y = (byte) Short.parseShort(positionData[i]);
+                    i = skipSpacesNTabs(positionData, i + 1);
+
+                    String label = positionData[i];
+                    String[] labelSplit = label.split(Library.LABEL_SEPARATOR);
+                    short labelNum = (short) Integer.parseInt(labelSplit[1]);
+
+                    // writing the coordinates
+                    outputFile.writeByte(x);
+                    outputFile.writeByte(y);
+
+                    // skipping the unknown short to get to where the address is
+                    int address = (int) outputFile.getFilePointer() + 2;
+
+                    // add the address to the addresses that need to be filled
+                    if (labelReferenceLocations.containsKey(labelNum)) {
+                        labelReferenceLocations.get(labelNum).add(address);
+                    } else {
+                        LinkedList<Integer> toAdd = new LinkedList<>();
+                        toAdd.add(address);
+                        labelReferenceLocations.put(labelNum, toAdd);
+                    }
+
+                    // skip the short and the address to reach the next entry
+                    outputFile.seek(outputFile.getFilePointer() + 2 + 4);
+                }
+
+                outputFile.seek(pointerBK);
+
+                // skip empty lines
                 while ((line = inputFile.readLine()).compareTo("") == 0);
                 line = removeCommentAndSpaces(line);
 
@@ -304,10 +365,12 @@ public class EventFileOps {
                 String[] codeSplit = line.split(Library.SPACE_TAB_REGEX);
                 i = skipSpacesNTabs(codeSplit, 1);
 
+                // Code section check
                 if (codeSplit[0].compareTo(Library.SECTION_KEYWORD) != 0 || codeSplit[i].compareTo(Library.CODE_AREA_KEYWORD) != 0) {
                     throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
                 }
 
+                // Code section handling
                 while (true) {
                     if (!emptyLineHappened) {
                         encodeInstruction(inputFile, outputFile);
@@ -992,6 +1055,7 @@ public class EventFileOps {
 
         // if the size is 0, there are no positions
         if (size == 0) {
+            outputFile.writeBytes("\n");
             inputFile.seek(pointerBk);
             return;
         }
@@ -1001,8 +1065,24 @@ public class EventFileOps {
         int positionsPointer = FileReadWriteUtils.readInt(inputFile, valOrder);
         inputFile.seek(positionsPointer);
 
+        for (int i = 0; i < size; i ++) {
+            byte x = inputFile.readByte();
+            byte y = inputFile.readByte();
+            short unknown = FileReadWriteUtils.readShort(inputFile, valOrder);
+            int address = FileReadWriteUtils.readInt(inputFile, valOrder);
 
+            String label;
+            if (!labels.containsKey(address)) {
+                label = Library.LABEL_TXT + Library.LABEL_SEPARATOR + labelNum++;
+                labels.put(address, label);
+            } else {
+                label = labels.get(address);
+            }
 
+            outputFile.writeBytes(String.format("\t%03d\t%03d\t%s\n", x, y, label));
+        }
+
+        outputFile.writeBytes("\n");
         inputFile.seek(pointerBk);
     }
 
