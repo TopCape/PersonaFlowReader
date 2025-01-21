@@ -176,11 +176,6 @@ public class TextList {
         boolean canBeSpecial = false;
         boolean isSpecial = false;
         boolean canBeClosing = false;
-        boolean canBeLineBreak = false;
-
-        byte longerCharByteAmount = 0;
-        byte totalLongerCharByteAmount = 0;
-        byte[] longerChar = new byte[4];
 
         short data;
         StringBuilder special = new StringBuilder();
