@@ -235,7 +235,7 @@ public class EventFileOps {
         emptyLineHappened = false;
         textReferenceLocations.clear();
         labelReferenceLocations.clear();
-        int textListSize = 0;
+        int textListSize;
         try (RandomAccessFile inputFile = new RandomAccessFile(inputPath, READ_MODE)) {
 
             String outputPath = inputPath.substring(0, inputPath.length()-4) + "_ENCODED.BIN";
@@ -512,7 +512,7 @@ public class EventFileOps {
         short check;
         int address;
         byte smolParam;
-        //System.out.printf("yep: 0x%02x\n", instr); DEBUG
+        // System.out.printf("yep: 0x%02x\n", instr); // DEBUG
         Library.FlowInstruction flowInstr = Library.FLOW_INSTRUCTIONS.get(instr);
         switch(flowInstr) {
             case ret:
@@ -635,7 +635,7 @@ public class EventFileOps {
                 name = flowInstr.name();
                 smolParam = inputFile.readByte(); // character ID
                 return "\t" + name + "\t" + Library.PORTRAIT_CHARS.values()[smolParam] + "," + Library.PORTRAIT_ORIENTATION.values()[inputFile.readByte()] +
-                        "\t"+ Library.COMMENT_SYMBOL + "\n";
+                        "\n";
             case close_portrait:
                 check = FileReadWriteUtils.readShort(inputFile, instructionOrder);
                 name = simpleInstructionCheck(check, flowInstr.name(), instr);
