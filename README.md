@@ -192,9 +192,14 @@ This is the main section of the file. It stores the event script itself. The kno
     play_MV  <MVXX.pmf>,<UNKNOWN>
     ```
 
-* **heal_fee** - Removes money from the player's "wallet" or jumps to the LABEL if the player lacks the money. This MIGHT not be specifically related to healing, but it is found in these situations. The FEE is in decimal case.
+* **money_check** - Checks if the player has at least FEE money. If the player doesn't have enough, jumps to the LABEL. The FEE is in decimal case.
     ```
-    heal_fee  <FEE>,<LABEL>
+    money_check  <FEE>,<LABEL>
+    ```
+
+* **money_transfer** - Adds/removes money to/from the player's wallet. The direction is specified in the first parameter as ADD or REMOVE. The QUANTITY is in decimal case.
+    ```
+    money_transfer  <DIRECITON>,<QUANTITY>
     ```
 
 * **wait** - stops the execution of the event script for a certain amount of ticks. The number of ticks is in the first and only parameter.
