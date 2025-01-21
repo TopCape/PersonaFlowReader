@@ -362,9 +362,10 @@ public class Library {
             String[] split = line.split("=");
             short code = (short) Integer.parseInt(split[0], 16);
 
-            String character;
+            String character = "NULL";
             if (split.length < 2) {
-                character = "=";
+                if (code == 0x41) character = "=";
+                if (code == 0x54) character = "#";
             } else {
                 character = split[1];
             }
