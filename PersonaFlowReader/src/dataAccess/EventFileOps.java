@@ -259,8 +259,12 @@ public class EventFileOps {
         try (RandomAccessFile inputFile = new RandomAccessFile(inputPath, READ_MODE)) {
 
             String outputPath = inputPath.substring(0, inputPath.length()-4) + "_ENCODED.BIN";
-            try (RandomAccessFile outputFile = new RandomAccessFile(outputPath, WRITE_MODE)) {
 
+            // delete file if it already exists
+            File file = new File(outputPath);
+            file.delete();
+
+            try (RandomAccessFile outputFile = new RandomAccessFile(outputPath, WRITE_MODE)) {
                 // first gonna get the data from the og file up until the event flow script
                 fillFileBeginning(inputPath, outputFile);
 
@@ -758,9 +762,6 @@ public class EventFileOps {
                 // register a required address
                 int currAddr = (int) outputFile.getFilePointer();
                 addLabelRef(outputFile, label, currAddr);
-
-                // if not aligned to multiple of 8, padding
-                while(outputFile.getFilePointer() % 8 != 0) outputFile.writeByte(0);
 
                 // jump if instruction
             } else if (instr.compareTo(Library.FlowInstruction.jump_if.name()) == 0 ||
