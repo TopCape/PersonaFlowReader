@@ -21,7 +21,6 @@ public class EventFileOps {
     private static final String EXTENSION_1 = ".BIN";
     private static final String EXTENSION_2 = ".bin";
 
-    private static final HashMap<Integer, String> labels = new HashMap<>();
     private static int labelNum;
     private static boolean isLastInstruction;
     private static boolean emptyLineHappened;
@@ -31,8 +30,13 @@ public class EventFileOps {
 
     private static TextList textList;
 
+    // Stores address values with their associated label name. Used when decoding an event file
+    private static final HashMap<Integer, String> labels = new HashMap<>();
+
+    // Stores text IDs together with a list of addresses that need to be filled with the real address of the text position
     private static final HashMap<Short, LinkedList<Integer>> textReferenceLocations = new HashMap<>();
-    private static final HashMap<Short, LinkedList<Integer>> labelReferenceLocations = new HashMap<>();
+    // Stores label names together with a list of addresses that need to be filled with the real address of the label
+    private static final HashMap<String, LinkedList<Integer>> labelReferenceLocations = new HashMap<>();
 
 
     public static void extract(String path) throws IOException, OperationNotSupportedException {
@@ -365,8 +369,8 @@ public class EventFileOps {
 
                         // if it is a label
                         if (sectionSplit.length == 1 && labelSplit[0].compareTo(Library.LABEL_TXT) == 0) {
-                            String labelNum = labelSplit[1];
-                            fillInRef(outputFile, Short.parseShort(labelNum.substring(0, labelNum.length()-1)), false);
+                            //String labelNum = labelSplit[1];
+                            fillInRef(outputFile, sectionSplit[0].substring(0, sectionSplit[0].length() - 1), (short)-1);
                             emptyLineHappened = false;
                         } else { // it must be a new section...
                             // readLine of an empty line returns an empty string
@@ -422,7 +426,7 @@ public class EventFileOps {
 
                     // filling in a text address location we didn't know yet
                     // RIGHT NOW in the output file is where the text starts
-                    fillInRef(outputFile, textId, true);
+                    fillInRef(outputFile, "", textId);
 
                     textPointers[i] = (int) outputFile.getFilePointer();
                     //TextList.encodeText(outputFile, text.getBytes(Charset.forName("windows-1252")));
@@ -516,7 +520,7 @@ public class EventFileOps {
         short check;
         int address;
         byte smolParam;
-        // System.out.printf("yep: 0x%02x\n", instr); // DEBUG
+        //System.out.printf("yep: 0x%02x\n", instr); // DEBUG
         Library.FlowInstruction flowInstr = Library.FLOW_INSTRUCTIONS.get(instr);
         switch(flowInstr) {
             case ret:
@@ -741,14 +745,13 @@ public class EventFileOps {
             // jump instruction
             if (instr.compareTo(Library.FlowInstruction.jump.name()) == 0) {
                 String label = paramSplit[0];
-                String labelNum = label.split(Library.LABEL_SEPARATOR)[1];
 
                 // write first 4 bytes
                 writeIntInstruction(outputFile, instr, (short)0); // 0 for padding
 
                 // register a required address
                 int currAddr = (int) outputFile.getFilePointer();
-                addLabelRef((short)Integer.parseInt(labelNum), currAddr);
+                addLabelRef(label, currAddr);
                 FileReadWriteUtils.writeInt(outputFile, valOrder, 0); // padding while no address
 
                 // if not aligned to multiple of 8, padding
@@ -762,14 +765,13 @@ public class EventFileOps {
                     instr.compareTo(Library.FlowInstruction.unk_cmd_58.name()) == 0) {
                 String param = paramSplit[0];
                 String label = paramSplit[1];
-                String labelNum = label.split(Library.LABEL_SEPARATOR)[1];
 
                 // write first 4 bytes
                 writeIntInstruction(outputFile, instr, extractShortFromString(param));
 
                 // register a required address
                 int currAddr = (int) outputFile.getFilePointer();
-                addLabelRef((short)Integer.parseInt(labelNum), currAddr);
+                addLabelRef(label, currAddr);
                 FileReadWriteUtils.writeInt(outputFile, valOrder, 0); // padding while no address
 
                 // simple 1 short parameter instructions
@@ -831,14 +833,13 @@ public class EventFileOps {
             } else if (instr.compareTo(Library.FlowInstruction.player_option.name()) == 0) {
                 String param = paramSplit[0];
                 String label = paramSplit[1];
-                String labelNum = label.split(Library.LABEL_SEPARATOR)[1];
 
                 // write first 4 bytes
                 writeIntInstruction(outputFile, instr, extractShortFromString(param));
 
                 // register a required address
                 int currAddr = (int) outputFile.getFilePointer();
-                addLabelRef((short)Integer.parseInt(labelNum), currAddr);
+                addLabelRef(label, currAddr);
                 FileReadWriteUtils.writeInt(outputFile, valOrder, 0); // padding while no address
             } else if (instr.compareTo(Library.FlowInstruction.ld_text.name()) == 0) {
                 String textID = paramSplit[0]; // short
@@ -1029,18 +1030,15 @@ public class EventFileOps {
 
             // If the first LABEL space isn't empty
             if (labelSplit[0].compareTo(Library.LABEL_SEPARATOR) != 0) {
-                short labelNum = (short) Integer.parseInt(labelSplit[0].split(Library.LABEL_SEPARATOR)[1]);
                 int address = startAddress + (characterId * dataSize) + Library.CHARACTER_DATA_EVENT_ADDRESS_1_OFFSET;
-
-                addLabelRef(labelNum, address);
+                addLabelRef(labelSplit[0], address);
             }
 
             // If the second LABEL space isn't empty
             if (labelSplit[1].compareTo(Library.LABEL_SEPARATOR) != 0) {
-                short labelNum = (short) Integer.parseInt(labelSplit[1].split(Library.LABEL_SEPARATOR)[1]);
                 int address = startAddress + (characterId * dataSize) + secondAddrOffset;
 
-                addLabelRef(labelNum, address);
+                addLabelRef(labelSplit[1], address);
             }
         }
     }
@@ -1120,8 +1118,6 @@ public class EventFileOps {
             i = skipSpacesNTabs(positionData, i + 1);
 
             String label = positionData[i];
-            String[] labelSplit = label.split(Library.LABEL_SEPARATOR);
-            short labelNum = (short) Integer.parseInt(labelSplit[1]);
 
             // writing the coordinates
             outputFile.writeByte(x);
@@ -1131,7 +1127,7 @@ public class EventFileOps {
             int address = (int) outputFile.getFilePointer() + 2;
 
             // add the address to the addresses that need to be filled
-            addLabelRef(labelNum, address);
+            addLabelRef(label, address);
 
             // skip the short and the address to reach the next entry
             outputFile.seek(outputFile.getFilePointer() + 2 + 4);
@@ -1182,23 +1178,23 @@ public class EventFileOps {
         return label;
     }
 
-    private static void addLabelRef(short lNum, int currAddr) {
-        if (labelReferenceLocations.containsKey(lNum)) {
-            labelReferenceLocations.get(lNum).add(currAddr);
+    private static void addLabelRef(String labelName, int currAddr) {
+        if (labelReferenceLocations.containsKey(labelName)) {
+            labelReferenceLocations.get(labelName).add(currAddr);
         } else {
             LinkedList<Integer> toAdd = new LinkedList<>();
             toAdd.add(currAddr);
-            labelReferenceLocations.put(lNum, toAdd);
+            labelReferenceLocations.put(labelName, toAdd);
         }
     }
 
-    private static void addTextRef(short textId, int currAddr) {
-        if (textReferenceLocations.containsKey(textId)) {
-            textReferenceLocations.get(textId).add(currAddr);
+    private static void addTextRef(short textID, int currAddr) {
+        if (textReferenceLocations.containsKey(textID)) {
+            textReferenceLocations.get(textID).add(currAddr);
         } else {
             LinkedList<Integer> toAdd = new LinkedList<>();
             toAdd.add(currAddr);
-            textReferenceLocations.put(textId, toAdd);
+            textReferenceLocations.put(textID, toAdd);
         }
     }
 
@@ -1230,17 +1226,17 @@ public class EventFileOps {
     /**
      * Fills in previous references that couldn't be filled at the time
      * @param outFile the object that allows writing to the output file
-     * @param id the number of the text or label
-     * @param isText @true if filling in a text reference, @false if it is a reference to more event flow code
+     * @param labelName the name of the label. Enter a random string if not in use
+     * @param textId the id of the text string. Enter a -1 if not in use
      * @throws IOException file stuff
      */
-    private static void fillInRef(RandomAccessFile outFile, short id, boolean isText) throws IOException {
+    private static void fillInRef(RandomAccessFile outFile, String labelName, short textId) throws IOException {
         int currAddr = (int) outFile.getFilePointer();
         LinkedList<Integer> addrs;
-        if (isText) {
-            addrs = textReferenceLocations.get(id);
+        if (textId != -1) {
+            addrs = textReferenceLocations.get(textId);
         } else {
-            addrs = labelReferenceLocations.get(id);
+            addrs = labelReferenceLocations.get(labelName);
         }
 
         // addrs is null when, for instance, the file has unused text
