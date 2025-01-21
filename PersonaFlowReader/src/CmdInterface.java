@@ -81,7 +81,7 @@ public class CmdInterface {
         for (Integer fileNum : getNumberInterval(input)) {
             String filename = String.format("E%d.BIN", fileNum);
 
-            File folder = new File(filename);
+            File folder = new File(OG_PATH + filename);
             if (!folder.exists()) {
                 System.out.println("Skipping: " + filename);
                 continue;
