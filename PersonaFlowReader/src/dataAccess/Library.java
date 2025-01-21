@@ -89,6 +89,7 @@ public class Library {
         player_option,
         ld_text,
         UNKNOWN_COMMAND_56,
+        UNKNOWN_COMMAND_57,
         unk_cmd_58,
         open_dialog,
         close_dialog,
@@ -111,7 +112,9 @@ public class Library {
         do_planned_moves,
         tp_char,
         play_song,
-        play_sfx
+        play_sfx,
+        UNKNOWN_COMMAND_88,
+        UNKNOWN_COMMAND_8A
     }
 
     public enum TextInstruction {
@@ -170,6 +173,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x54, FlowInstruction.player_option);
         FLOW_INSTRUCTIONS.put((byte) 0x55, FlowInstruction.ld_text);
         FLOW_INSTRUCTIONS.put((byte) 0x56, FlowInstruction.UNKNOWN_COMMAND_56);
+        FLOW_INSTRUCTIONS.put((byte) 0x57, FlowInstruction.UNKNOWN_COMMAND_57);
         FLOW_INSTRUCTIONS.put((byte) 0x58, FlowInstruction.unk_cmd_58);
         FLOW_INSTRUCTIONS.put((byte) 0x60, FlowInstruction.open_dialog);
         FLOW_INSTRUCTIONS.put((byte) 0x61, FlowInstruction.close_dialog);
@@ -193,6 +197,8 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x7c, FlowInstruction.tp_char);
         FLOW_INSTRUCTIONS.put((byte) 0x80, FlowInstruction.play_song);
         FLOW_INSTRUCTIONS.put((byte) 0x81, FlowInstruction.play_sfx);
+        FLOW_INSTRUCTIONS.put((byte) 0x88, FlowInstruction.UNKNOWN_COMMAND_88);
+        FLOW_INSTRUCTIONS.put((byte) 0x8A, FlowInstruction.UNKNOWN_COMMAND_8A);
 
         PARAM_NUM = new HashMap<>();
         PARAM_NUM.put(FlowInstruction.NOTHING, (byte)0);
@@ -227,6 +233,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.player_option, (byte)1);
         PARAM_NUM.put(FlowInstruction.ld_text, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_56, (byte)0);
+        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_57, (byte)0);
         PARAM_NUM.put(FlowInstruction.unk_cmd_58, (byte)1);
         PARAM_NUM.put(FlowInstruction.open_dialog, (byte)0);
         PARAM_NUM.put(FlowInstruction.close_dialog, (byte)0);
@@ -250,6 +257,8 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.tp_char, (byte)1);
         PARAM_NUM.put(FlowInstruction.play_song, (byte)0);
         PARAM_NUM.put(FlowInstruction.play_sfx, (byte)0);
+        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_88, (byte)0);
+        PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_8A, (byte)0);
 
         TEXT_INSTRUCTIONS = new HashMap<>();
         TEXT_INSTRUCTIONS.put((short)0xff01, TextInstruction.END);
