@@ -13,10 +13,12 @@ Most of the file is still unknown (to me), so it is copied from the base file an
 
 ## How to use
 
-There are many options when you start the program. Press the corresponding number and it will lask you for the specifics for each option.
-
 ### Setup
-Create a folder with the name "OG" in the same directory as the program and paste EX.BIN files into it, where X is a number from 0 to 4. These are event files that are present in PSP_GAME/USRDIR/pack/, in Persona 1's files.
+Paste EX.BIN files into the OG folder, where X is a number from 0 to 4. These are event files that are present in PSP_GAME/USRDIR/pack/, in Persona 1's files.
+
+To run the program, you must have Java installed. If you do, simply execute "run.bat" and it will start the program in a command line window.
+
+There are many options when you start the program. Enter the corresponding number and it will ask you for the specifics of each option.
 
 At any time during the process, entering a "-1" will exit the current menu.
 
