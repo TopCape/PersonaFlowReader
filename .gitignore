@@ -1,3 +1,8 @@
 # Custom to avoid including BIN files
 *.BIN
+*.EVS
+*.DEC
 Efiles*
+extracted
+OG
+output
