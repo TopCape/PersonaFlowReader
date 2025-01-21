@@ -305,8 +305,8 @@ public class CmdInterface {
                 throw new OperationNotSupportedException("The directory is empty.");
             }
             for (File child : directoryListing) {
-                System.out.println(child.getName());
                 if (FileReadWriteUtils.getExtension(child.getPath()).compareToIgnoreCase("evs") == 0) {
+                    System.out.printf("%s\r",child.getName());
                     EventFileOps.decodeFlowScript(child.getPath(), isJ);
                 }
             }
@@ -331,8 +331,8 @@ public class CmdInterface {
                 throw new OperationNotSupportedException("The directory is empty.");
             }
             for (File child : directoryListing) {
-                System.out.println(child.getName());
                 if (FileReadWriteUtils.getExtension(child.getPath()).compareToIgnoreCase("dec") == 0) {
+                    System.out.printf("%s\r",child.getName());
                     EventFileOps.encodeFlowScript(child.getPath(), isJ);
                 }
             }
