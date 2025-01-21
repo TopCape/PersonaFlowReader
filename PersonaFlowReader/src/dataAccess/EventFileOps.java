@@ -156,7 +156,11 @@ public class EventFileOps {
 
                 // section .talk
                 outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TALK_SECTION_KEYWORD + "\n");
-                decodeTalkAddresses(inputFile, outputFile);
+                decodeTalkAddresses(inputFile, outputFile, true);
+
+                // section .talk2
+                outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.TALK2_SECTION_KEYWORD + "\n");
+                decodeTalkAddresses(inputFile, outputFile, false);
 
                 // section .positions
                 outputFile.writeBytes(Library.SECTION_KEYWORD + "\t" + Library.POS_SECTION_KEYWORD + "\n");
@@ -252,39 +256,29 @@ public class EventFileOps {
                 String[] talkSplit = line.split(Library.SPACE_TAB_REGEX);
                 int i = skipSpacesNTabs(talkSplit, 1);
 
-                // Talk section check
+                // Primary talk section check
                 if (talkSplit[0].compareTo(Library.SECTION_KEYWORD) != 0 || talkSplit[i].compareTo(Library.TALK_SECTION_KEYWORD) != 0) {
                     throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
                 }
+                // Primary talk section handling
+                registerTalkAddresses(inputFile, true);
 
-                // Interpreting the talk section
-                while ((line = inputFile.readLine()).compareTo("") != 0) {
-                    line = removeCommentAndSpaces(line);
-                    String[] talkLineSplit = line.split(Library.SPACE_TAB_REGEX);
 
-                    i = skipSpacesNTabs(talkLineSplit, 0);
-                    int characterId = Integer.parseInt(talkLineSplit[i]);
-                    i = skipSpacesNTabs(talkLineSplit, i + 1);
+                // skip empty lines
+                while ((line = inputFile.readLine()).compareTo("") == 0);
+                line = removeCommentAndSpaces(line);
 
-                    String labels = talkLineSplit[i];
-                    String[] labelSplit = labels.split(",");
+                // skip spaces and tabs after "section"
+                String[] talk2Split = line.split(Library.SPACE_TAB_REGEX);
+                i = skipSpacesNTabs(talk2Split, 1);
 
-                    // If the first LABEL space isn't empty
-                    if (labelSplit[0].compareTo(Library.LABEL_SEPARATOR) != 0) {
-                        short labelNum = (short) Integer.parseInt(labelSplit[0].split(Library.LABEL_SEPARATOR)[1]);
-                        int address = Library.ADDRESS_OF_CHARACTER_DATA + (characterId * Library.CHARACTER_DATA_SIZE) + Library.CHARACTER_DATA_EVENT_ADDRESS_1_OFFSET;
-
-                        addLabelRef(labelNum, address);
-                    }
-
-                    // If the second LABEL space isn't empty
-                    if (labelSplit[1].compareTo(Library.LABEL_SEPARATOR) != 0) {
-                        short labelNum = (short) Integer.parseInt(labelSplit[1].split(Library.LABEL_SEPARATOR)[1]);
-                        int address = Library.ADDRESS_OF_CHARACTER_DATA + (characterId * Library.CHARACTER_DATA_SIZE) + Library.CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET;
-
-                        addLabelRef(labelNum, address);
-                    }
+                // Secondary talk section check
+                if (talk2Split[0].compareTo(Library.SECTION_KEYWORD) != 0 || talk2Split[i].compareTo(Library.TALK2_SECTION_KEYWORD) != 0) {
+                    throw new OperationNotSupportedException(Library.NOT_FORMATTED_ERR_TXT);
                 }
+                // Secondary talk section handling
+                registerTalkAddresses(inputFile, false);
+
 
                 // skip empty lines
                 while ((line = inputFile.readLine()).compareTo("") == 0);
@@ -949,11 +943,16 @@ public class EventFileOps {
      * @param outputFile object used to write to output file
      * @throws IOException file stuff
      */
-    private static void decodeTalkAddresses(RandomAccessFile inputFile, RandomAccessFile outputFile) throws IOException {
+    private static void decodeTalkAddresses(RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isPrimaryTalk) throws IOException {
         long pointerBk = inputFile.getFilePointer();
 
-        for (int i = 0; i < 64; i++) {
-            inputFile.seek(Library.ADDRESS_OF_CHARACTER_DATA + (i * Library.CHARACTER_DATA_SIZE));
+        int startAddress = isPrimaryTalk ? Library.ADDRESS_OF_CHARACTER_DATA : Library.ADDRESS_OF_SECONDARY_CHARACTER_DATA;
+        int numOfStructs = isPrimaryTalk ? Library.CHARACTER_DATA_NUM : Library.SECONDARY_CHARACTER_DATA_NUM;
+        int dataSize = isPrimaryTalk ? Library.CHARACTER_DATA_SIZE : Library.SECONDARY_CHARACTER_DATA_SIZE;
+        int secondAddrOffset = isPrimaryTalk ? Library.CHARACTER_DATA_EVENT_ADDRESS_2_OFFSET : Library.SECONDARY_CHARACTER_DATA_EVENT_ADDRESS_2_OFFSET;
+
+        for (int i = 0; i < numOfStructs; i++) {
+            inputFile.seek(startAddress + (i * dataSize));
 
             //if (isNextCharacterDataEmpty(inputFile)) {
             //    continue;
@@ -961,7 +960,7 @@ public class EventFileOps {
             inputFile.seek(inputFile.getFilePointer() + Library.CHARACTER_DATA_EVENT_ADDRESS_1_OFFSET);
             int address1 = FileReadWriteUtils.readInt(inputFile, valOrder);
 
-            inputFile.seek(inputFile.getFilePointer() + Library.CHARACTER_DATA_EVENT_ADDRESS_2_OFFSET);
+            inputFile.seek(inputFile.getFilePointer() + secondAddrOffset);
             int address2 = FileReadWriteUtils.readInt(inputFile, valOrder);
 
             // If both addresses are -1, then there is nothing to write
@@ -970,6 +969,7 @@ public class EventFileOps {
             }
             outputFile.writeBytes(String.format("\t%02d\t\t", i));
 
+            // checking first address position
             if (address1 != Library.MINUS_1_INT) {
                 String label = Library.LABEL_TXT + Library.LABEL_SEPARATOR + labelNum++;
                 labels.put(address1, label);
@@ -981,6 +981,7 @@ public class EventFileOps {
 
             outputFile.writeBytes(",");
 
+            // checking second address position
             if (address2 != Library.MINUS_1_INT) {
                 String label;
                 if (!labels.containsKey(address2)) {
@@ -1000,6 +1001,44 @@ public class EventFileOps {
 
         outputFile.writeBytes("\n");
         inputFile.seek(pointerBk);
+    }
+
+    private static void registerTalkAddresses(RandomAccessFile inputFile, boolean isPrimaryTalk) throws IOException {
+
+        int startAddress = isPrimaryTalk ? Library.ADDRESS_OF_CHARACTER_DATA : Library.ADDRESS_OF_SECONDARY_CHARACTER_DATA;
+        int numOfStructs = isPrimaryTalk ? Library.CHARACTER_DATA_NUM : Library.SECONDARY_CHARACTER_DATA_NUM;
+        int dataSize = isPrimaryTalk ? Library.CHARACTER_DATA_SIZE : Library.SECONDARY_CHARACTER_DATA_SIZE;
+        int secondAddrOffset = isPrimaryTalk ? Library.CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET : Library.SECONDARY_CHARACTER_DATA_EVENT_ADDRESS_2_ABSOLUTE_OFFSET;
+
+        String line;
+        int i;
+        while ((line = inputFile.readLine()).compareTo("") != 0) {
+            line = removeCommentAndSpaces(line);
+            String[] talkLineSplit = line.split(Library.SPACE_TAB_REGEX);
+
+            i = skipSpacesNTabs(talkLineSplit, 0);
+            int characterId = Integer.parseInt(talkLineSplit[i]);
+            i = skipSpacesNTabs(talkLineSplit, i + 1);
+
+            String labels = talkLineSplit[i];
+            String[] labelSplit = labels.split(",");
+
+            // If the first LABEL space isn't empty
+            if (labelSplit[0].compareTo(Library.LABEL_SEPARATOR) != 0) {
+                short labelNum = (short) Integer.parseInt(labelSplit[0].split(Library.LABEL_SEPARATOR)[1]);
+                int address = startAddress + (characterId * dataSize) + Library.CHARACTER_DATA_EVENT_ADDRESS_1_OFFSET;
+
+                addLabelRef(labelNum, address);
+            }
+
+            // If the second LABEL space isn't empty
+            if (labelSplit[1].compareTo(Library.LABEL_SEPARATOR) != 0) {
+                short labelNum = (short) Integer.parseInt(labelSplit[1].split(Library.LABEL_SEPARATOR)[1]);
+                int address = startAddress + (characterId * dataSize) + secondAddrOffset;
+
+                addLabelRef(labelNum, address);
+            }
+        }
     }
 
     private static void decodePositionsOrInteractables(RandomAccessFile inputFile, RandomAccessFile outputFile, boolean isInteractable) throws IOException {

@@ -73,6 +73,10 @@ This data is saved to the file not only to make sure the encoded event file has 
 
 In this example, character 01 has 1 label on the first position, meaning that talking to the character executes the code pointed to by that label in a certain situation (first time in that room?). Character 02 has a label on the second position, meaning that in certain circumstances (second time in that room?), talking to the character will execute the code pointed to by that label. Character 03 has 2 different codes it executes when talked to, depending on the situation (one thing is said when entering the room for the first time, whilst the other is said when you return to that room later in the story)
 
+### .talk2
+
+This section contains the same type of data as the previous one but for secondary characters in the scene. These are taken from structs in the file that are smaller than the primary ones.
+
 ### .positions
 
 This section contains a table of position triggers. They include coordinates and the LABELs that are jumped to when the playable character is in one of these positions. Each entry has X and Y values, followed by the label. Example:
