@@ -384,6 +384,10 @@ public class EventFileOps {
                         // if it is a label
                         if (sectionSplit.length == 1 && labelSplit[0].compareTo(Library.LABEL_TXT) == 0) {
                             //String labelNum = labelSplit[1];
+
+                            // padding to make the label code multiple to 8
+                            while(outputFile.getFilePointer() % 8 != 0) outputFile.writeByte(0);
+
                             fillInRef(outputFile, sectionSplit[0].substring(0, sectionSplit[0].length() - 1), (short)-1);
                             emptyLineHappened = false;
                         } else { // it must be a new section...
@@ -535,7 +539,7 @@ public class EventFileOps {
         int address;
         byte smolParam;
         // UNCOMMENT FOR DEBUG HERE
-        //System.out.printf("yep: 0x%02x\n", instr);
+        // System.out.printf("yep: 0x%02x\n", instr);
         Library.FlowInstruction flowInstr = Library.FLOW_INSTRUCTIONS.get(instr);
         switch(flowInstr) {
             case ret:
@@ -768,9 +772,6 @@ public class EventFileOps {
                 // register a required address
                 int currAddr = (int) outputFile.getFilePointer();
                 addLabelRef(outputFile, label, currAddr);
-
-                // padding
-                while(outputFile.getFilePointer() % 8 != 0) outputFile.writeByte(0);
 
                 // jump if instruction
             } else if (instr.compareTo(Library.FlowInstruction.jump_if.name()) == 0 ||
