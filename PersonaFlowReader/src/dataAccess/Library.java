@@ -74,6 +74,7 @@ public class Library {
         UNKNOWN_COMMAND_31,
         UNKNOWN_COMMAND_32,
         UNKNOWN_COMMAND_39,
+        unk_cmd_3B,
         UNKNOWN_COMMAND_3C,
         UNKNOWN_COMMAND_3D,
         UNKNOWN_COMMAND_3E,
@@ -92,6 +93,8 @@ public class Library {
         UNKNOWN_COMMAND_56,
         UNKNOWN_COMMAND_57,
         unk_cmd_58,
+        unk_cmd_59,
+        unk_cmd_5A,
         open_dialog,
         close_dialog,
         pose,
@@ -159,6 +162,7 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x31, FlowInstruction.UNKNOWN_COMMAND_31);
         FLOW_INSTRUCTIONS.put((byte) 0x32, FlowInstruction.UNKNOWN_COMMAND_32);
         FLOW_INSTRUCTIONS.put((byte) 0x39, FlowInstruction.UNKNOWN_COMMAND_39);
+        FLOW_INSTRUCTIONS.put((byte) 0x3B, FlowInstruction.unk_cmd_3B);
         FLOW_INSTRUCTIONS.put((byte) 0x3C, FlowInstruction.UNKNOWN_COMMAND_3C);
         FLOW_INSTRUCTIONS.put((byte) 0x3D, FlowInstruction.UNKNOWN_COMMAND_3D);
         FLOW_INSTRUCTIONS.put((byte) 0x3E, FlowInstruction.UNKNOWN_COMMAND_3E);
@@ -177,6 +181,8 @@ public class Library {
         FLOW_INSTRUCTIONS.put((byte) 0x56, FlowInstruction.UNKNOWN_COMMAND_56);
         FLOW_INSTRUCTIONS.put((byte) 0x57, FlowInstruction.UNKNOWN_COMMAND_57);
         FLOW_INSTRUCTIONS.put((byte) 0x58, FlowInstruction.unk_cmd_58);
+        FLOW_INSTRUCTIONS.put((byte) 0x59, FlowInstruction.unk_cmd_59);
+        FLOW_INSTRUCTIONS.put((byte) 0x5A, FlowInstruction.unk_cmd_5A);
         FLOW_INSTRUCTIONS.put((byte) 0x60, FlowInstruction.open_dialog);
         FLOW_INSTRUCTIONS.put((byte) 0x61, FlowInstruction.close_dialog);
         FLOW_INSTRUCTIONS.put((byte) 0x64, FlowInstruction.pose);
@@ -220,6 +226,7 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_31, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_32, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_39, (byte)0);
+        PARAM_NUM.put(FlowInstruction.unk_cmd_3B, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3C, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3D, (byte)1);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_3E, (byte)2);
@@ -238,6 +245,8 @@ public class Library {
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_56, (byte)0);
         PARAM_NUM.put(FlowInstruction.UNKNOWN_COMMAND_57, (byte)0);
         PARAM_NUM.put(FlowInstruction.unk_cmd_58, (byte)1);
+        PARAM_NUM.put(FlowInstruction.unk_cmd_59, (byte)1);
+        PARAM_NUM.put(FlowInstruction.unk_cmd_5A, (byte)1);
         PARAM_NUM.put(FlowInstruction.open_dialog, (byte)0);
         PARAM_NUM.put(FlowInstruction.close_dialog, (byte)0);
         PARAM_NUM.put(FlowInstruction.pose, (byte)2);
@@ -553,7 +562,7 @@ public class Library {
     }
 
     public enum POSES {
-        still, idle, walk, pain, fight, crouched, depressed, victory, dead
+        still, idle, walk, pain, fight, crouched, depressed, victory, dead, collapse, stand_up
     }
 
     public enum EVENT_DIRS {
