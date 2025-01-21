@@ -593,7 +593,7 @@ public class EventFileOps {
         int address;
         byte smolParam;
         // UNCOMMENT FOR DEBUG HERE
-        System.out.printf("yep: 0x%02x\n", instr);
+        //System.out.printf("yep: 0x%02x\n", instr);
         Library.FlowInstruction flowInstr = Library.FLOW_INSTRUCTIONS.get(instr);
         switch(flowInstr) {
             case ret:

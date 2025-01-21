@@ -57,6 +57,10 @@ The following sections detail each part of these files.
 
 The file posesses different type of sections in it. They are expected to be in the order they are generated in (the order that they will be explained in below).
 
+### .addr
+Not really a section. It has an integer value, in hexadecimal, after it. This is the address where the event script should start when the file is encoded back.
+
+
 ### .bgm
 
 This section contains 2 values related to the first song that plays when you enter the scene the event file describes. The value 0xFFFF (-1) typically means no song change. There are 2 song values because some rooms use the song in the second slot under certian circumstances. These values are in hexadecimal and represent the song IDs.
