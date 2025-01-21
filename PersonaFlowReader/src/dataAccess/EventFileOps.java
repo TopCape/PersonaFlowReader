@@ -793,6 +793,11 @@ public class EventFileOps {
 
                 return "\t" + name + "\t" + mapID + "," + unknown + "," + x + "," + y + "," + direction + "," + fourthParam +
                         "\t"+ Library.COMMENT_SYMBOL + " ld_3d_map <map ID>,<unknown>,<X>,<Y>,<direction (0|1|2|3 -> E|W|S|N)>, <unknown>\n";
+            case give_item:
+                param = getShortString(inputFile);
+                int quantity = getInt(inputFile);
+
+                return "\t" + name + "\t" + param + "," + quantity + "\t" + Library.COMMENT_SYMBOL + " give_item <item_id>,<quantity>\n";
             case play_MV:
                 param = String.format("MV%02x.pmf", inputFile.readByte());
                 param2 = getByteString(inputFile);
@@ -1030,7 +1035,7 @@ public class EventFileOps {
                 // write first 4 bytes
                 writeIntInstruction(outputFile, instr, extractShortFromString(shortParam));
 
-                // write address
+                // write int in hexadecimal
                 FileReadWriteUtils.writeInt(outputFile, valOrder, extractIntFromString(intParam));
 
             } else if (instr.compareTo(Library.FlowInstruction.ld_3d_map.name()) == 0) {
@@ -1052,6 +1057,15 @@ public class EventFileOps {
                 outputFile.writeByte(extractByteFromString(y));
                 outputFile.writeByte(extractByteFromString(dir));
                 outputFile.writeByte(extractByteFromString(param5));
+            } else if (instr.compareTo(Library.FlowInstruction.give_item.name()) == 0) {
+                String itemId = paramSplit[0];
+                String quantity = paramSplit[1];
+
+                // write first 4 bytes
+                writeIntInstruction(outputFile, instr, extractShortFromString(itemId));
+
+                // write quantity
+                FileReadWriteUtils.writeInt(outputFile, valOrder, Integer.parseInt(quantity));
             } else if (instr.compareTo(Library.FlowInstruction.play_MV.name()) == 0) {
                 String movieFileName = paramSplit[0]; // format: MVXX.pmf, where XX is the number
                 String param1 = movieFileName.substring(2, 4); // byte (hex without 0x)
