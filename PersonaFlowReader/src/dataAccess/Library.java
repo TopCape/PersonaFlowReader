@@ -753,50 +753,90 @@ public class Library {
         TEXT_CODES.put((short)0x0215, "ψ");
         TEXT_CODES.put((short)0x0216, "ω");
 
+        // starting in 0240, uppercase Cyrillic alphabet
+        // in 0270, the reverse R that is also present in 0260 is repeated, for some reason
+        // starting in 0280, lowercase Cyrillic alphabet
+        // starting at 02AF, some weird symbols, just lines and stuff
+
+        // 03XX is empty
+        // 04XX has characters, but might be unused?
+
+
         // kanji
+        // continue in 059E
+        TEXT_CODES.put((short)0x059F, "亜");
+        TEXT_CODES.put((short)0x05A0, "唖");
+        TEXT_CODES.put((short)0x05A1, "娃");
+        TEXT_CODES.put((short)0x05A2, "阿");
+
+
+        TEXT_CODES.put((short)0x05BB, "綾");
         TEXT_CODES.put((short)0x05EE, "稲");
+        TEXT_CODES.put((short)0x0630, "英");
         TEXT_CODES.put((short)0x066E, "屋");
+        TEXT_CODES.put((short)0x067A, "下");
         TEXT_CODES.put((short)0x069F, "過");
+        TEXT_CODES.put((short)0x0781, "帰");
         TEXT_CODES.put((short)0x0783, "気");
         TEXT_CODES.put((short)0x07FB, "興");
+        TEXT_CODES.put((short)0x080B, "桐");
         TEXT_CODES.put((short)0x082A, "苦");
         TEXT_CODES.put((short)0x08BE, "言");
         TEXT_CODES.put((short)0x085E, "型");
         TEXT_CODES.put((short)0x08A9, "見");
         TEXT_CODES.put((short)0x08BB, "現");
+        TEXT_CODES.put((short)0x08E4, "御");
+        TEXT_CODES.put((short)0x0941, "香");
+        TEXT_CODES.put((short)0x0951, "国");
         TEXT_CODES.put((short)0x09F1, "子");
+        TEXT_CODES.put((short)0x0A04, "私");
         TEXT_CODES.put((short)0x0A29, "自");
         TEXT_CODES.put((short)0x0A52, "者");
         TEXT_CODES.put((short)0x0A87, "秀");
+        TEXT_CODES.put((short)0x0AD7, "女");
         TEXT_CODES.put((short)0x0B0C, "称");
         TEXT_CODES.put((short)0x0B1B, "象");
         TEXT_CODES.put((short)0x0B23, "上");
+        TEXT_CODES.put((short)0x0B2C, "嬢");
         TEXT_CODES.put((short)0x0B2D, "常");
         TEXT_CODES.put((short)0x0B2E, "情");
+        TEXT_CODES.put((short)0x0B48, "食");
         TEXT_CODES.put((short)0x0B5B, "深");
+        TEXT_CODES.put((short)0x0B6C, "人");
         TEXT_CODES.put((short)0x0B99, "杉");
+        TEXT_CODES.put((short)0x0BA3, "瀬");
         TEXT_CODES.put((short)0x0BB3, "正");
         TEXT_CODES.put((short)0x0BB6, "生");
         TEXT_CODES.put((short)0x0C67, "息");
+        TEXT_CODES.put((short)0x0CA8, "題");
         TEXT_CODES.put((short)0x0CE7, "暖");
         TEXT_CODES.put((short)0x0CEA, "男");
+        TEXT_CODES.put((short)0x0CED, "知");
         TEXT_CODES.put((short)0x0D3C, "直");
         TEXT_CODES.put((short)0x0D32, "調");
         TEXT_CODES.put((short)0x0D34, "超");
         TEXT_CODES.put((short)0x0D4A, "通");
+        TEXT_CODES.put((short)0x0D89, "的");
+        TEXT_CODES.put((short)0x0D96, "天");
         TEXT_CODES.put((short)0x0DAB, "徒");
         TEXT_CODES.put((short)0x0DB1, "賭");
+        TEXT_CODES.put((short)0x0DC7, "島");
         TEXT_CODES.put((short)0x0DEA, "頭");
+        TEXT_CODES.put((short)0x0EFC, "美");
         TEXT_CODES.put((short)0x0F06, "彦");
         TEXT_CODES.put((short)0x0F6A, "分");
+        TEXT_CODES.put((short)0x0FBA, "放");
         TEXT_CODES.put((short)0x0FD8, "帽");
         TEXT_CODES.put((short)0x1021, "味");
         TEXT_CODES.put((short)0x1022, "未");
+        TEXT_CODES.put((short)0x1046, "免");
         TEXT_CODES.put((short)0x105A, "目");
+        TEXT_CODES.put((short)0x1084, "優");
         TEXT_CODES.put((short)0x10AC, "様");
         TEXT_CODES.put((short)0x10B4, "葉");
         TEXT_CODES.put((short)0x10BA, "陽");
         TEXT_CODES.put((short)0x10C8, "来");
+        TEXT_CODES.put((short)0x10DD, "里");
         TEXT_CODES.put((short)0x10E7, "立");
         TEXT_CODES.put((short)0x114A, "労");
         // following short values display a standard ? in-game
