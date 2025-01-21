@@ -387,9 +387,14 @@ In order to build the file back again successfully, special "tags" are used to d
     (*WAIT,<NUMBER_OF_TICKS>*)
     ```
 
-* **PLAYER_NAME** - This tag is replace by the player's name when the game writes it.
+* **PLAYER_FIRST_NAME** - This tag is replace by the player's first name when the game writes it.
     ```
-    (*PLAYER_NAME*)
+    (*PLAYER_FIRST_NAME*)
+    ```
+
+* **PLAYER_NICKNAME** - This tag is replace by the player's nickname when the game writes it.
+    ```
+    (*PLAYER_NICKNAME*)
     ```
 
 * **SHOW_OPTIONS** - When the game reaches this point when printing the text, it displays a menu with options specified by the parameter (IN DECIMAL).
