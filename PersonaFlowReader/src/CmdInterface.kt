@@ -36,6 +36,8 @@ fun runCmdInterface() {
                 1 -> decodeEVS(sc)
                 2 -> encodeDEC(sc)
                 3 -> combineEVS(sc)
+                4 -> txtToPO(sc)
+                //5 -> poToDEC(sc)
                 99, -1 -> {
                     isLeaving = true
                     println("See ya next time!")
@@ -226,6 +228,40 @@ private fun combineEVS(sc: Scanner) {
 }
 
 /**
+ * Method for converting .TXT files to .PO
+ * @param sc the Scanner object to read more user inputs
+ * @throws OperationNotSupportedException custom exception messages here
+ * @throws IOException file related exceptions
+ */
+@Throws(OperationNotSupportedException::class, IOException::class)
+private fun txtToPO(sc: Scanner) {
+    val j = isJpn(sc)
+    if (j < 0) return
+
+    val isJ = j > 0
+
+    while (true) {
+        println("Enter the filename (including the extension) or a directory to convert all TXT files to PO in it:")
+        val filePath = requestInput(sc).trim()
+
+        val cancel = checkIfCancel(filePath)
+        if (cancel) return
+
+        val file = File(filePath)
+
+        if (file.isDirectory) {
+            convertAllTXTToPO(filePath, isJ)
+            break
+        } else if (file.isFile && (filePath.endsWith(TXT_EXTENSION_1) || filePath.endsWith(TXT_EXTENSION_2))) {
+            convertTXTToPO(filePath, isJ)
+            break
+        } else {
+            println("Invalid file or directory. Please try again...")
+        }
+    }
+}
+
+/**
  * Auxiliary method for asking the user if the extracted files are from the japanese version of the game
  * @param sc the Scanner object to read more user inputs
  * @return `1` for yes, `0` for no or `-1` for none of the above
@@ -314,6 +350,8 @@ private fun printInstructions() {
     println("1 - decode an EVS file")
     println("2 - encode a DEC file")
     println("3 - combine EVS files to form a new BIN file")
+    println("4 - convert a TXT file to GNU GetText PO")
+    println("5 - convert a GNU GetText PO to TXT file")
     println("99 - exit")
     println()
 }
@@ -365,6 +403,33 @@ private fun encodeAll(path: String, isJ: Boolean) {
             if (getExtension(child.path)!!.compareTo("dec", ignoreCase = true) == 0) {
                 System.out.printf("%s\r", child.name)
                 encodeFlowScript(child.path, isJ)
+            }
+        }
+    } else {
+        println("There is something wrong with the directory.")
+    }
+}
+
+/**
+ * Converts all .TXT files in a directory to PO
+ * @param path the directory path
+ * @param isJ `true` if the file was extracted from a japanese version of the game
+ * @throws OperationNotSupportedException custom exception messages here
+ * @throws IOException file related exceptions
+ */
+@Throws(OperationNotSupportedException::class, IOException::class)
+private fun convertAllTXTToPO(path: String, isJ: Boolean) {
+    val dir = File(path)
+    val directoryListing = dir.listFiles()
+
+    if (directoryListing != null) {
+        if (directoryListing.isEmpty()) {
+            throw OperationNotSupportedException("The directory is empty.")
+        }
+        for (child in directoryListing) {
+            if (getExtension(child.path)!!.compareTo("txt", ignoreCase = true) == 0) {
+                System.out.printf("%s\r", child.name)
+                convertTXTToPO(child.path, isJ)
             }
         }
     } else {

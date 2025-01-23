@@ -1630,6 +1630,67 @@ private fun encodePositionOrInteractableSection(
 }
 
 /**
+ * Converts a TXT file with character dialogue and system messages into a PO file format.
+ *
+ * The function processes the input TXT file, extracting character names and dialogue lines,
+ * and formats them as `msgctxt` (character name) and `msgid` (dialogue text) entries in a PO file.
+ * It also handles specific tags:
+ * - Replaces `(*LINE_BREAK*)` with `\\n` to format line breaks correctly.
+ * - Converts `(*AWAITING_INPUT*)` to `(*INPUT*)\\n`.
+ * - Converts `(*CONTINUE*)` to `(*CLEAR*)`.
+ * - Trims extra text after `(*SHOW_OPTIONS,...)` to leave only the main tag (e.g., `(*SHOW_OPTIONS,9*)`).
+ *
+ * @param path the path to the input TXT file.
+ * @param j a boolean indicating the language of the output PO file:
+ *          - `true` for Japanese (sets the `Language` field to `ja`).
+ *          - `false` for English (sets the `Language` field to `en`).
+ */
+fun convertTXTToPO(path: String, j: Boolean) {
+    val inputLines = File(path).readLines()
+
+    val poBuilder = StringBuilder()
+    poBuilder.append("msgid \"\"\n")
+    poBuilder.append("msgstr \"\"\n")
+    poBuilder.append("\"Content-Type: text/plain; charset=UTF-8\\n\"\n")
+    poBuilder.append("\"Language: ${if (j) "ja" else "en"}\\n\"\n\n")
+
+    inputLines.forEach { line ->
+        val characterRegex = "\\(\\*CHARACTER_NAME\\*\\)(.*?)\\(\\*LINE_BREAK\\*\\)".toRegex()
+        val match = characterRegex.find(line)
+
+        if (match != null) {
+            val characterName = match.groupValues[1].trim()
+            val text = line.replace(characterRegex, "")
+                .replace("(*LINE_BREAK*)", "\\n")
+                .replace("(*AWAITING_INPUT*)", "(*INPUT*)\\n")
+                .replace("(*CONTINUE*)", "(*CLEAR*)")
+                .replace("\\(\\*SHOW_OPTIONS,.*?\\*\\).*".toRegex()) { matchResult ->
+                    matchResult.value.substringBefore(")") + "*)"
+                }.trim().trim('"')
+
+            poBuilder.append("msgctxt \"$characterName\"\n")
+            poBuilder.append("msgid \"$text\"\n")
+            poBuilder.append("msgstr \"\"\n\n")
+        } else {
+            val text = line.replace("(*LINE_BREAK*)", "\\n")
+                .replace("(*AWAITING_INPUT*)", "(*INPUT*)\\n")
+                .replace("(*CONTINUE*)", "(*CLEAR*)")
+                .replace("\\(\\*SHOW_OPTIONS,.*?\\).*".toRegex()) { matchResult ->
+                    matchResult.value.substringBefore(")") + "*)"
+                }.trim().trim('"')
+
+            poBuilder.append("msgctxt \"System Message\"\n")
+            poBuilder.append("msgid \"$text\"\n")
+            poBuilder.append("msgstr \"\"\n\n")
+        }
+    }
+
+    val outputFilePath = path.replaceAfterLast(".", "PO") // Cambiar la extensión a .po
+    File(outputFilePath).writeText(poBuilder.toString())
+    println("PO file generated in: $outputFilePath")
+}
+
+/**
  * Checks if the next character data entry is "empty"
  * @param inputFile the object used to access the input file
  * @return `true` if it is empty, `false` otherwise
