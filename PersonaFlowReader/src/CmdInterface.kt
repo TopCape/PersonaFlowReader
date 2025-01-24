@@ -65,24 +65,32 @@ fun runCmdInterface() {
  */
 @Throws(OperationNotSupportedException::class, IOException::class)
 private fun extractBIN(sc: Scanner) {
-    println("Enter the number of the file, or an interval separated by \"-\" (example: 0-4 extracts E0 to E4)")
+    println("Enter the absolute path of the file, or an interval separated by \"-\" (example: 0-4 extracts E0.BIN to E4.BIN)")
     val input = requestInput(sc)
 
     val cancel = checkIfCancel(input)
     if (cancel) return
 
-    for (fileNum in getNumberInterval(input)) {
-        val filename = String.format("E%d.BIN", fileNum)
+    if (File(input).exists()) {
+        // Absolute path mode
+        val file = File(input)
+        println("Extracting: ${file.name}")
+        extract(input)
+    } else {
+        // Interval mode
+        for (fileNum in getNumberInterval(input)) {
+            val filename = String.format("E%d.BIN", fileNum)
+            val filePath = OG_PATH + filename
 
-        val folder = File(OG_PATH + filename)
-        if (!folder.exists()) {
-            println("Skipping: $filename")
-            continue
+            val folder = File(filePath)
+            if (!folder.exists()) {
+                println("Skipping: $filename")
+                continue
+            }
+
+            println("Extracting: $filename")
+            extract(filePath)
         }
-
-        println("Extracting: $filename")
-
-        extract(OG_PATH + filename)
     }
     println("The files have been extracted")
 }
@@ -101,24 +109,24 @@ private fun decodeEVS(sc: Scanner) {
     val isJ = j > 0
 
     while (true) {
-        println("Enter the filename (including the extension) or a directory (ending in \"/\") to decode all EVS files in it:")
-        val filename = requestInput(sc)
+        println("Enter the absolute path of the file (including the extension) or a directory (ending in \"/\") to decode all EVS files in it:")
+        val input = requestInput(sc)
 
-        val cancel = checkIfCancel(filename)
+        val cancel = checkIfCancel(input)
         if (cancel) return
 
-        if (filename[filename.length - 1] == '/') {
-            decodeAll(filename, isJ)
+        val file = File(input)
+
+        if (file.isDirectory) {
+            // Decode all EVS files in the directory
+            decodeAll(input, isJ)
             break
-        } else if (filename.endsWith(EVENT_SCRIPT_EXTENSION_1) || filename.endsWith(EVENT_SCRIPT_EXTENSION_2)) {
-            //val filenameSplit = filename.split("_".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            val filenameSplit = filename.split("_").toTypedArray()
-            val folderName = filenameSplit[0]
-            val path = "$EXTRACTED_PATH$folderName/$filename"
-            decodeFlowScript(path, isJ)
+        } else if (file.isFile && (input.endsWith(EVENT_SCRIPT_EXTENSION_1) || input.endsWith(EVENT_SCRIPT_EXTENSION_2))) {
+            // Decode a single EVS file
+            decodeFlowScript(input, isJ)
             break
         } else {
-            println("Wrong file...")
+            println("Invalid input. Please enter a valid directory or file with the correct extension.")
         }
     }
 }
@@ -137,24 +145,24 @@ private fun encodeDEC(sc: Scanner) {
     val isJ = j > 0
 
     while (true) {
-        println("Enter the filename (including the extension) or a directory (ending in \"/\") to encode all DEC files in it:")
-        val filename = requestInput(sc)
+        println("Enter the absolute path of the file (including the extension) or a directory (ending in \"/\") to encode all DEC files in it:")
+        val input = requestInput(sc)
 
-        val cancel = checkIfCancel(filename)
+        val cancel = checkIfCancel(input)
         if (cancel) return
 
-        if (filename[filename.length - 1] == '/') {
-            encodeAll(filename, isJ)
+        val file = File(input)
+
+        if (file.isDirectory) {
+            // Encode all DEC files in the directory
+            encodeAll(input, isJ)
             break
-        } else if (filename.endsWith(DEC_SCRIPT_EXTENSION_1) || filename.endsWith(DEC_SCRIPT_EXTENSION_2)) {
-            //val filenameSplit = filename.split("_".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            val filenameSplit = filename.split("_").toTypedArray()
-            val folderName = filenameSplit[0]
-            val path = EXTRACTED_PATH + folderName + "/" + filename
-            encodeFlowScript(path, isJ)
+        } else if (file.isFile && (input.endsWith(DEC_SCRIPT_EXTENSION_1) || input.endsWith(DEC_SCRIPT_EXTENSION_2))) {
+            // Encode a single DEC file
+            encodeFlowScript(input, isJ)
             break
         } else {
-            println("Wrong file...")
+            println("Invalid input. Please enter a valid directory or file with the correct extension.")
         }
     }
 }
@@ -175,55 +183,52 @@ private fun combineEVS(sc: Scanner) {
     println("Enter the output path (or just press ENTER for the default path, \"/output/\" in the program's directory):")
     val outFolder = requestInput(sc)
 
-    var cancel = checkIfCancel(outFolder)
+    val cancel = checkIfCancel(outFolder)
     if (cancel) return
 
     var destinationDir = outFolder
     if (outFolder.isEmpty()) {
-        destinationDir = (BASE_DIR + OUTPUT_DIR_NAME).toString() + "/"
-    } else if (destinationDir[destinationDir.length - 1] != '/') {
+        destinationDir = "$BASE_DIR$OUTPUT_DIR_NAME/"
+    } else if (!destinationDir.endsWith('/')) {
         destinationDir += '/'
     }
 
-    // create directory if it doesn't exist
+    // Create the directory if it doesn't exist
     val dir = File(destinationDir)
     if (!dir.exists()) {
-        dir.mkdir()
+        dir.mkdirs()
     }
 
-
-    /*System.out.println("Enter the number of the file, or an interval separated by \"-\" (example: 0-4 extracts E0 to E4)");
-        String input = requestInput(sc);
-
-        boolean cancel = checkIfCancel(input);
-        if (cancel) return;
-
-        for (Integer fileNum : getNumberInterval(input)) {
-            String filename = String.format("E%d.BIN", fileNum);
-            System.out.println("Extracting: " + filename);
-
-            EventFileOps.extract(OG_PATH + filename);
-        }
-         */
-    println("Enter the number of the file to combine back, or an interval separated by \"-\" (example: 0-4 combines E0 to E4):")
+    println("Enter the number of the file to combine back, or a list of absolute paths to combine (example: /path/to/E0,/path/to/E1 or an interval 0-4):")
     val input = requestInput(sc)
 
-    cancel = checkIfCancel(input)
-    if (cancel) return
+    if (checkIfCancel(input)) return
 
-    for (fileNum in getNumberInterval(input)) {
-        val inFolder = String.format("E%d", fileNum)
+    val pathsToCombine = mutableListOf<String>()
 
-        val actualPath = EXTRACTED_PATH + inFolder
+    if (input.contains(",")) {
+        // User provided a list of absolute paths separated by commas
+        pathsToCombine.addAll(input.split(",").map { it.trim() })
+    } else if (input.contains("-")) {
+        // User provided an interval
+        for (fileNum in getNumberInterval(input)) {
+            val inFolder = String.format("E%d", fileNum)
+            pathsToCombine.add(inFolder)
+        }
+    } else {
+        println("Invalid input. Please specify an interval or a list of absolute paths.")
+        return
+    }
 
-        val folder = File(actualPath)
-        if (!folder.exists()) {
-            println("Skipping: $inFolder")
+    for (path in pathsToCombine) {
+        val folder = File(path)
+        if (!folder.exists() || !folder.isDirectory) {
+            println("Skipping: $path (does not exist or is not a directory)")
             continue
         }
 
-        println("Combining: $inFolder")
-        archive(OG_PATH, actualPath, destinationDir, inFolder, isJ)
+        println("Combining: $path")
+        archive(OG_PATH, folder.absolutePath, destinationDir, folder.name, isJ)
     }
 }
 
