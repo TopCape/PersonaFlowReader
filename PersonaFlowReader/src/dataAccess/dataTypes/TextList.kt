@@ -4,6 +4,7 @@ import dataAccess.*
 import java.io.IOException
 import java.io.RandomAccessFile
 import java.nio.ByteOrder
+import java.text.Normalizer
 import java.util.*
 import javax.naming.OperationNotSupportedException
 
@@ -307,10 +308,7 @@ fun encodeText(outputFile: RandomAccessFile?, text: String, inputFile: RandomAcc
             data > 0x00BC && data < 0x00CF) {
                 currChar = convertCharToUsable(currChar);
                 data = Library.getInstance().TEXT_CODES_REVERSE.get(currChar);
-            }
-
-
-             */
+            }*/
         writeShort(outputFile!!, ByteOrder.BIG_ENDIAN, data)
 
 
@@ -322,163 +320,10 @@ fun encodeText(outputFile: RandomAccessFile?, text: String, inputFile: RandomAcc
 
 @Throws(OperationNotSupportedException::class)
 private fun convertCharToUsable(currChar: String): String {
-    return when (currChar) {
-        "'" -> "’" // this char is used for Apostrophe instead of the standard '
-        "\"" -> "”" // this char can be used for quotes instead of the standard "
-        "~" -> "～" // this char can be used for tilde instead of the standard ~
-        "〜" -> "～"
-        "*" -> "＊" // this char can be used for asterisk instead of the standard *
-        "！" -> "!"
-        "？" -> "?"
-        "＞" -> ">"
-        "ａ" -> "a"
-        "ｂ" -> "b"
-        "ｃ" -> "c"
-        "ｄ" -> "d"
-        "ｅ" -> "e"
-        "ｆ" -> "f"
-        "ｇ" -> "g"
-        "ｈ" -> "h"
-        "ｉ" -> "i"
-        "ｊ" -> "j"
-        "ｋ" -> "k"
-        "ｌ" -> "l"
-        "ｍ" -> "m"
-        "ｎ" -> "n"
-        "ｏ" -> "o"
-        "ｐ" -> "p"
-        "ｑ" -> "q"
-        "ｒ" -> "r"
-        "ｓ" -> "s"
-        "ｔ" -> "t"
-        "ｕ" -> "u"
-        "ｖ" -> "v"
-        "ｗ" -> "w"
-        "ｘ" -> "x"
-        "ｙ" -> "y"
-        "ｚ" -> "z"
-
-        "Ａ" -> "A"
-        "Ｂ" -> "B"
-        "Ｃ" -> "C"
-        "Ｄ" -> "D"
-        "Ｅ" -> "E"
-        "Ｆ" -> "F"
-        "Ｇ" -> "G"
-        "Ｈ" -> "H"
-        "Ｉ" -> "I"
-        "Ｊ" -> "J"
-        "Ｋ" -> "K"
-        "Ｌ" -> "L"
-        "Ｍ" -> "M"
-        "Ｎ" -> "N"
-        "Ｏ" -> "O"
-        "Ｐ" -> "P"
-        "Ｑ" -> "Q"
-        "Ｒ" -> "R"
-        "Ｓ" -> "S"
-        "Ｔ" -> "T"
-        "Ｕ" -> "U"
-        "Ｖ" -> "V"
-        "Ｗ" -> "W"
-        "Ｘ" -> "X"
-        "Ｙ" -> "Y"
-        "Ｚ" -> "Z"
-
-        // TODO: Delete all cases below when accents are figured out
-        /*case "Á":
-            return "A";
-        case "À":
-            return "A";
-        case "Ã":
-            return "A";
-        case "Â":
-            return "A";
-        case "Ä":
-            return "A";
-        case "É":
-            return "E";
-        case "È":
-            return "E";
-        case "Ê":
-            return "E";
-        case "Ë":
-            return "E";
-        case "Í":
-            return "I";
-        case "Ì":
-            return "I";
-        case "Î":
-            return "I";
-        case "Ï":
-            return "I";
-        case "Ó":
-            return "O";
-        case "Ò":
-            return "O";
-        case "Õ":
-            return "O";
-        case "Ô":
-            return "O";
-        case "Ö":
-            return "O";
-        case "Ú":
-            return "U";
-        case "Ù":
-            return "U";
-        case "Û":
-            return "U";
-        case "Ü":
-            return "U";
-        case "Ç":
-            return "C";
-        case "á":
-            return "a";
-        case "à":
-            return "a";
-        case "ã":
-            return "a";
-        case "â":
-            return "a";
-        case "ä":
-            return "a";
-        case "é":
-            return "e";
-        case "è":
-            return "e";
-        case "ê":
-            return "e";
-        case "ë":
-            return "e";
-        case "ç":
-            return "c";
-        case "í":
-            return "i";
-        case "ì":
-            return "i";
-        case "î":
-            return "i";
-        case "ï":
-            return "i";
-        case "ó":
-            return "o";
-        case "ò":
-            return "o";
-        case "õ":
-            return "o";
-        case "ô":
-            return "o";
-        case "ö":
-            return "o";
-        case "ú":
-            return "u";
-        case "ù":
-            return "u";
-        case "û":
-            return "u";
-        case "ü":
-            return "u";
-        */
-        else -> throw OperationNotSupportedException("Character $currChar is not usable.")
+    var normalizedChar = Normalizer.normalize(currChar, Normalizer.Form.NFKC)
+    return if (TEXT_CODES_REVERSE.containsKey(normalizedChar)) {
+        normalizedChar
+    } else {
+        throw OperationNotSupportedException("Character $currChar is not usable.")
     }
 }
