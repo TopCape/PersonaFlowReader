@@ -1667,7 +1667,7 @@ fun convertTXTToPO(path: String, j: Boolean) {
                 .replace("(*AWAITING_INPUT*)", "(*INPUT*)\\n")
                 .replace("(*CONTINUE*)", "(*CLEAR*)")
                 .replace("\\(\\*SHOW_OPTIONS,.*?\\*\\).*".toRegex()) { matchResult ->
-                    matchResult.value.substringBefore(")") + "*)"
+                    matchResult.value.substringBefore("*)") + "*)"
                 }.trim().trim('"')
 
             poBuilder.append("msgctxt \"$characterName\"\n")
@@ -1677,8 +1677,8 @@ fun convertTXTToPO(path: String, j: Boolean) {
             val text = line.replace("(*LINE_BREAK*)", "\\n")
                 .replace("(*AWAITING_INPUT*)", "(*INPUT*)\\n")
                 .replace("(*CONTINUE*)", "(*CLEAR*)")
-                .replace("\\(\\*SHOW_OPTIONS,.*?\\).*".toRegex()) { matchResult ->
-                    matchResult.value.substringBefore(")") + "*)"
+                .replace("\\(\\*SHOW_OPTIONS,.*?\\*\\).*".toRegex()) { matchResult ->
+                    matchResult.value.substringBefore("*)") + "*)"
                 }.trim().trim('"')
 
             poBuilder.append("msgctxt \"System Message\"\n")
@@ -1714,18 +1714,21 @@ fun convertPOToTXT(path: String) {
     inputLines.forEach { line ->
         when {
             line.startsWith("msgctxt") -> {
-                characterName = line.removePrefix("msgctxt").trim().removeSurrounding("\"")
+                if (!line.contains("System Message"))
+                    characterName = line.removePrefix("msgctxt").trim().removeSurrounding("\"")
+                else
+                    characterName = null
             }
             line.startsWith("msgid") -> {
-                val text = line.removePrefix("msgid").trim().removeSurrounding("\"")
-                    .replace("\\n", "(*LINE_BREAK*)")
-                    .replace("(*INPUT*)", "(*AWAITING_INPUT*)")
+                var text = line.removePrefix("msgid").trim().removeSurrounding("\"")
+                    .replace("(*INPUT*)\\n", "(*AWAITING_INPUT*)")
                     .replace("(*CLEAR*)", "(*CONTINUE*)")
+                text = text.replace("\\n", "(*LINE_BREAK*)")
                 if (!text.isBlank()) {
                     if (characterName != null) {
-                        txtBuilder.append("(*CHARACTER_NAME*)$characterName(*LINE_BREAK*)$text\n")
+                        txtBuilder.append("\"(*CHARACTER_NAME*)$characterName(*LINE_BREAK*)$text\"\n")
                     } else {
-                        txtBuilder.append("$text\n")
+                        txtBuilder.append("\"$text\"\n")
                     }
                 }
             }
