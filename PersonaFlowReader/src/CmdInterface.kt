@@ -1,4 +1,5 @@
 import dataAccess.BASE_DIR
+import dataAccess.EBOOT_NAME
 import dataAccess.getExtension
 import dataAccess.getLibInstance
 import java.io.File
@@ -65,17 +66,22 @@ fun runCmdInterface() {
  */
 @Throws(OperationNotSupportedException::class, IOException::class)
 private fun extractBIN(sc: Scanner) {
-    println("Enter the absolute path of the file, or an interval separated by \"-\" (example: 0-4 extracts E0.BIN to E4.BIN)")
+    println("Enter the absolute path of the file, or an interval separated by \"-\" (example: 0-4 extracts E0.BIN to E4.BIN):")
     val input = requestInput(sc)
 
-    val cancel = checkIfCancel(input)
-    if (cancel) return
+    if (checkIfCancel(input)) return
 
     if (File(input).exists()) {
         // Absolute path mode
         val file = File(input)
+
+        println("Enter the absolute path for the extraction destination:")
+        val output = requestInput(sc)
+
+        if (checkIfCancel(input)) return
+
         println("Extracting: ${file.name}")
-        extract(input)
+        extract(input, output)
     } else {
         // Interval mode
         for (fileNum in getNumberInterval(input)) {
@@ -112,8 +118,7 @@ private fun decodeEVS(sc: Scanner) {
         println("Enter the absolute path of the file (including the extension) or a directory (ending in \"/\") to decode all EVS files in it:")
         val input = requestInput(sc)
 
-        val cancel = checkIfCancel(input)
-        if (cancel) return
+        if (checkIfCancel(input)) return
 
         val file = File(input)
 
@@ -148,8 +153,7 @@ private fun encodeDEC(sc: Scanner) {
         println("Enter the absolute path of the file (including the extension) or a directory (ending in \"/\") to encode all DEC files in it:")
         val input = requestInput(sc)
 
-        val cancel = checkIfCancel(input)
-        if (cancel) return
+        if (checkIfCancel(input)) return
 
         val file = File(input)
 
@@ -199,18 +203,27 @@ private fun combineEVS(sc: Scanner) {
         dir.mkdirs()
     }
 
-    println("Enter the number of the file to combine back, or a list of absolute paths to combine (example: /path/to/E0,/path/to/E1 or an interval 0-4):")
+    println("Enter the number of the file to combine back, or a list of absolute paths to combine (example: /path/to/E0,/path/to/E1) or an interval 0-4:")
     val input = requestInput(sc)
 
     if (checkIfCancel(input)) return
 
     val pathsToCombine = mutableListOf<String>()
 
-    if (input.contains(",")) {
+    lateinit var eboot_path: String
+
+    if (input.contains("/")) {
         // User provided a list of absolute paths separated by commas
         pathsToCombine.addAll(input.split(",").map { it.trim() })
+
+        println("Enter the absolute path to the EBOOT.BIN:")
+        eboot_path = requestInput(sc)
+
+        if (checkIfCancel(eboot_path)) return
+
     } else if (input.contains("-")) {
         // User provided an interval
+        eboot_path = OG_PATH + EBOOT_NAME
         for (fileNum in getNumberInterval(input)) {
             val inFolder = String.format("E%d", fileNum)
             pathsToCombine.add(inFolder)
@@ -228,7 +241,7 @@ private fun combineEVS(sc: Scanner) {
         }
 
         println("Combining: $path")
-        archive(OG_PATH, folder.absolutePath, destinationDir, folder.name, isJ)
+        archive(eboot_path, folder.absolutePath, destinationDir, folder.name, isJ)
     }
 }
 
@@ -249,8 +262,7 @@ private fun txtToPO(sc: Scanner) {
         println("Enter the filename (including the extension) or a directory to convert all TXT files to PO in it:")
         val filePath = requestInput(sc).trim()
 
-        val cancel = checkIfCancel(filePath)
-        if (cancel) return
+        if (checkIfCancel(filePath)) return
 
         val file = File(filePath)
 
@@ -283,8 +295,7 @@ private fun poToTXT(sc: Scanner) {
         println("Enter the filename (including the extension) or a directory to convert all PO files to TXT in it:")
         val filePath = requestInput(sc).trim()
 
-        val cancel = checkIfCancel(filePath)
-        if (cancel) return
+        if (checkIfCancel(filePath)) return
 
         val file = File(filePath)
 
@@ -310,8 +321,7 @@ private fun isJpn(sc: Scanner): Int {
         println("Were the files extracted from a japanese version of the game? (y/n):")
         val jpnCheck = requestInput(sc)
 
-        val cancel = checkIfCancel(jpnCheck)
-        if (cancel) return -1
+        if (checkIfCancel(jpnCheck)) return -1
 
         val yesOrNo = yesOrNo(jpnCheck)
 

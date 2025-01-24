@@ -52,7 +52,7 @@ private val labelReferenceLocations = HashMap<String, MutableList<Int>>()
 private val labelReferenceRealVals = HashMap<String, Int>()
 
 @Throws(IOException::class, OperationNotSupportedException::class)
-fun extract(path: String) {
+fun extract(path: String, outPath: String? = null) {
     if (!path.endsWith(EXTENSION_1) && !path.endsWith(EXTENSION_2)) {
         //System.out.println("PATH was: " + path);
         throw OperationNotSupportedException("Only .bin files are supported")
@@ -64,11 +64,12 @@ fun extract(path: String) {
         RandomAccessFile(path, READ_MODE).use { baseFile ->
             addressList = makeList(baseFile, valOrder)
             //val pathArray = path.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+
             val pathArray = path.split("/")
             val baseNameWExt = pathArray[pathArray.size - 1]
             val baseName = nameWoExtension(baseNameWExt)
-            //basePath = path.substring(0, path.length()-baseNameWExt.length()) + baseName;
-            val initialPath = pathArray[0] + "/" + EXTRACTED_DIR_NAME + "/"
+
+            val initialPath = (outPath ?: (pathArray[0] + "/$EXTRACTED_DIR_NAME")) + "/"
 
             // create directory if it doesn't exist
             var dir = File(initialPath)
@@ -158,7 +159,7 @@ fun archive(ebootPath: String, dirPath: String, destinationDir: String, filename
             if (ebootOut.exists()) {
                 updateEbootFileList(ebootOut, ebootOut, eventFileNum, fileList, isJ)
             } else {
-                val ebootIn = File(ebootPath, EBOOT_NAME)
+                val ebootIn = File(ebootPath)
                 updateEbootFileList(ebootIn, ebootOut, eventFileNum, fileList, isJ)
             }
 
@@ -903,7 +904,7 @@ private fun decodeInstruction(inputFile: RandomAccessFile, isPastText: Boolean, 
                 textList.addText(inputFile, address, true)
                 textIdx = textList.indexOfText(address)
             }
-            return "\t$name\t$textIdx\t$COMMENT_SYMBOL idx of text in .text section\n"
+            return "\t$name\t$textIdx\t$COMMENT_SYMBOL line number of text in the respective .TXT file (first line = line 0)\n"
         }
 
         FlowInstruction.unk_cmd_2F,
