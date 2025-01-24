@@ -37,7 +37,7 @@ fun runCmdInterface() {
                 2 -> encodeDEC(sc)
                 3 -> combineEVS(sc)
                 4 -> txtToPO(sc)
-                //5 -> poToDEC(sc)
+                5 -> poToTXT(sc)
                 99, -1 -> {
                     isLeaving = true
                     println("See ya next time!")
@@ -262,6 +262,40 @@ private fun txtToPO(sc: Scanner) {
 }
 
 /**
+ * Method for converting .PO files to .TXT
+ * @param sc the Scanner object to read more user inputs
+ * @throws OperationNotSupportedException custom exception messages here
+ * @throws IOException file related exceptions
+ */
+@Throws(OperationNotSupportedException::class, IOException::class)
+private fun poToTXT(sc: Scanner) {
+    val j = isJpn(sc)
+    if (j < 0) return
+
+    val isJ = j > 0
+
+    while (true) {
+        println("Enter the filename (including the extension) or a directory to convert all PO files to TXT in it:")
+        val filePath = requestInput(sc).trim()
+
+        val cancel = checkIfCancel(filePath)
+        if (cancel) return
+
+        val file = File(filePath)
+
+        if (file.isDirectory) {
+            convertAllPOToTXT(filePath)
+            break
+        } else if (file.isFile && (filePath.endsWith(PO_EXTENSION_1) || filePath.endsWith(PO_EXTENSION_2))) {
+            convertPOToTXT(filePath)
+            break
+        } else {
+            println("Invalid file or directory. Please try again...")
+        }
+    }
+}
+
+/**
  * Auxiliary method for asking the user if the extracted files are from the japanese version of the game
  * @param sc the Scanner object to read more user inputs
  * @return `1` for yes, `0` for no or `-1` for none of the above
@@ -436,6 +470,39 @@ private fun convertAllTXTToPO(path: String, isJ: Boolean) {
         println("There is something wrong with the directory.")
     }
 }
+
+/**
+ * Converts all .PO files in a directory to TXT
+ *
+ * This function scans a directory for all `.PO` files and converts each one to a `.TXT` file
+ * using the `convertPOToTXT` function. The output files are saved in the same directory
+ * with the `.TXT` extension replacing `.PO`.
+ *
+ * @param path the directory path containing `.PO` files
+ * @throws OperationNotSupportedException if the directory is empty or no `.PO` files are found
+ * @throws IOException for file-related exceptions
+ */
+@Throws(OperationNotSupportedException::class, IOException::class)
+private fun convertAllPOToTXT(path: String) {
+    val dir = File(path)
+    val directoryListing = dir.listFiles()
+
+    if (directoryListing != null) {
+        val poFiles = directoryListing.filter { getExtension(it.path)?.equals("po", ignoreCase = true) == true }
+
+        if (poFiles.isEmpty()) {
+            throw OperationNotSupportedException("No .PO files found in the directory.")
+        }
+
+        for (poFile in poFiles) {
+            System.out.printf("Converting %s...\n", poFile.name)
+            convertPOToTXT(poFile.path)
+        }
+    } else {
+        throw IOException("Failed to access the directory or it does not exist.")
+    }
+}
+
 
 private fun getNumberInterval(input: String): LinkedList<Int> {
     val fileNums = LinkedList<Int>()

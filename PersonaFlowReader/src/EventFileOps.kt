@@ -23,6 +23,8 @@ const val DEC_SCRIPT_EXTENSION_1 = ".DEC"
 const val DEC_SCRIPT_EXTENSION_2 = ".dec"
 const val TXT_EXTENSION_1 = ".TXT"
 const val TXT_EXTENSION_2 = ".txt"
+const val PO_EXTENSION_1 = ".PO"
+const val PO_EXTENSION_2 = ".po"
 
 const val EXTRACTED_DIR_NAME = "extracted"
 const val OUTPUT_DIR_NAME = "output"
@@ -1685,9 +1687,54 @@ fun convertTXTToPO(path: String, j: Boolean) {
         }
     }
 
-    val outputFilePath = path.replaceAfterLast(".", "PO") // Cambiar la extensión a .po
+    val outputFilePath = path.replaceAfterLast(".", "PO")
     File(outputFilePath).writeText(poBuilder.toString())
     println("PO file generated in: $outputFilePath")
+}
+
+/**
+ * Converts a PO file with character dialogue and system messages into a TXT format.
+ *
+ * The function processes the input PO file, extracting `msgctxt` (character name) and `msgid`
+ * (dialogue text), and formats them back into the original TXT format. It also reverses specific
+ * tag conversions:
+ * - Replaces `\\n` with `(*LINE_BREAK*)`.
+ * - Converts `(*INPUT*)` to `(*AWAITING_INPUT*)`.
+ * - Converts `(*CLEAR*)` to `(*CONTINUE*)`.
+ *
+ * @param path the path to the input PO file.
+ * @throws IOException if an error occurs while reading or writing the file.
+ */
+fun convertPOToTXT(path: String) {
+    val inputLines = File(path).readLines()
+
+    val txtBuilder = StringBuilder()
+    var characterName: String? = null
+
+    inputLines.forEach { line ->
+        when {
+            line.startsWith("msgctxt") -> {
+                characterName = line.removePrefix("msgctxt").trim().removeSurrounding("\"")
+            }
+            line.startsWith("msgid") -> {
+                val text = line.removePrefix("msgid").trim().removeSurrounding("\"")
+                    .replace("\\n", "(*LINE_BREAK*)")
+                    .replace("(*INPUT*)", "(*AWAITING_INPUT*)")
+                    .replace("(*CLEAR*)", "(*CONTINUE*)")
+                if (!text.isBlank()) {
+                    if (characterName != null) {
+                        txtBuilder.append("(*CHARACTER_NAME*)$characterName(*LINE_BREAK*)$text\n")
+                    } else {
+                        txtBuilder.append("$text\n")
+                    }
+                }
+            }
+        }
+    }
+
+    val outputFilePath = path.replaceAfterLast(".", "TXT")
+    File(outputFilePath).writeText(txtBuilder.toString().trim())
+    println("TXT file generated in: $outputFilePath")
 }
 
 /**
