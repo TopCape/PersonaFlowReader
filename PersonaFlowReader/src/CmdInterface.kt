@@ -10,7 +10,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 private val OG_PATH: String = BASE_DIR + "OG/"
-private val EXTRACTED_PATH: String = (BASE_DIR + EXTRACTED_DIR_NAME).toString() + "/"
+private val EXTRACTED_PATH: String = (BASE_DIR + EXTRACTED_DIR_NAME) + "/"
 private const val CANCEL_STRING = "(Enter \"-1\" at any time to cancel the current operation and go back by one \"screen\")"
 
 /**
@@ -225,9 +225,17 @@ private fun combineEVS(sc: Scanner) {
         // User provided an interval
         eboot_path = OG_PATH + EBOOT_NAME
         for (fileNum in getNumberInterval(input)) {
-            val inFolder = String.format("E%d", fileNum)
+            val fileName = String.format("E%d", fileNum)
+            val inFolder = "$EXTRACTED_PATH$fileName"
             pathsToCombine.add(inFolder)
         }
+
+    } else if (input.toIntOrNull() != null) {
+        eboot_path = OG_PATH + EBOOT_NAME
+        val fileNum = input.toInt()
+        val fileName = String.format("E%d", fileNum)
+        val inFolder = "$EXTRACTED_PATH$fileName"
+        pathsToCombine.add(inFolder)
     } else {
         println("Invalid input. Please specify an interval or a list of absolute paths.")
         return
