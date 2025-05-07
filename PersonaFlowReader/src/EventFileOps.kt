@@ -602,7 +602,7 @@ fun encodeFlowScript(inputPath: String?, isJ: Boolean) {
 
                                 // splitting spaces and tabs
                                 //val textSplit: Array<String> = line.split(SPACE_TAB_REGEX.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                                val textSplit: Array<String> = line.split(SPACE_TAB_REGEX).toTypedArray()
+                                val textSplit: Array<String> = line.split(SPACE_TAB_REGEX.toRegex()).toTypedArray()
 
                                 // skip spaces and tabs at beginning
                                 val textEntryIdx = skipSpacesNTabs(textSplit, 0)
@@ -658,7 +658,7 @@ fun encodeFlowScript(inputPath: String?, isJ: Boolean) {
                 }
             } catch (e: java.lang.Exception) {
                 //System.out.println(e.getMessage());
-                throw e
+                //throw e
             }
         }
     } catch (e: java.lang.Exception) {
@@ -699,7 +699,7 @@ private fun fillFileBeginning(path: String, inputFile: RandomAccessFile, outputF
             if (startAddr == -1) {
                 addrLine = removeCommentAndSpaces(addrLine)
                 //val addrSplit: Array<String> = addrLine.split(SPACE_TAB_REGEX.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                val addrSplit: Array<String> = addrLine.split(SPACE_TAB_REGEX).toTypedArray()
+                val addrSplit: Array<String> = addrLine.split(SPACE_TAB_REGEX.toRegex()).toTypedArray()
                 if (addrSplit[0].compareTo(ADDR_KEYWORD) != 0) {
                     throw OperationNotSupportedException("addr not there?")
                 }
