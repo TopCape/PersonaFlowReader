@@ -12,11 +12,16 @@ Most of the file is still unknown (to me), so it is copied from the base file an
 
 ## Requirements
 
-This program assumes you have an extracted version of Persona 1 for the PSP.
+This program assumes you have an extracted version of Persona 1 for the PSP OR an extracted version of Persona 1 with the Persona PSX Music Restoration mod.
+
+### Original Persona 1 for PSP
 In addition to these files, you should apply a patch to your EBOOT depending on the version of the game:
 - **US**: https://gamebanana.com/mods/383097
 - **JP**: https://gamebanana.com/mods/382682
 - **PAL**: https://gamebanana.com/mods/399278
+
+### PSX Music Restoration Mod
+If you have this version of the game, you already have a valid EBOOT.
 
 ## How to use
 
