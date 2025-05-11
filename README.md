@@ -1,6 +1,6 @@
 # Persona Flow Reader
 
-This tool allows the "decompilation" and "compilation" of Persona 1 event files. This doesn't actually do the whole file, but only the section that are strictly related to the flow script inside the files. This includes:
+This tool allows the "decoding" and "encoding" of Persona 1 event files. This doesn't actually do the whole file, but only the section that are strictly related to the flow script inside the files. This includes:
 * A list of characters in the event with the pointers to the flow script which are triggered by talking to them
 * A list of positions in the scene that trigger flow script code with pointers to them
    * Some of these are triggered by just standing in the saved coordinates
@@ -10,6 +10,13 @@ This tool allows the "decompilation" and "compilation" of Persona 1 event files.
 
 Most of the file is still unknown (to me), so it is copied from the base file and edited to fit new code that a user may have written.
 
+## Requirements
+
+This program assumes you have an extracted version of Persona 1 for the PSP.
+In addition to these files, you should apply a patch to your EBOOT depending on the version of the game:
+- **US**: https://gamebanana.com/mods/383097
+- **JP**: https://gamebanana.com/mods/382682
+- **PAL**: https://gamebanana.com/mods/399278
 
 ## How to use
 
